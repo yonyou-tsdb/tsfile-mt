@@ -1,9 +1,10 @@
 
 # tool-offline for IoTDB
-
-# Table of Contents
+[![Main Mac and Linux](https://github.com/apache/iotdb/actions/workflows/main-unix.yml/badge.svg)](https://github.com/apache/iotdb/actions/workflows/main-unix.yml)
+[![Main Win](https://github.com/apache/iotdb/actions/workflows/main-win.yml/badge.svg)](https://github.com/apache/iotdb/actions/workflows/main-win.yml)
+# Outline
 - [Introduction](#Introduction)
-- [Quick Start](#Quick Start)
+- [Quick Start](#quick-start)
     - [Prerequisites](#Prerequisites)
     - [Compile](#Compile)
 - [Maintainers](#Maintainers)
@@ -14,9 +15,13 @@ Tool-offline-for-IoTDB is a TsFile management tool. Currently, we support bit gr
 visual display. This tool can Clearly display information of each part of TsFile, details are as follows:
 1. The versionNumber.
 2. The data layer: contains details of each level and statistic information.
+   
    i. ChunkGroup
+   
    ii. Chunk
+   
    iii. Page
+   
    iv. Point
 3. The index layer: displayed in a B+ tree like structure then you can easily view the overall structure of the secondary 
 index(entity and measurement granularity).
@@ -39,6 +44,7 @@ Under the root path of tsfile-mt:
 > mvn clean install
 ```
 # Maintainers
+[@lpf4254302](https://github.com/RichardLitt)
 # Contributing
 Feel free to dive in! Open an issue or submit PRs.
 # Contributors
