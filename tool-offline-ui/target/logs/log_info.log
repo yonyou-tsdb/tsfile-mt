@@ -1,0 +1,6 @@
+INFO  [2022-06-21 17:23:59,863] org.apache.iotdb.tool.ui.scene.ScenesManager:101 - TsFile Choose, the page: org.apache.iotdb.tool.ui.scene.TsFileChooserPage@710c25e3 
+INFO  [2022-06-21 17:24:05,768] org.apache.iotdb.tool.core.service.TsFileAnalyserV13:242 - Starting read a new ChunkGroupHeader, lastDeviceId:null 
+INFO  [2022-06-21 17:24:06,475] org.apache.iotdb.tool.core.service.TsFileAnalyserV13:300 - Read the tail of the data section, the lastDeviceId:root.ln.test.tag 
+INFO  [2022-06-21 17:24:06,478] org.apache.iotdb.tool.core.service.TsFileAnalyserV13$TsFileAnalysedToolReader:754 - Start reading TsFileMetadata, preparing to deserialized index. 
+INFO  [2022-06-21 17:24:06,501] org.apache.iotdb.tool.ui.scene.ScenesManager$2:143 - TsFile Load completed. 
+INFO  [2022-06-21 17:24:06,503] org.apache.iotdb.tool.core.service.TsFileAnalyserV13:97 - init completed! 
