@@ -1,9 +1,0 @@
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\model\ChunkGroupMetadataModel.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\test\TsFileAnalyserV13Test.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\util\OffLineTsFileUtil.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\service\TsFileReader.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\model\TimeSeriesMetadataNode.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\service\TsFileAnalyserV13.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\model\ChunkModel.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\test\TsFilePageBatchDataTest.java
-D:\tsfile-mt\tsfile-mt-core\src\main\java\org\apache\iotdb\tool\core\model\PageInfo.java
