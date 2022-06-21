@@ -14,10 +14,10 @@ Tool-offline-for-IoTDB is a TsFile management tool. Currently, we support bit gr
 visual display. This tool can Clearly display information of each part of TsFile, details are as follows:
 1. The versionNumber.
 2. The data layer: contains details of each level and statistic information.
-    i. ChunkGroup
-    ii. Chunk
-    iii. Page
-    iv. Point
+   i. ChunkGroup
+   ii. Chunk
+   iii. Page
+   iv. Point
 3. The index layer: displayed in a B+ tree like structure then you can easily view the overall structure of the secondary 
 index(entity and measurement granularity).
 
@@ -32,11 +32,11 @@ To use Tool-offline-for-IoTDB, you need to have:
 ## Compile
 You can download the source code from:
 ```
-git clone https://github.com/xxx/xxx.git
+git clone https://github.com/lpf4254302/tsfile-mt.git
 ```
-Under the root path of xxx:
+Under the root path of tsfile-mt:
 ```
-> mvn clean package
+> mvn clean install
 ```
 # Maintainers
 # Contributing
