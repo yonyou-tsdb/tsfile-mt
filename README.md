@@ -45,7 +45,7 @@ Under the root path of tsfile-mt:
 > mvn clean install
 ```
 # Maintainers
-[@lpf4254302](https://github.com/RichardLitt](https://github.com/lpf4254302).
+[@lpf4254302](https://github.com/RichardLitt).
 # Contributing
 Feel free to dive in! Open an issue or submit PRs.
 # Contributors
