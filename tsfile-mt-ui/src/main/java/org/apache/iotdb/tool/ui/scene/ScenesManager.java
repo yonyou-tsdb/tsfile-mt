@@ -3,6 +3,7 @@ package org.apache.iotdb.tool.ui.scene;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 import javafx.stage.WindowEvent;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 
@@ -78,9 +79,10 @@ public class ScenesManager {
   }
 
   public void showBaseStage() {
-    ioTDBParsePage.init();
+    ioTDBParsePage.init(baseStage);
     baseStage.setScene(ioTDBParsePage.getScene());
     baseStage.setTitle(ioTDBParsePage.getName());
+    baseStage.getIcons().add(new Image("/icons/yonyou-logo.png"));
     baseStage.centerOnScreen();
     baseStage.show();
   }

@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class TsFileChooserPage extends Page<GridPane> {
 
     filePath.setEditable(false);
     fileChooser.setSelectedExtensionFilter(
-        new FileChooser.ExtensionFilter("tsfiles (*.tsfile)", "*.tsfile"));
+            new FileChooser.ExtensionFilter("tsfiles (*.tsfile)", "*.tsfile"));
     this.root.add(filePath, 0, 1);
     Button button = new Button("Select File");
       button.setOnAction(

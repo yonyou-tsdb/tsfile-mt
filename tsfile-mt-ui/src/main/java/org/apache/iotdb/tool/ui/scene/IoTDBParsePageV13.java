@@ -6,15 +6,18 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.ui.node.IndexNode;
+import org.apache.iotdb.tool.ui.view.IconView;
 import org.apache.iotdb.tsfile.file.header.ChunkHeader;
 import org.apache.iotdb.tsfile.file.metadata.ChunkMetadata;
 import org.apache.iotdb.tsfile.read.common.BatchData;
@@ -27,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URL;
 import java.time.ZoneId;
 import java.util.*;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -103,7 +107,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   }
 
   // public
-  public void init() {
+  public void init(Stage baseStage) {
     // 等待文件异步加载完成
     while (true) {
       if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
@@ -116,6 +120,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
       }
     }
 
+    /**
     // cross line
     Line queryRegionLine = new Line(0, HEIGHT * 0.1, WIDTH, HEIGHT * 0.1);
     Line chunkGroupRegionLine = new Line(0, HEIGHT * 0.4, WIDTH, HEIGHT * 0.4);
@@ -123,7 +128,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     children.add(queryRegionLine);
     //        children.add(binaryRegionLine);
     children.add(chunkGroupRegionLine);
+    */
 
+    /**
     // query region
     GridPane pan = new GridPane();
     pan.setLayoutX(0);
@@ -186,7 +193,32 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             ex.printStackTrace();
           }
         });
+  */
 
+    // menu region
+    MenuBar menuBar = new MenuBar();
+    menuBar.prefWidthProperty().bind(baseStage.widthProperty());
+    this.root.getChildren().add(menuBar);
+    menuBar.setLayoutX(0);
+    menuBar.setLayoutY(0);
+    menuBar.setPrefHeight(HEIGHT * 0.03);
+    Menu fileMenu = new Menu("File");
+    MenuItem loadFileMenuItem = new MenuItem("Load");
+    fileMenu.getItems().addAll(loadFileMenuItem);
+    Menu searchMenu = new Menu("Search");
+    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + F)");
+    searchMenu.getItems().addAll(searchMenuItem);
+    Menu encodeMenu = new Menu("Encode");
+    CheckMenuItem simulateMenuItem = new CheckMenuItem("Encode Simulation");
+    encodeMenu.getItems().addAll(simulateMenuItem);
+    Menu configMenu = new Menu("Config");
+    Menu helpManeu = new Menu("Help");
+    helpManeu.getItems().addAll(
+            new CheckMenuItem("Documentation"),
+            new CheckMenuItem("Contact"));
+    menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
+
+    /**
     // chunk data table view init
     tableViewInit(
         pageTableView,
@@ -239,13 +271,17 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             3,
             (long) (this.tsFileAnalyserV13.getFileSize() / 1024),
             this.tsFileAnalyserV13.getAllCount()));
+    */
+
     // chunk group init
     rootItem = new TreeItem(new ChunkTreeItemValue("Chunk Group", TREE_ITEM_TYPE_ROOT, null));
+    Node chunkGroupIcon = new IconView("/icons/binary.png");
+    rootItem.setGraphic(chunkGroupIcon);
     tree = new TreeView(rootItem);
     tree.setLayoutX(0);
-    tree.setLayoutY(HEIGHT * 0.1);
-    tree.setPrefWidth(WIDTH * 0.4);
-    tree.setPrefHeight(HEIGHT * 0.3);
+    tree.setLayoutY(HEIGHT * 0.04);
+    tree.setPrefWidth(WIDTH * 0.3);
+    tree.setPrefHeight(HEIGHT * 0.93);
     // tree listener
     tree.getSelectionModel()
         .selectedItemProperty()
@@ -269,22 +305,42 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 this.pageTableView.setVisible(false);
               }
             });
-    // chun group data set
+    // chunk group data set
     chunkGroupTreeDataInit();
     super.root.getChildren().add(tree);
+
+    // Search field
+    TextField search = new TextField();
+    search.setPromptText("Search...");
+    search.getStyleClass().add("search-field");
+    search.setOnKeyReleased(e -> {
+      // Clear search
+      if(e.getCode() == KeyCode.ESCAPE)
+        search.setText("");
+        // Navigation keys refocus the tree
+      else if (e.getCode() == KeyCode.UP ||
+              e.getCode() == KeyCode.DOWN) {
+        tree.requestFocus();
+      }
+    });
+    search.setLayoutX(0);
+    search.setLayoutY(HEIGHT * 0.968);
+    search.setPrefWidth(WIDTH * 0.3);
+    this.root.getChildren().add(search);
 
     // index
     //        indexRegion = new ScrollRegion(super.root, WIDTH * 1, HEIGHT * 0.6, 0, HEIGHT * 0.4);
     ScrollPane indexRegion = new ScrollPane();
     indexGroup = new Group();
     indexRegion.setContent(indexGroup);
-    indexRegion.setLayoutX(0);
-    indexRegion.setLayoutY(HEIGHT * 0.4);
+    indexRegion.setLayoutX(WIDTH * 0.3);
+    indexRegion.setLayoutY(HEIGHT * 0.04);
     indexRegion.setPrefWidth(WIDTH);
-    indexRegion.setPrefHeight(HEIGHT * 0.6);
+    indexRegion.setPrefHeight(HEIGHT * 0.96);
     root.getChildren().add(indexRegion);
     indexDataInit();
 
+    /**
     // search hidden button
     Button searchHiddenButton = new Button("searchHiddenButton");
     searchHiddenButton.setVisible(false);
@@ -302,6 +358,12 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
       secondStage.show();
     });
+    */
+
+    URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
+    if (uiDarkCssResource != null) {
+      this.getScene().getStylesheets().add(uiDarkCssResource.toExternalForm());
+    }
   }
 
   public TsFileAnalyserV13 getTsFileAnalyserV13() {
@@ -399,6 +461,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             ChunkTreeItemValue pageValue =
                 new ChunkTreeItemValue("page " + i, TREE_ITEM_TYPE_CHUNK_PAGE, pageInfoList.get(i - 1));
             TreeItem<ChunkTreeItemValue> pageItem = new TreeItem<>(pageValue);
+            Node pageIcon = new IconView("/icons/text.png");
+            pageItem.setGraphic(pageIcon);
             chunkChild.add(pageItem);
           }
         }
@@ -477,6 +541,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                   TREE_ITEM_TYPE_CHUNK_GROUP,
                   chunkGroupMetadataMode);
           TreeItem<ChunkTreeItemValue> chunkGroupMetaItem = new TreeItem<>(chunkGroupMetaItemValue);
+          Node entityIcon = new IconView("icons/stack.png");
+          chunkGroupMetaItem.setGraphic(entityIcon);
           rootItem.getChildren().add(chunkGroupMetaItem);
           timeseriesList.add(chunkGroupMetaItemValue.getName());
           indexMap.put(chunkGroupMetadataMode.getDevice(), chunkGroupMetaItem);
@@ -494,6 +560,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                       TREE_ITEM_TYPE_CHUNK,
                       new ChunkWrap(chunkMetadata, chunkHeader));
               TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
+              Node measurementIcon = new IconView("icons/text-code.png");
+              chunkMetaItem.setGraphic(measurementIcon);
               chunkGroupMetaItem.getChildren().add(chunkMetaItem);
               timeseriesList.add(chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
               indexMap.put(

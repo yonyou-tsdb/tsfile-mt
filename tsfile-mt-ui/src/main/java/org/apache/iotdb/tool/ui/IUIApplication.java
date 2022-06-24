@@ -20,7 +20,7 @@ public class IUIApplication extends Application {
     ScenesManager manager = ScenesManager.getInstance();
     // put base stage into scene manager
     manager.setBaseStage(primaryStage);
-    primaryStage.setResizable(false);
+//    primaryStage.setResizable(false);
     // application start
     manager.converToPage(primaryStage, ScenesManager.SceneType.HOME);
   }
