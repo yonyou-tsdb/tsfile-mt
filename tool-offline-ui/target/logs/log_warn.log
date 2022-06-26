@@ -97,3 +97,4 @@ WARN  [2022-06-23 14:39:34,325] org.apache.iotdb.tsfile.common.conf.TSFileDescri
 WARN  [2022-06-23 14:54:49,616] org.apache.iotdb.tsfile.common.conf.TSFileDescriptor:126 - not found iotdb-engine.properties, use the default configs. 
 WARN  [2022-06-23 15:08:36,702] org.apache.iotdb.tsfile.common.conf.TSFileDescriptor:126 - not found iotdb-engine.properties, use the default configs. 
 WARN  [2022-06-23 16:48:23,986] org.apache.iotdb.tsfile.common.conf.TSFileDescriptor:126 - not found iotdb-engine.properties, use the default configs. 
+WARN  [2022-06-24 09:47:40,405] org.apache.iotdb.tsfile.common.conf.TSFileDescriptor:126 - not found iotdb-engine.properties, use the default configs. 

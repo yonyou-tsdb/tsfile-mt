@@ -37,7 +37,9 @@ public class ScenesManager {
 
   private Map<SceneType, Page> pages = new HashMap<>(8);
 
-  private ScenesManager() {}
+  private ScenesManager() {
+    ioTDBParsePage = new IoTDBParsePageV13();
+  }
 
   public IoTDBParsePageV13 getIoTDBParsePage() {
     return ioTDBParsePage;
@@ -70,7 +72,7 @@ public class ScenesManager {
     if (!fileCheck(filePath)) {
       return;
     }
-    ioTDBParsePage = new IoTDBParsePageV13(filePath);
+//    ioTDBParsePage = new IoTDBParsePageV13(filePath);
 
     Task progressTask = progressWorker(ioTDBParsePage, progressBar);
     progressBar.progressProperty().unbind();
@@ -79,6 +81,7 @@ public class ScenesManager {
   }
 
   public void showBaseStage() {
+
     ioTDBParsePage.init(baseStage);
     baseStage.setScene(ioTDBParsePage.getScene());
     baseStage.setTitle(ioTDBParsePage.getName());

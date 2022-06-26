@@ -1,5 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import com.sun.javafx.scene.control.skin.LabeledText;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -29,6 +31,7 @@ import com.browniebytes.javafx.control.DateTimePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.ZoneId;
@@ -61,7 +64,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private static final String TREE_ITEM_TYPE_CHUNK_GROUP = "cg";
   private static final String TREE_ITEM_TYPE_CHUNK = "c";
   private static final String TREE_ITEM_TYPE_CHUNK_PAGE = "cp";
-  private static final String TREE_ITEM_TYPE_ROOT = "r";
+  private static final String TREE_ITEM_TYPE_FOLDER = "folder";
+  private static final String TREE_ITEM_TYPE_TSFILE = "tsfile";
+  private static final String TREE_ITEM_TYPE_CHUNK_GROUP_ROOT = "cgr";
 
   /** version 13 interface */
   private TsFileAnalyserV13 tsFileAnalyserV13;
@@ -73,7 +78,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   /** Chunk Group Tree */
   private TreeItem rootItem;
 
-  private TreeView<ChunkTreeItemValue> tree;
+  private TreeView<ChunkTreeItemValue> treeView;
 
   /** table datas */
   private TableView tvTableView = new TableView();
@@ -93,32 +98,42 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   /** timeseriesSearch stage */
   private TimeseriesSearchPage timeseriesSearchPage;
 
-  public IoTDBParsePageV13(String filePath) {
+  private TsFileLoadPage tsFileLoadPage;
+
+  private File selectedfolder;
+
+  private TsFileChooserPage tsFileChooserPage;
+
+  private boolean hasTsFileLoaded;
+
+  public IoTDBParsePageV13() {
     super(new Group(), WIDTH, HEIGHT);
-    // 异步
-    try {
-      // tsfile parse
-      this.tsFileAnalyserV13 = new TsFileAnalyserV13(filePath);
-    } catch (IOException e) {
-      logger.error("Failed to get TsFileAnalysedV13 instance.");
-      e.printStackTrace();
-      return;
-    }
+    // TODO
+    tsFileChooserPage = new TsFileChooserPage();
+//    // 异步
+//    try {
+//      // tsfile parse
+//      this.tsFileAnalyserV13 = new TsFileAnalyserV13(filePath);
+//    } catch (IOException e) {
+//      logger.error("Failed to get TsFileAnalysedV13 instance.");
+//      e.printStackTrace();
+//      return;
+//    }
   }
 
   // public
   public void init(Stage baseStage) {
-    // 等待文件异步加载完成
-    while (true) {
-      if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
-        break;
-      }
-      try {
-        Thread.sleep(200);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
+//    // 等待文件异步加载完成
+//    while (true) {
+//      if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
+//        break;
+//      }
+//      try {
+//        Thread.sleep(200);
+//      } catch (InterruptedException e) {
+//        e.printStackTrace();
+//      }
+//    }
 
     /**
     // cross line
@@ -194,6 +209,80 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           }
         });
   */
+    // TreeView Region
+//    TreeView<String> treeView = new TreeView<String>();
+    treeView = new TreeView<ChunkTreeItemValue>();
+    treeView.setLayoutX(0);
+    treeView.setLayoutY(HEIGHT * 0.04);
+    treeView.setPrefWidth(WIDTH * 0.3);
+    treeView.setPrefHeight(HEIGHT * 0.93);
+    this.root.getChildren().add(treeView);
+
+    // confirm where to load tsfile
+    treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+      @Override
+      public void handle(MouseEvent event) {
+        if (event.getTarget() instanceof LabeledText && event.getClickCount() == 2) {
+          // create new stage
+          TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
+          if (currItem != null) {
+            String type = currItem.getValue().getType();
+            if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
+              System.out.println(currItem.getValue().getName());
+              Stage secondStage = new Stage();
+              tsFileLoadPage = new TsFileLoadPage(secondStage, currItem.getValue().getName());
+              secondStage.show();
+            }
+          }
+        }
+      }
+    });
+
+
+    // tree listener
+    treeView.getSelectionModel()
+            .selectedItemProperty()
+            .addListener(
+                    (observable, oldValue, newValue) -> {
+                      TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
+                      String type = treeItem.getValue().getType();
+                      if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
+                        // TODO 1. 是否已有 tsfile 打开
+//                        if (hasTsFileLoaded) {
+//
+//                        }
+                        // 打开当前文件 load file, 弹窗：是否需要打开文件
+                        // 为按钮添加事件——触发快捷键时打开新的窗口
+//                        searchHiddenButton.setOnAction(event ->  {
+//                          // 创建新的stage
+//                          Stage secondStage = new Stage();
+//                          timeseriesSearchPage = new TimeseriesSearchPage(secondStage, this);
+//
+//                          secondStage.show();
+//                        });
+
+
+                      } else if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
+                        showItemChunk(treeItem);
+                      } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
+                        showPageDetail(treeItem);
+                      } else if (TREE_ITEM_TYPE_CHUNK_GROUP_ROOT.equals(type)) {
+                        this.fileTableView.setVisible(true);
+                        this.chunkTableView.setVisible(false);
+                        this.tvTableView.setVisible(false);
+                        this.pageTableView.setVisible(false);
+                      } else {
+                        this.fileTableView.setVisible(false);
+                        this.chunkTableView.setVisible(false);
+                        this.tvTableView.setVisible(false);
+                        this.pageTableView.setVisible(false);
+                      }
+                    });
+    // chunk group data set
+//    chunkGroupTreeDataInit();
+//    super.root.getChildren().add(treeView);
+
+
 
     // menu region
     MenuBar menuBar = new MenuBar();
@@ -202,9 +291,38 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     menuBar.setLayoutX(0);
     menuBar.setLayoutY(0);
     menuBar.setPrefHeight(HEIGHT * 0.03);
+    // load file
     Menu fileMenu = new Menu("File");
     MenuItem loadFileMenuItem = new MenuItem("Load");
     fileMenu.getItems().addAll(loadFileMenuItem);
+    loadFileMenuItem.setOnAction(event -> {
+      selectedfolder = tsFileChooserPage.loadFolder(baseStage);
+      if (selectedfolder != null) {
+        // TreeView
+//        rootItem = new TreeItem(new ChunkTreeItemValue("Chunk Group", TREE_ITEM_TYPE_ROOT, null));
+        TreeItem<ChunkTreeItemValue> treeRoot = new TreeItem<>(new ChunkTreeItemValue(selectedfolder.getName(), TREE_ITEM_TYPE_FOLDER, null));
+//        TreeItem<String> treeRoot = new TreeItem<>(selectedfolder.getName());
+        Node folderIcon = new IconView("/icons/folder-package.png");
+        treeRoot.setGraphic(folderIcon);
+
+        File[] files = selectedfolder.listFiles();
+        for (File f : files) {
+          TreeItem<ChunkTreeItemValue> fileItem = new TreeItem<>(new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, null));
+          treeRoot.getChildren().add(fileItem);
+          Node tsfileIcon = new IconView("/icons/folder-source.png");
+          fileItem.setGraphic(tsfileIcon);
+          // TODO 每个 fileItem 增加双击打开监听事件
+          // 只允许打开一个 tsfile （先清除之前的缓存，后加载 tsfile 文件）
+          // 双击事件会弹窗询问用户是否加载此 tsfile (双击要禁用 TreeItem 的默认展开/折叠)
+          // 对于一个已经打开的 tsfile，如果用户再次双击，会提示文件已加载（或者不做任何操作）
+
+        }
+        treeView.setRoot(treeRoot);
+        treeRoot.setExpanded(true);
+      }
+    });
+
+
     Menu searchMenu = new Menu("Search");
     CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + F)");
     searchMenu.getItems().addAll(searchMenuItem);
@@ -217,6 +335,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             new CheckMenuItem("Documentation"),
             new CheckMenuItem("Contact"));
     menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
+
+
+
 
     /**
     // chunk data table view init
@@ -273,6 +394,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             this.tsFileAnalyserV13.getAllCount()));
     */
 
+    /**
     // chunk group init
     rootItem = new TreeItem(new ChunkTreeItemValue("Chunk Group", TREE_ITEM_TYPE_ROOT, null));
     Node chunkGroupIcon = new IconView("/icons/binary.png");
@@ -308,6 +430,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     // chunk group data set
     chunkGroupTreeDataInit();
     super.root.getChildren().add(tree);
+    */
 
     // Search field
     TextField search = new TextField();
@@ -320,7 +443,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         // Navigation keys refocus the tree
       else if (e.getCode() == KeyCode.UP ||
               e.getCode() == KeyCode.DOWN) {
-        tree.requestFocus();
+        treeView.requestFocus();
       }
     });
     search.setLayoutX(0);
@@ -338,7 +461,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     indexRegion.setPrefWidth(WIDTH);
     indexRegion.setPrefHeight(HEIGHT * 0.96);
     root.getChildren().add(indexRegion);
-    indexDataInit();
+//    indexDataInit();
 
     /**
     // search hidden button
@@ -382,7 +505,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
 
     // select root
-    this.tree.getSelectionModel().select(0);
+    this.treeView.getSelectionModel().select(0);
     // show datas
     this.tvDatas.clear();
     this.pageDatas.clear();
@@ -408,9 +531,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   public void chooseTree(String path) {
     TreeItem<ChunkTreeItemValue> chunkTreeItemValueTreeItem = this.indexMap.get(path);
     if (chunkTreeItemValueTreeItem != null) {
-      tree.getSelectionModel().select(chunkTreeItemValueTreeItem);
-      int index = tree.getSelectionModel().selectedIndexProperty().get();
-      tree.scrollTo(index);
+      treeView.getSelectionModel().select(chunkTreeItemValueTreeItem);
+      int index = treeView.getSelectionModel().selectedIndexProperty().get();
+      treeView.scrollTo(index);
     }
   }
 
