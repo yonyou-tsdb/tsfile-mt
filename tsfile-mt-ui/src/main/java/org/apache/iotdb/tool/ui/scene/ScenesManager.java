@@ -68,20 +68,14 @@ public class ScenesManager {
     }
   }
 
-  public void loadTsFile(String filePath, ProgressBar progressBar) {
-    if (!fileCheck(filePath)) {
-      return;
-    }
-//    ioTDBParsePage = new IoTDBParsePageV13(filePath);
-
-    Task progressTask = progressWorker(ioTDBParsePage, progressBar);
+  public void loadTsFile(ProgressBar progressBar) {
+    Task progressTask = progressWorker(ioTDBParsePage);
     progressBar.progressProperty().unbind();
     progressBar.progressProperty().bind(progressTask.progressProperty());
     new Thread(progressTask).start();
   }
 
   public void showBaseStage() {
-
     ioTDBParsePage.init(baseStage);
     baseStage.setScene(ioTDBParsePage.getScene());
     baseStage.setTitle(ioTDBParsePage.getName());
@@ -100,11 +94,11 @@ public class ScenesManager {
       case HOME:
         page = pages.computeIfAbsent(SceneType.HOME, (key) -> new HomePage());
         break;
-      case TSFILE_CHOOSE:
-        page =
-            pages.computeIfAbsent(SceneType.TSFILE_CHOOSE, (key) -> new TsFileChooserPage(stage));
-        logger.info("TsFile Choose, the page: {}", page);
-        break;
+//      case TSFILE_CHOOSE:
+//        page =
+//            pages.computeIfAbsent(SceneType.TSFILE_CHOOSE, (key) -> new TsFileChooserPage(stage));
+//        logger.info("TsFile Choose, the page: {}", page);
+//        break;
       default:
         logger.info("Unexpect sceneType, the sceneType: {}", sceneType);
         return;
@@ -137,7 +131,7 @@ public class ScenesManager {
     return true;
   }
 
-  public Task progressWorker(IoTDBParsePageV13 ioTDBParsePage, ProgressBar progressBar) {
+  public Task progressWorker(IoTDBParsePageV13 ioTDBParsePage) {
     return new Task() {
       @Override
       protected Object call() throws Exception {
@@ -146,8 +140,8 @@ public class ScenesManager {
         }
         updateProgress(1, 1);
         logger.info("TsFile Load completed.");
-        TsFileChooserPage.isFileLoaded = true;
-        Platform.runLater(()->showBaseStage());
+        System.out.println("TsFile Load completed.");
+        Platform.runLater(() -> ioTDBParsePage.chunkGroupTreeDataInit());
         return true;
       }
     };

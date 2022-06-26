@@ -122,3 +122,8 @@ java.nio.file.AccessDeniedException: C:\tsfileData
 	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
 	at com.sun.glass.ui.win.WinApplication.lambda$null$4(WinApplication.java:185)
 	at java.lang.Thread.run(Thread.java:750)
+ERROR [2022-06-26 22:40:20,450] org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13:566 - Failed to get pageInfo list of the chunk, the chunk dataType:FLOAT 
+ERROR [2022-06-26 22:40:21,156] org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13:566 - Failed to get pageInfo list of the chunk, the chunk dataType:FLOAT 
+ERROR [2022-06-26 22:40:21,830] org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13:566 - Failed to get pageInfo list of the chunk, the chunk dataType:INT32 
+ERROR [2022-06-26 22:40:22,203] org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13:566 - Failed to get pageInfo list of the chunk, the chunk dataType:FLOAT 
+ERROR [2022-06-26 22:40:23,637] org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13:566 - Failed to get pageInfo list of the chunk, the chunk dataType:FLOAT 

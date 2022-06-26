@@ -320,6 +320,10 @@ hyperlink:visited {
 	-fx-border-insets: 0 0 -1 -1;
 	-fx-border-color: black;
 }
+.progress-bar-field {
+	/*-fx-background-color: blue;*/
+	-fx-accent: #4682B4;
+}
 .resource-selector {
 	-fx-prompt-text-fill: rgb(134, 134, 135);
 	-fx-background-color: rgb(39, 39, 41);

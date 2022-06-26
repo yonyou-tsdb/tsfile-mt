@@ -75,8 +75,11 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   //    private ScrollRegion indexRegion;
   private Group indexGroup;
 
-  /** Chunk Group Tree */
-  private TreeItem rootItem;
+//  /** Chunk Group Tree */
+//  private TreeItem rootItem;
+
+  /** TsFile Item */
+  private TreeItem tsfileItem;
 
   private TreeView<ChunkTreeItemValue> treeView;
 
@@ -102,14 +105,14 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private File selectedfolder;
 
-  private TsFileChooserPage tsFileChooserPage;
-
   private boolean hasTsFileLoaded;
+
+  private Stage tsfileLoadStage;
 
   public IoTDBParsePageV13() {
     super(new Group(), WIDTH, HEIGHT);
+    tsFileLoadPage = new TsFileLoadPage();
     // TODO
-    tsFileChooserPage = new TsFileChooserPage();
 //    // 异步
 //    try {
 //      // tsfile parse
@@ -119,6 +122,10 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 //      e.printStackTrace();
 //      return;
 //    }
+  }
+
+  public void setTsFileAnalyserV13(TsFileAnalyserV13 tsFileAnalyserV13) {
+    this.tsFileAnalyserV13 = tsFileAnalyserV13;
   }
 
   // public
@@ -134,16 +141,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 //        e.printStackTrace();
 //      }
 //    }
-
-    /**
-    // cross line
-    Line queryRegionLine = new Line(0, HEIGHT * 0.1, WIDTH, HEIGHT * 0.1);
-    Line chunkGroupRegionLine = new Line(0, HEIGHT * 0.4, WIDTH, HEIGHT * 0.4);
-    ObservableList<Node> children = super.root.getChildren();
-    children.add(queryRegionLine);
-    //        children.add(binaryRegionLine);
-    children.add(chunkGroupRegionLine);
-    */
 
     /**
     // query region
@@ -209,8 +206,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           }
         });
   */
+
     // TreeView Region
-//    TreeView<String> treeView = new TreeView<String>();
     treeView = new TreeView<ChunkTreeItemValue>();
     treeView.setLayoutX(0);
     treeView.setLayoutY(HEIGHT * 0.04);
@@ -218,7 +215,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     treeView.setPrefHeight(HEIGHT * 0.93);
     this.root.getChildren().add(treeView);
 
-    // confirm where to load tsfile
+    // 双击打开 tsfile  监听事件
     treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent event) {
@@ -228,10 +225,25 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           if (currItem != null) {
             String type = currItem.getValue().getType();
             if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
-              System.out.println(currItem.getValue().getName());
-              Stage secondStage = new Stage();
-              tsFileLoadPage = new TsFileLoadPage(secondStage, currItem.getValue().getName());
-              secondStage.show();
+              String filePath = (String) currItem.getValue().getParams();
+              // 1. file type check
+              if (!tsFileLoadPage.fileTypeCheck(filePath)) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose TsFile!", ButtonType.OK);
+                alert.showAndWait();
+              }
+              // 2. file version check
+              if (!tsFileLoadPage.fileVersionCheck(filePath)) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Sorry, We currently only support the 3.0 TsFile version!", ButtonType.OK);
+                alert.showAndWait();
+              }
+              tsfileLoadStage = new Stage();
+              tsfileLoadStage.show();
+              // 3. 加载文件,实际上在弹窗
+              tsfileItem = currItem;
+              tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
+              tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
+              // 在弹窗那里
+
             }
           }
         }
@@ -241,48 +253,27 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
     // tree listener
     treeView.getSelectionModel()
-            .selectedItemProperty()
-            .addListener(
-                    (observable, oldValue, newValue) -> {
-                      TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
-                      String type = treeItem.getValue().getType();
-                      if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
-                        // TODO 1. 是否已有 tsfile 打开
-//                        if (hasTsFileLoaded) {
-//
-//                        }
-                        // 打开当前文件 load file, 弹窗：是否需要打开文件
-                        // 为按钮添加事件——触发快捷键时打开新的窗口
-//                        searchHiddenButton.setOnAction(event ->  {
-//                          // 创建新的stage
-//                          Stage secondStage = new Stage();
-//                          timeseriesSearchPage = new TimeseriesSearchPage(secondStage, this);
-//
-//                          secondStage.show();
-//                        });
-
-
-                      } else if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
-                        showItemChunk(treeItem);
-                      } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
-                        showPageDetail(treeItem);
-                      } else if (TREE_ITEM_TYPE_CHUNK_GROUP_ROOT.equals(type)) {
-                        this.fileTableView.setVisible(true);
-                        this.chunkTableView.setVisible(false);
-                        this.tvTableView.setVisible(false);
-                        this.pageTableView.setVisible(false);
-                      } else {
-                        this.fileTableView.setVisible(false);
-                        this.chunkTableView.setVisible(false);
-                        this.tvTableView.setVisible(false);
-                        this.pageTableView.setVisible(false);
-                      }
-                    });
-    // chunk group data set
-//    chunkGroupTreeDataInit();
-//    super.root.getChildren().add(treeView);
-
-
+        .selectedItemProperty()
+        .addListener(
+            (observable, oldValue, newValue) -> {
+                TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
+                String type = treeItem.getValue().getType();
+                if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
+                  showItemChunk(treeItem);
+                } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
+                  showPageDetail(treeItem);
+                } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
+                  this.fileTableView.setVisible(true);
+                  this.chunkTableView.setVisible(false);
+                  this.tvTableView.setVisible(false);
+                  this.pageTableView.setVisible(false);
+                } else {
+                  this.fileTableView.setVisible(false);
+                  this.chunkTableView.setVisible(false);
+                  this.tvTableView.setVisible(false);
+                  this.pageTableView.setVisible(false);
+                }
+            });
 
     // menu region
     MenuBar menuBar = new MenuBar();
@@ -296,7 +287,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     MenuItem loadFileMenuItem = new MenuItem("Load");
     fileMenu.getItems().addAll(loadFileMenuItem);
     loadFileMenuItem.setOnAction(event -> {
-      selectedfolder = tsFileChooserPage.loadFolder(baseStage);
+      selectedfolder = tsFileLoadPage.loadFolder(baseStage);
       if (selectedfolder != null) {
         // TreeView
 //        rootItem = new TreeItem(new ChunkTreeItemValue("Chunk Group", TREE_ITEM_TYPE_ROOT, null));
@@ -307,11 +298,29 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
         File[] files = selectedfolder.listFiles();
         for (File f : files) {
-          TreeItem<ChunkTreeItemValue> fileItem = new TreeItem<>(new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, null));
+          String filePath = f.getPath();
+          TreeItem<ChunkTreeItemValue> fileItem = new TreeItem<>(new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
           treeRoot.getChildren().add(fileItem);
           Node tsfileIcon = new IconView("/icons/folder-source.png");
           fileItem.setGraphic(tsfileIcon);
+
+
           // TODO 每个 fileItem 增加双击打开监听事件
+          // 不能让用户重复点击某一个已打开的 tsfile
+          // 清空缓存
+
+          // 3. 加载文件 currently
+          /*// 异步
+          try {
+            // tsfile parse
+            this.tsFileAnalyserV13 = new TsFileAnalyserV13(filePath);
+          } catch (IOException e) {
+            logger.error("Failed to get TsFileAnalysedV13 instance.");
+            e.printStackTrace();
+            return;
+          }*/
+
+
           // 只允许打开一个 tsfile （先清除之前的缓存，后加载 tsfile 文件）
           // 双击事件会弹窗询问用户是否加载此 tsfile (双击要禁用 TreeItem 的默认展开/折叠)
           // 对于一个已经打开的 tsfile，如果用户再次双击，会提示文件已加载（或者不做任何操作）
@@ -394,43 +403,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             this.tsFileAnalyserV13.getAllCount()));
     */
 
-    /**
-    // chunk group init
-    rootItem = new TreeItem(new ChunkTreeItemValue("Chunk Group", TREE_ITEM_TYPE_ROOT, null));
-    Node chunkGroupIcon = new IconView("/icons/binary.png");
-    rootItem.setGraphic(chunkGroupIcon);
-    tree = new TreeView(rootItem);
-    tree.setLayoutX(0);
-    tree.setLayoutY(HEIGHT * 0.04);
-    tree.setPrefWidth(WIDTH * 0.3);
-    tree.setPrefHeight(HEIGHT * 0.93);
-    // tree listener
-    tree.getSelectionModel()
-        .selectedItemProperty()
-        .addListener(
-            (observable, oldValue, newValue) -> {
-              TreeItem<ChunkTreeItemValue> value = observable.getValue();
-              String type = value.getValue().getType();
-              if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
-                showItemChunk(value);
-              } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
-                showPageDetail(value);
-              } else if (TREE_ITEM_TYPE_ROOT.equals(type)) {
-                this.fileTableView.setVisible(true);
-                this.chunkTableView.setVisible(false);
-                this.tvTableView.setVisible(false);
-                this.pageTableView.setVisible(false);
-              } else {
-                this.fileTableView.setVisible(false);
-                this.chunkTableView.setVisible(false);
-                this.tvTableView.setVisible(false);
-                this.pageTableView.setVisible(false);
-              }
-            });
-    // chunk group data set
-    chunkGroupTreeDataInit();
-    super.root.getChildren().add(tree);
-    */
 
     // Search field
     TextField search = new TextField();
@@ -649,7 +621,18 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   }
 
   /** chunk group tree data set */
-  private void chunkGroupTreeDataInit() {
+  public void chunkGroupTreeDataInit() {
+    // 阻塞文件加载完成展示
+    while (true) {
+        if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
+            break;
+        }
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     List<ChunkGroupMetadataModel> chunkGroupMetadataModelList =
         this.tsFileAnalyserV13.getChunkGroupMetadataModelList();
@@ -666,7 +649,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           TreeItem<ChunkTreeItemValue> chunkGroupMetaItem = new TreeItem<>(chunkGroupMetaItemValue);
           Node entityIcon = new IconView("icons/stack.png");
           chunkGroupMetaItem.setGraphic(entityIcon);
-          rootItem.getChildren().add(chunkGroupMetaItem);
+          tsfileItem.getChildren().add(chunkGroupMetaItem);
+
           timeseriesList.add(chunkGroupMetaItemValue.getName());
           indexMap.put(chunkGroupMetadataMode.getDevice(), chunkGroupMetaItem);
           List<ChunkMetadata> chunkMetadataList = chunkGroupMetadataMode.getChunkMetadataList();
@@ -693,6 +677,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             }
           }
         });
+    tsfileItem.setExpanded(true);
+    tsfileLoadStage.close();
   }
 
   private TableColumn genColumn(TableAlign align, String showName, String name) {
