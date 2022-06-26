@@ -72,11 +72,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private TsFileAnalyserV13 tsFileAnalyserV13;
 
   /** index region */
-  //    private ScrollRegion indexRegion;
   private Group indexGroup;
-
-//  /** Chunk Group Tree */
-//  private TreeItem rootItem;
 
   /** TsFile Item */
   private TreeItem tsfileItem;
@@ -112,16 +108,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   public IoTDBParsePageV13() {
     super(new Group(), WIDTH, HEIGHT);
     tsFileLoadPage = new TsFileLoadPage();
-    // TODO
-//    // 异步
-//    try {
-//      // tsfile parse
-//      this.tsFileAnalyserV13 = new TsFileAnalyserV13(filePath);
-//    } catch (IOException e) {
-//      logger.error("Failed to get TsFileAnalysedV13 instance.");
-//      e.printStackTrace();
-//      return;
-//    }
   }
 
   public void setTsFileAnalyserV13(TsFileAnalyserV13 tsFileAnalyserV13) {
@@ -130,18 +116,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   // public
   public void init(Stage baseStage) {
-//    // 等待文件异步加载完成
-//    while (true) {
-//      if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
-//        break;
-//      }
-//      try {
-//        Thread.sleep(200);
-//      } catch (InterruptedException e) {
-//        e.printStackTrace();
-//      }
-//    }
-
     /**
     // query region
     GridPane pan = new GridPane();
@@ -289,10 +263,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     loadFileMenuItem.setOnAction(event -> {
       selectedfolder = tsFileLoadPage.loadFolder(baseStage);
       if (selectedfolder != null) {
-        // TreeView
-//        rootItem = new TreeItem(new ChunkTreeItemValue("Chunk Group", TREE_ITEM_TYPE_ROOT, null));
         TreeItem<ChunkTreeItemValue> treeRoot = new TreeItem<>(new ChunkTreeItemValue(selectedfolder.getName(), TREE_ITEM_TYPE_FOLDER, null));
-//        TreeItem<String> treeRoot = new TreeItem<>(selectedfolder.getName());
         Node folderIcon = new IconView("/icons/folder-package.png");
         treeRoot.setGraphic(folderIcon);
 
@@ -303,34 +274,16 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           treeRoot.getChildren().add(fileItem);
           Node tsfileIcon = new IconView("/icons/folder-source.png");
           fileItem.setGraphic(tsfileIcon);
-
-
           // TODO 每个 fileItem 增加双击打开监听事件
           // 不能让用户重复点击某一个已打开的 tsfile
           // 清空缓存
-
-          // 3. 加载文件 currently
-          /*// 异步
-          try {
-            // tsfile parse
-            this.tsFileAnalyserV13 = new TsFileAnalyserV13(filePath);
-          } catch (IOException e) {
-            logger.error("Failed to get TsFileAnalysedV13 instance.");
-            e.printStackTrace();
-            return;
-          }*/
-
-
-          // 只允许打开一个 tsfile （先清除之前的缓存，后加载 tsfile 文件）
-          // 双击事件会弹窗询问用户是否加载此 tsfile (双击要禁用 TreeItem 的默认展开/折叠)
-          // 对于一个已经打开的 tsfile，如果用户再次双击，会提示文件已加载（或者不做任何操作）
-
+          // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
+          // 加载文件的窗口需要优化：按钮点击之后，不能重复点（可以隐藏起来）
         }
         treeView.setRoot(treeRoot);
         treeRoot.setExpanded(true);
       }
     });
-
 
     Menu searchMenu = new Menu("Search");
     CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + F)");
@@ -344,9 +297,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             new CheckMenuItem("Documentation"),
             new CheckMenuItem("Contact"));
     menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
-
-
-
 
     /**
     // chunk data table view init
