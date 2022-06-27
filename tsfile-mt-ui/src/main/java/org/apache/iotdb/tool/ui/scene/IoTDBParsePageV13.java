@@ -399,7 +399,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             event -> {
               // TODO
               // 1. 优化为忽略大小写
-              // 2. 动态查询（例如 idea）
+              // 2. 动态查询（例如 idea） 也可以全部高亮显示
               String searchResult = timeseriesSearch(searchText.getText());
               if (searchResult == null) {
                 return;
