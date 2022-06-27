@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;

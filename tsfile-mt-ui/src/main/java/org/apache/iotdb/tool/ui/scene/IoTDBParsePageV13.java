@@ -13,6 +13,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
@@ -66,7 +67,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private static final String TREE_ITEM_TYPE_CHUNK_PAGE = "cp";
   private static final String TREE_ITEM_TYPE_FOLDER = "folder";
   private static final String TREE_ITEM_TYPE_TSFILE = "tsfile";
-  private static final String TREE_ITEM_TYPE_CHUNK_GROUP_ROOT = "cgr";
 
   /** version 13 interface */
   private TsFileAnalyserV13 tsFileAnalyserV13;
@@ -189,7 +189,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     treeView.setPrefHeight(HEIGHT * 0.93);
     this.root.getChildren().add(treeView);
 
-    // 双击打开 tsfile  监听事件
+    // 双击打开 tsfile 监听事件
     treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent event) {
@@ -211,19 +211,17 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 alert.showAndWait();
               }
               tsfileLoadStage = new Stage();
+              tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
               tsfileLoadStage.show();
-              // 3. 加载文件,实际上在弹窗
+              // 3. load file, 实际上在弹窗
               tsfileItem = currItem;
               tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
               tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
-              // 在弹窗那里
-
             }
           }
         }
       }
     });
-
 
     // tree listener
     treeView.getSelectionModel()
@@ -279,6 +277,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           // 清空缓存
           // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
           // 加载文件的窗口需要优化：按钮点击之后，不能重复点（可以隐藏起来）
+          // 选中文件加 Enter 快捷键
         }
         treeView.setRoot(treeRoot);
         treeRoot.setExpanded(true);
@@ -353,28 +352,63 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             this.tsFileAnalyserV13.getAllCount()));
     */
 
-
+    // TODO
+    // CTR + F 光标定位
+    // 搜索 button
     // Search field
-    TextField search = new TextField();
-    search.setPromptText("Search...");
-    search.getStyleClass().add("search-field");
-    search.setOnKeyReleased(e -> {
+    // 可以优化成高亮显示
+    HBox searchHBox = new HBox();
+    TextField searchText = new TextField();
+    searchText.setPromptText("Search...");
+    searchText.getStyleClass().add("search-field");
+    searchText.setOnKeyReleased(e -> {
       // Clear search
       if(e.getCode() == KeyCode.ESCAPE)
-        search.setText("");
+        searchText.setText("");
         // Navigation keys refocus the tree
       else if (e.getCode() == KeyCode.UP ||
               e.getCode() == KeyCode.DOWN) {
         treeView.requestFocus();
       }
     });
-    search.setLayoutX(0);
-    search.setLayoutY(HEIGHT * 0.968);
-    search.setPrefWidth(WIDTH * 0.3);
-    this.root.getChildren().add(search);
+    Button searchButton = new Button();
+    searchButton.setGraphic(new ImageView("/icons/find-light.png"));
+    searchButton.getStyleClass().add("search-button");
+    searchHBox.getChildren().addAll(searchText, searchButton);
+    searchText.setPrefWidth(WIDTH * 0.27);
+    searchHBox.setLayoutX(0);
+    searchHBox.setLayoutY(HEIGHT * 0.968);
+    this.root.getChildren().add(searchHBox);
+    // search hidden button
+    Button searchHiddenButton = new Button("searchHiddenButton");
+    searchHiddenButton.setVisible(false);
+    this.root.getChildren().add(searchHiddenButton);
+    // shorcut key binding: CTR+F
+    KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
+    this.getScene().getAccelerators().put(shButtonKC, ()-> searchHiddenButton.fire());
+    // hiddenButton: focus event
+    searchHiddenButton.setOnAction(event ->  {
+      searchText.requestFocus();
+      searchText.selectAll();
+    });
+    // searchButton: ENTER shortcut binding
+    KeyCombination sButtonKC = new KeyCodeCombination(KeyCode.ENTER);
+    this.getScene().getAccelerators().put(sButtonKC, () -> searchButton.fire());
+    // searchButton: search event
+    searchButton.setOnAction(
+            event -> {
+              // TODO
+              // 1. 优化为忽略大小写
+              // 2. 动态查询（例如 idea）
+              String searchResult = timeseriesSearch(searchText.getText());
+              if (searchResult == null) {
+                return;
+              }
+              chooseTree(searchResult);
+            }
+    );
 
-    // index
-    //        indexRegion = new ScrollRegion(super.root, WIDTH * 1, HEIGHT * 0.6, 0, HEIGHT * 0.4);
+    // index region
     ScrollPane indexRegion = new ScrollPane();
     indexGroup = new Group();
     indexRegion.setContent(indexGroup);
