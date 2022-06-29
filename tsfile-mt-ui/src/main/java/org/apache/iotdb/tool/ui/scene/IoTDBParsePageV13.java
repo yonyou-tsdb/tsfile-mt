@@ -94,8 +94,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private List<String> timeseriesList = new ArrayList<>();
 
-  /** timeseriesSearch stage */
-  private TimeseriesSearchPage timeseriesSearchPage;
+  /** measurementSearch Stage*/
+  private MeasurementSearchPage measurementSearchPage;
 
   private TsFileLoadPage tsFileLoadPage;
 
@@ -116,71 +116,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   // public
   public void init(Stage baseStage) {
-    /**
-    // query region
-    GridPane pan = new GridPane();
-    pan.setLayoutX(0);
-    pan.setLayoutY(0);
-    pan.setPrefWidth(WIDTH);
-    pan.setPrefHeight(HEIGHT * 0.1);
-    pan.setVgap(10);
-    pan.setHgap(5);
-    pan.setPadding(new Insets(5));
-    children.add(pan);
-    Label startTime = new Label("startTime:");
-    pan.add(startTime, 0, 0);
-    DateTimePicker startPicker = new DateTimePicker();
-    pan.add(startPicker, 1, 0);
-    Label endTime = new Label("endTime:");
-    pan.add(endTime, 2, 0);
-    DateTimePicker endPicker = new DateTimePicker();
-    pan.add(endPicker, 3, 0);
-
-    Label deviceIdLabel = new Label("deviceId:");
-    pan.add(deviceIdLabel, 4, 0);
-    TextField deviceIdText = new TextField();
-    pan.add(deviceIdText, 5, 0);
-    Label measurementIdLabel = new Label("measurementId:");
-    pan.add(measurementIdLabel, 6, 0);
-    TextField measurementIdText = new TextField();
-    pan.add(measurementIdText, 7, 0);
-    //        Label valueLabel = new Label("value:");
-    //        pan.add(valueLabel, 0, 2);
-    //        TextField valueText = new TextField();
-    //        pan.add(valueText, 1, 2);
-    Button queryButton = new Button("search...");
-    queryButton.setPrefWidth(WIDTH);
-    pan.add(queryButton, 0, 1, 8, 1);
-    queryButton.setOnMouseClicked(
-        e -> {
-          long startLocalTime =
-              startPicker
-                  .dateTimeProperty()
-                  .getValue()
-                  .atZone(ZoneId.systemDefault())
-                  .toInstant()
-                  .toEpochMilli();
-          long endLocalTime =
-              endPicker
-                  .dateTimeProperty()
-                  .getValue()
-                  .atZone(ZoneId.systemDefault())
-                  .toInstant()
-                  .toEpochMilli();
-          String dv = deviceIdText.getText();
-          String mv = measurementIdText.getText();
-          //            String vv = valueText.getText();
-          try {
-            QueryDataSet queryDataSet =
-                this.tsFileAnalyserV13.queryResult(startLocalTime, endLocalTime, dv, mv, "", 0, 0);
-            showQueryDataSet(dv, mv, queryDataSet);
-          } catch (Exception ex) {
-            logger.error("Failed to query data set, deviceId:{}, measurementId:{}", dv, mv);
-            ex.printStackTrace();
-          }
-        });
-  */
-
     // TreeView Region
     treeView = new TreeView<ChunkTreeItemValue>();
     treeView.setLayoutX(0);
@@ -247,6 +182,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 }
             });
 
+    // TODO 代码结构（应该把这些都拆出来， menu 单独的）
     // menu region
     MenuBar menuBar = new MenuBar();
     menuBar.prefWidthProperty().bind(baseStage.widthProperty());
@@ -285,7 +221,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     });
 
     Menu searchMenu = new Menu("Search");
-    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + F)");
+    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + SHIFT + F)");
     searchMenu.getItems().addAll(searchMenuItem);
     Menu encodeMenu = new Menu("Encode");
     CheckMenuItem simulateMenuItem = new CheckMenuItem("Encode Simulation");
@@ -296,6 +232,13 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             new CheckMenuItem("Documentation"),
             new CheckMenuItem("Contact"));
     menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
+
+    // Measurement Search
+    searchMenuItem.setOnAction(event -> {
+      Stage measurementSearchStage = new Stage();
+      measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
+    });
+    // TODO shorcut key binding: CTR+SHIFT+F
 
     /**
     // chunk data table view init
@@ -310,6 +253,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     pageTableView.setLayoutY(HEIGHT * 0.1);
     pageTableView.setPrefWidth(WIDTH * 0.6);
     pageTableView.setPrefHeight(HEIGHT * 0.1);
+
     tableViewInit(
         tvTableView,
         tvDatas,
@@ -320,6 +264,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     tvTableView.setLayoutY(HEIGHT * 0.2);
     tvTableView.setPrefWidth(WIDTH * 0.6);
     tvTableView.setPrefHeight(HEIGHT * 0.2);
+
     tableViewInit(
         chunkTableView,
         chunkDatas,
@@ -332,6 +277,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     chunkTableView.setLayoutY(HEIGHT * 0.1);
     chunkTableView.setPrefWidth(WIDTH * 0.6);
     chunkTableView.setPrefHeight(HEIGHT * 0.3);
+
     fileTableView = new TableView();
     ObservableList<FileInfo> fileDatas = FXCollections.observableArrayList();
     tableViewInit(
@@ -352,11 +298,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             this.tsFileAnalyserV13.getAllCount()));
     */
 
-    // TODO
-    // CTR + F 光标定位
-    // 搜索 button
-    // Search field
-    // 可以优化成高亮显示
+    // TimeSeries search
     HBox searchHBox = new HBox();
     TextField searchText = new TextField();
     searchText.setPromptText("Search...");
@@ -381,10 +323,10 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.root.getChildren().add(searchHBox);
     // search hidden button
     Button searchHiddenButton = new Button("searchHiddenButton");
-    searchHiddenButton.setVisible(false);
+    searchHiddenButton.setManaged(false);
     this.root.getChildren().add(searchHiddenButton);
-    // shorcut key binding: CTR+F
-    KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
+    // shorcut key binding: CTR + F
+    KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
     this.getScene().getAccelerators().put(shButtonKC, ()-> searchHiddenButton.fire());
     // hiddenButton: focus event
     searchHiddenButton.setOnAction(event ->  {
@@ -417,27 +359,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     indexRegion.setPrefWidth(WIDTH);
     indexRegion.setPrefHeight(HEIGHT * 0.96);
     root.getChildren().add(indexRegion);
+    // TODO
 //    indexDataInit();
-
-    /**
-    // search hidden button
-    Button searchHiddenButton = new Button("searchHiddenButton");
-    searchHiddenButton.setVisible(false);
-    this.root.getChildren().add(searchHiddenButton);
-
-    // shorcut key binding: CTR+F
-    KeyCombination kccb = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
-    this.getScene().getAccelerators().put(kccb, ()-> searchHiddenButton.fire());
-
-    // 为按钮添加事件——触发快捷键时打开新的窗口
-    searchHiddenButton.setOnAction(event ->  {
-      // 创建新的stage
-      Stage secondStage = new Stage();
-      timeseriesSearchPage = new TimeseriesSearchPage(secondStage, this);
-
-      secondStage.show();
-    });
-    */
 
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
@@ -458,8 +381,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     return "";
   }
 
-  private void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
-
+  public void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
     // select root
     this.treeView.getSelectionModel().select(0);
     // show datas
