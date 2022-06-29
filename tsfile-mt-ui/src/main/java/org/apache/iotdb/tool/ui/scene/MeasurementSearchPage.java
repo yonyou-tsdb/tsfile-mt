@@ -3,15 +3,14 @@ package org.apache.iotdb.tool.ui.scene;
 import com.browniebytes.javafx.control.DateTimePicker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Callback;
+import org.apache.iotdb.tool.ui.config.TableAlign;
+import org.apache.iotdb.tool.ui.view.BaseTableView;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
@@ -22,7 +21,11 @@ import java.net.URL;
 import java.time.ZoneId;
 import java.util.Date;
 
-
+/**
+ * measurement search stage
+ *
+ * @author shenguanchu
+ */
 public class MeasurementSearchPage {
 
     private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
@@ -53,10 +56,11 @@ public class MeasurementSearchPage {
     }
 
     private void init(Stage stage) {
+
         anchorPane = new AnchorPane();
         scene = new Scene(anchorPane, WIDTH, HEIGHT);
         stage.setScene(scene);
-        stage.setTitle("Search: measurement");
+        stage.setTitle("Search: Measurement");
         stage.show();
 
         // search filter
@@ -87,13 +91,14 @@ public class MeasurementSearchPage {
         searchButton.setGraphic(new ImageView("/icons/find-light.png"));
         searchButton.getStyleClass().add("search-button");
         searchFilterBox.getChildren().addAll(deviceIdLabel, deviceIdText, measurementIdLabel, measurementIdText, searchButton);
+
         // shortcut: Enter
 //        KeyCombination searchButtonKC = new KeyCodeCombination(KeyCode.ENTER);
 //        this.getScene().getAccelerators().put(searchButtonKC, ()-> searchButton.fire());
 
         // button click event
         searchButton.setOnMouseClicked(
-                e -> {
+                event -> {
                     long startLocalTime =
                             startPicker
                                     .dateTimeProperty()
@@ -120,11 +125,10 @@ public class MeasurementSearchPage {
                                                 deviceIdTextText,
                                                 measurementIdTextText,
                                                 "", 0, 0);
-//                        ioTDBParsePage.showQueryDataSet(deviceIdTextText, measurementIdTextText, queryDataSet);
-                        showQueryDataSet(deviceIdTextText, measurementIdTextText, queryDataSet);
-                    } catch (Exception ex) {
+                        showQueryDataSet(queryDataSet);
+                    } catch (Exception exception) {
                         logger.error("Failed to query data set, deviceId:{}, measurementId:{}", deviceIdTextText, measurementIdTextText);
-                        ex.printStackTrace();
+                        exception.printStackTrace();
                     }
                 });
 
@@ -134,7 +138,6 @@ public class MeasurementSearchPage {
         searchResultPane.setLayoutY(0);
         searchResultPane.setPrefHeight(stage.getHeight());
         searchResultPane.setPrefWidth(3 * stage.getWidth() / 4);
-        searchResultPane.setStyle("-fx-background-color: rgb(44, 108, 131)");
         anchorPane.getChildren().add(searchResultPane);
         stage.heightProperty().addListener((observable, oldValueb, newValue) -> {
             searchResultPane.setPrefHeight(stage.getHeight());
@@ -143,14 +146,19 @@ public class MeasurementSearchPage {
             searchResultPane.setLayoutX(searchFilterBox.getWidth());
             searchResultPane.setPrefWidth(stage.getWidth() - searchFilterBox.getWidth());
         });
-        // TODO 把 stage 的放大缩小按钮禁用掉
+        // TODO
+        // 4. ENTER 绑定
 
-        tableViewInit(
+        BaseTableView baseTableView = new BaseTableView();
+        TableColumn timestampCol = baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
+        TableColumn valueCol = baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
+        baseTableView.tableViewInit(
+                searchResultPane,
                 tvTableView,
                 tvDatas,
                 true,
-                genColumn(IoTDBParsePageV13.TableAlign.CENTER, "timestamp", "timestamp"),
-                genColumn(IoTDBParsePageV13.TableAlign.CENTER_LEFT, "value", "value"));
+                timestampCol,
+                valueCol);
         tvTableView.setLayoutX(searchFilterBox.getWidth());
         tvTableView.setLayoutY(0);
         tvTableView.setPrefWidth(searchResultPane.getPrefWidth() - 15);
@@ -169,63 +177,8 @@ public class MeasurementSearchPage {
         }
     }
 
-   private void tableViewInit(
-           TableView tableView, ObservableList datas, boolean isShow, TableColumn... genColumn) {
-
-        tableView.setItems(datas);
-        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        searchResultPane.getChildren().add(tableView);
-        tableView.getColumns().addAll(genColumn);
-        tableView.setVisible(isShow);
-    }
-
-    private TableColumn genColumn(IoTDBParsePageV13.TableAlign align, String showName, String name) {
-
-        if (align == null) {
-            align = IoTDBParsePageV13.TableAlign.CENTER;
-        }
-        TableColumn column = new TableColumn<>(showName);
-        column.setCellValueFactory(new PropertyValueFactory<>(name));
-        column.setCellFactory(
-                new Callback<TableColumn<?, ?>, TableCell<?, ?>>() {
-                    private final Tooltip tooltip = new Tooltip();
-
-                    @Override
-                    public TableCell<?, ?> call(TableColumn<?, ?> param) {
-                        return new TableCell<Object, Object>() {
-                            @Override
-                            protected void updateItem(Object item, boolean empty) {
-                                if (item == getItem()) return;
-                                super.updateItem(item, empty);
-                                if (item == null) {
-                                    super.setText(null);
-                                    super.setGraphic(null);
-                                } else if (item instanceof Node) {
-                                    super.setText(null);
-                                    super.setGraphic((Node) item);
-                                } else {
-                                    // tool tip
-                                    super.setText(item.toString());
-                                    super.setGraphic(null);
-                                    super.setTooltip(tooltip);
-                                    tooltip.setText(item.toString());
-                                }
-                            }
-                        };
-                    }
-                });
-        column.setStyle("-fx-alignment: " + align.getAlign() + ";");
-        return column;
-    }
-
-    public void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
-        // select root
-//        this.treeView.getSelectionModel().select(0);
-
-        // show datas
-        this.tvDatas.clear();
-//        this.pageDatas.clear();
-//        this.chunkTableView.setVisible(false);
+    public void showQueryDataSet(QueryDataSet queryDataSet) throws Exception {
+        tvDatas.clear();
         while (queryDataSet.hasNext()) {
             RowRecord next = queryDataSet.next();
             StringBuilder sb = new StringBuilder();
@@ -233,9 +186,8 @@ public class MeasurementSearchPage {
                 sb.append("\t");
                 sb.append(f);
             }
-            this.tvDatas.add(new IoTDBParsePageV13.TimesValues(new Date(next.getTimestamp()).toString(), sb.toString()));
+            tvDatas.add(new IoTDBParsePageV13.TimesValues(new Date(next.getTimestamp()).toString(), sb.toString()));
         }
-        this.tvTableView.setVisible(true);
-//        this.pageTableView.setVisible(true);
+        tvTableView.setVisible(true);
     }
 }

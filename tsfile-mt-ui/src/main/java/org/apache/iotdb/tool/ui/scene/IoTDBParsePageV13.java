@@ -15,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
@@ -236,6 +237,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     // Measurement Search
     searchMenuItem.setOnAction(event -> {
       Stage measurementSearchStage = new Stage();
+      measurementSearchStage.initStyle(StageStyle.UTILITY);
       measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
     });
     // TODO shorcut key binding: CTR+SHIFT+F
@@ -516,16 +518,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.pageTableView.setVisible(true);
   }
 
-  private void tableViewInit(
-      TableView tableView, ObservableList datas, boolean isShow, TableColumn... genColumn) {
-
-    tableView.setItems(datas);
-    tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    super.root.getChildren().add(tableView);
-    tableView.getColumns().addAll(genColumn);
-    tableView.setVisible(isShow);
-  }
-
   /** chunk group tree data set */
   public void chunkGroupTreeDataInit() {
     // 阻塞文件加载完成展示
@@ -585,45 +577,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         });
     tsfileItem.setExpanded(true);
     tsfileLoadStage.close();
-  }
-
-  private TableColumn genColumn(TableAlign align, String showName, String name) {
-
-    if (align == null) {
-      align = TableAlign.CENTER;
-    }
-    TableColumn column = new TableColumn<>(showName);
-    column.setCellValueFactory(new PropertyValueFactory<>(name));
-    column.setCellFactory(
-        new Callback<TableColumn<?, ?>, TableCell<?, ?>>() {
-          private final Tooltip tooltip = new Tooltip();
-
-          @Override
-          public TableCell<?, ?> call(TableColumn<?, ?> param) {
-            return new TableCell<Object, Object>() {
-              @Override
-              protected void updateItem(Object item, boolean empty) {
-                if (item == getItem()) return;
-                super.updateItem(item, empty);
-                if (item == null) {
-                  super.setText(null);
-                  super.setGraphic(null);
-                } else if (item instanceof Node) {
-                  super.setText(null);
-                  super.setGraphic((Node) item);
-                } else {
-                  // tool tip
-                  super.setText(item.toString());
-                  super.setGraphic(null);
-                  super.setTooltip(tooltip);
-                  tooltip.setText(item.toString());
-                }
-              }
-            };
-          }
-        });
-    column.setStyle("-fx-alignment: " + align.getAlign() + ";");
-    return column;
   }
 
   @Override
@@ -828,29 +781,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
     public void setDataCounts(int dataCounts) {
       this.dataCounts.set(dataCounts);
-    }
-  }
-
-  /**
-   * table align [ top-left | top-center | top-right | center-left | center | center-right
-   * bottom-left | bottom-center | bottom-right | baseline-left | baseline-center | baseline-right ]
-   */
-  public enum TableAlign {
-    CENTER("CENTER"),
-    CENTER_LEFT("center-left");
-
-    String align;
-
-    TableAlign(String align) {
-      this.align = align;
-    }
-
-    public String getAlign() {
-      return align;
-    }
-
-    public void setAlign(String align) {
-      this.align = align;
     }
   }
 
