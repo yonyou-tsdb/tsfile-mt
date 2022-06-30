@@ -111,7 +111,6 @@ public class TsFileLoadPage {
                     progressBar.setDisable(false);
                     scenesManager.loadTsFile(progressBar);
                 });
-
         stage.show();
         URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
         if (uiDarkCssResource != null) {

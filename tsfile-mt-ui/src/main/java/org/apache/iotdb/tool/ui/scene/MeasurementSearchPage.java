@@ -67,7 +67,8 @@ public class MeasurementSearchPage {
         searchFilterBox = new VBox();
         anchorPane.getChildren().add(searchFilterBox);
         searchFilterBox.getStyleClass().add("search-filter-box");
-
+        // TODO 换成位运算
+        //  searchFilterBox.setPrefWidth(stage.getWidth() / 4);  写成字段
         searchFilterBox.setPrefWidth(stage.getWidth() / 4);
         searchFilterBox.setPrefHeight(stage.getHeight());
         stage.heightProperty().addListener((observable, oldValue, newValue) -> {
@@ -81,11 +82,12 @@ public class MeasurementSearchPage {
         DateTimePicker startPicker = new DateTimePicker();
         Label endTime = new Label("endTime:");
         DateTimePicker endPicker = new DateTimePicker();
+        // TODO searchFilterBox.getChildren() 写成一个字段
         searchFilterBox.getChildren().addAll(startTime, startPicker, endTime, endPicker);
 
-        Label deviceIdLabel = new Label("deviceId:");
+        Label deviceIdLabel = new Label("deviceName:");
         TextField deviceIdText = new TextField();
-        Label measurementIdLabel = new Label("measurementId:");
+        Label measurementIdLabel = new Label("measurementName:");
         TextField measurementIdText = new TextField();
         Button searchButton = new Button("Search");
         searchButton.setGraphic(new ImageView("/icons/find-light.png"));
@@ -99,6 +101,7 @@ public class MeasurementSearchPage {
         // button click event
         searchButton.setOnMouseClicked(
                 event -> {
+                    // TODO 换成工具类
                     long startLocalTime =
                             startPicker
                                     .dateTimeProperty()
@@ -113,6 +116,7 @@ public class MeasurementSearchPage {
                                     .atZone(ZoneId.systemDefault())
                                     .toInstant()
                                     .toEpochMilli();
+                    // TODO trim()
                     String deviceIdTextText = deviceIdText.getText();
                     String measurementIdTextText = measurementIdText.getText();
                     try {
@@ -128,7 +132,6 @@ public class MeasurementSearchPage {
                         showQueryDataSet(queryDataSet);
                     } catch (Exception exception) {
                         logger.error("Failed to query data set, deviceId:{}, measurementId:{}", deviceIdTextText, measurementIdTextText);
-                        exception.printStackTrace();
                     }
                 });
 
@@ -139,10 +142,10 @@ public class MeasurementSearchPage {
         searchResultPane.setPrefHeight(stage.getHeight());
         searchResultPane.setPrefWidth(3 * stage.getWidth() / 4);
         anchorPane.getChildren().add(searchResultPane);
-        stage.heightProperty().addListener((observable, oldValueb, newValue) -> {
+        stage.heightProperty().addListener((observable, oldValue, newValue) -> {
             searchResultPane.setPrefHeight(stage.getHeight());
         });
-        stage.widthProperty().addListener((observable, oldValueb, newValue) -> {
+        stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             searchResultPane.setLayoutX(searchFilterBox.getWidth());
             searchResultPane.setPrefWidth(stage.getWidth() - searchFilterBox.getWidth());
         });
@@ -150,6 +153,7 @@ public class MeasurementSearchPage {
         // 4. ENTER 绑定
 
         BaseTableView baseTableView = new BaseTableView();
+        // TODO 泛型具体化
         TableColumn timestampCol = baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
         TableColumn valueCol = baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
         baseTableView.tableViewInit(
@@ -164,10 +168,10 @@ public class MeasurementSearchPage {
         tvTableView.setPrefWidth(searchResultPane.getPrefWidth() - 15);
         tvTableView.setPrefHeight(searchResultPane.getPrefHeight());
 
-        searchResultPane.widthProperty().addListener((observable, oldValueb, newValue) -> {
+        searchResultPane.widthProperty().addListener((observable, oldValue, newValue) -> {
             tvTableView.setPrefWidth(searchResultPane.getPrefWidth() - 15);
         });
-        searchResultPane.heightProperty().addListener((observable, oldValueb, newValue) -> {
+        searchResultPane.heightProperty().addListener((observable, oldValue, newValue) -> {
             tvTableView.setPrefHeight(searchResultPane.getPrefHeight());
         });
 
@@ -186,6 +190,7 @@ public class MeasurementSearchPage {
                 sb.append("\t");
                 sb.append(f);
             }
+            // TODO LocalDateTime
             tvDatas.add(new IoTDBParsePageV13.TimesValues(new Date(next.getTimestamp()).toString(), sb.toString()));
         }
         tvTableView.setVisible(true);

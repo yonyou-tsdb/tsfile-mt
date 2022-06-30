@@ -1,22 +1,13 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import com.sun.javafx.scene.control.skin.LabeledText;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
+import javafx.scene.input.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
@@ -29,28 +20,22 @@ import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
 
-import com.browniebytes.javafx.control.DateTimePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.time.ZoneId;
 import java.util.*;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.scene.shape.*;
-import javafx.util.Callback;
 
 /**
  * IoTDBParsePage
@@ -62,7 +47,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
   public static final double WIDTH = 1080;
   public static final double HEIGHT = 750;
-
+  // TODO 优化
   private static final String TREE_ITEM_TYPE_CHUNK_GROUP = "cg";
   private static final String TREE_ITEM_TYPE_CHUNK = "c";
   private static final String TREE_ITEM_TYPE_CHUNK_PAGE = "cp";
@@ -129,7 +114,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent event) {
-        if (event.getTarget() instanceof LabeledText && event.getClickCount() == 2) {
+        MouseButton mouseButton = event.getButton();
+        if (event.getTarget() instanceof LabeledText && mouseButton == MouseButton.PRIMARY && event.getClickCount() == 2) {
           // create new stage
           TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
           if (currItem != null) {
@@ -149,7 +135,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
               tsfileLoadStage = new Stage();
               tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
               tsfileLoadStage.show();
-              // 3. load file, 实际上在弹窗
+              // 3. load file 初始化, 实际上在弹窗 load
               tsfileItem = currItem;
               tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
               tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
@@ -158,6 +144,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         }
       }
     });
+
 
     // tree listener
     treeView.getSelectionModel()
@@ -183,6 +170,40 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 }
             });
 
+    // TODO
+    // TreeView Menu
+//    ContextMenu treeViewMenu = new ContextMenu();
+//    MenuItem fileInfoItem = new MenuItem("show fileInfo");
+//    treeViewMenu.getItems().add(fileInfoItem);
+//    fileInfoItem.setOnAction(event -> {
+//      System.out.println("show detail hahahha");
+//    });
+
+//    treeView.setContextMenu(treeViewMenu);
+
+    ContextMenu treeViewMenu = new ContextMenu();
+    treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
+      treeViewMenu.getItems().clear();
+      String type = currItem.getValue().getType();
+      switch (type) {
+        case TREE_ITEM_TYPE_TSFILE:
+          treeViewMenu.getItems().add(new MenuItem("tsfile details"));
+          break;
+        case TREE_ITEM_TYPE_CHUNK:
+          treeViewMenu.getItems().add(new MenuItem("chunk details"));
+          break;
+        case TREE_ITEM_TYPE_CHUNK_PAGE:
+          treeViewMenu.getItems().add(new MenuItem("page details"));
+          break;
+        default:
+          logger.info("unexpect type:{}", type);
+      }
+    });
+    treeView.setContextMenu(treeViewMenu);
+
+
+
     // TODO 代码结构（应该把这些都拆出来， menu 单独的）
     // menu region
     MenuBar menuBar = new MenuBar();
@@ -203,6 +224,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         treeRoot.setGraphic(folderIcon);
 
         File[] files = selectedfolder.listFiles();
+        // TODO 判断 files != null
         for (File f : files) {
           String filePath = f.getPath();
           TreeItem<ChunkTreeItemValue> fileItem = new TreeItem<>(new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
@@ -306,6 +328,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     searchText.setPromptText("Search...");
     searchText.getStyleClass().add("search-field");
     searchText.setOnKeyReleased(e -> {
+      // TODO switch
       // Clear search
       if(e.getCode() == KeyCode.ESCAPE)
         searchText.setText("");
@@ -327,9 +350,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     Button searchHiddenButton = new Button("searchHiddenButton");
     searchHiddenButton.setManaged(false);
     this.root.getChildren().add(searchHiddenButton);
-    // shorcut key binding: CTR + F
+    // shortcut key binding: CTR + F
     KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
-    this.getScene().getAccelerators().put(shButtonKC, ()-> searchHiddenButton.fire());
+    this.getScene().getAccelerators().put(shButtonKC, searchHiddenButton::fire);
     // hiddenButton: focus event
     searchHiddenButton.setOnAction(event ->  {
       searchText.requestFocus();
@@ -337,7 +360,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     });
     // searchButton: ENTER shortcut binding
     KeyCombination sButtonKC = new KeyCodeCombination(KeyCode.ENTER);
-    this.getScene().getAccelerators().put(sButtonKC, () -> searchButton.fire());
+    this.getScene().getAccelerators().put(sButtonKC, searchButton::fire);
     // searchButton: search event
     searchButton.setOnAction(
             event -> {
@@ -522,6 +545,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   public void chunkGroupTreeDataInit() {
     // 阻塞文件加载完成展示
     while (true) {
+        // TODO double 精度问题  0.9999..........
         if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
             break;
         }
@@ -789,6 +813,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     private String name;
     private String type;
     private Object params;
+//    private Button button;
 
     public ChunkTreeItemValue(String name, String type, Object params) {
       this.name = name;
