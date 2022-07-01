@@ -7,7 +7,6 @@ import javafx.scene.input.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
@@ -82,6 +81,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   /** measurementSearch Stage*/
   private MeasurementSearchPage measurementSearchPage;
+
+  private TsFileInfoPage tsfileInfoPage;
 
   private TsFileLoadPage tsFileLoadPage;
 
@@ -172,23 +173,24 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
     // TODO
     // TreeView Menu
-//    ContextMenu treeViewMenu = new ContextMenu();
-//    MenuItem fileInfoItem = new MenuItem("show fileInfo");
-//    treeViewMenu.getItems().add(fileInfoItem);
-//    fileInfoItem.setOnAction(event -> {
-//      System.out.println("show detail hahahha");
-//    });
-
-//    treeView.setContextMenu(treeViewMenu);
-
     ContextMenu treeViewMenu = new ContextMenu();
     treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      // TODO 对于已加载的文件才会显示
+      // PlanA: 弹出警告框（文件未加载）
+      // PlanB: 未加载的文件直接邮件没有反应
       TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
       treeViewMenu.getItems().clear();
       String type = currItem.getValue().getType();
       switch (type) {
         case TREE_ITEM_TYPE_TSFILE:
-          treeViewMenu.getItems().add(new MenuItem("tsfile details"));
+          MenuItem tsfileMenuItem = new MenuItem("tsfile details");
+          treeViewMenu.getItems().add(tsfileMenuItem);
+          tsfileMenuItem.setOnAction(event -> {
+              Stage tsfileInfoStage = new Stage();
+              tsfileInfoStage.initStyle(StageStyle.UTILITY);
+              tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
+              tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
+          });
           break;
         case TREE_ITEM_TYPE_CHUNK:
           treeViewMenu.getItems().add(new MenuItem("chunk details"));

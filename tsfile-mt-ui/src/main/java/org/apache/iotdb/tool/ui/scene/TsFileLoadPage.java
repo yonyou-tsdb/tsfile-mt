@@ -111,6 +111,7 @@ public class TsFileLoadPage {
                     progressBar.setDisable(false);
                     scenesManager.loadTsFile(progressBar);
                 });
+
         stage.show();
         URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
         if (uiDarkCssResource != null) {
@@ -119,8 +120,8 @@ public class TsFileLoadPage {
     }
 
     public File loadFolder(Stage baseStage) {
-        DirectoryChooser folderChooser = new DirectoryChooser();
-        folderChooser.setTitle("Open Folder");
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Open Folder");
 
         // directoryCache.txt
         File cacheFile = new File("directoryCache.txt");
@@ -131,7 +132,7 @@ public class TsFileLoadPage {
                 inputStream.read(bytes);
                 File directory = new File(new String(bytes));
                 if (directory.exists()) {
-                    folderChooser.setInitialDirectory(directory);
+                    directoryChooser.setInitialDirectory(directory);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -140,7 +141,7 @@ public class TsFileLoadPage {
             }
         }
 
-        File selectedfolder = folderChooser.showDialog(baseStage);
+        File selectedfolder = directoryChooser.showDialog(baseStage);
 
         // Store the directory to the directoryCache.txt
         if (selectedfolder != null) {

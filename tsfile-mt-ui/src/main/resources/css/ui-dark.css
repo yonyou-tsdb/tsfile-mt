@@ -24,6 +24,8 @@
 * {
 	-fx-highlight-fill: rgba(0, 180, 255, 0.4);
 }
+
+
 /* Scroll */
 .scroll-bar {
 	-fx-background-color: rgb(61,61,62);

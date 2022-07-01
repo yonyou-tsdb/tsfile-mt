@@ -42,6 +42,7 @@ public class MeasurementSearchPage {
     private AnchorPane searchResultPane;
 
     /** table datas */
+    // TODO 这里 new 是不是不好
     private TableView tvTableView = new TableView();
 
     private ObservableList<IoTDBParsePageV13.TimesValues> tvDatas = FXCollections.observableArrayList();
@@ -154,8 +155,8 @@ public class MeasurementSearchPage {
 
         BaseTableView baseTableView = new BaseTableView();
         // TODO 泛型具体化
-        TableColumn timestampCol = baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
-        TableColumn valueCol = baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
+        TableColumn<Date, String> timestampCol = baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
+        TableColumn<String, String> valueCol = baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
         baseTableView.tableViewInit(
                 searchResultPane,
                 tvTableView,
