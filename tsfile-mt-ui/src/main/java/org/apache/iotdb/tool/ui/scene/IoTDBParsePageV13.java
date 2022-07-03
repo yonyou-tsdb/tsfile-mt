@@ -84,6 +84,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private TsFileInfoPage tsfileInfoPage;
 
+  private ChunkInfoPage chunkInfoPage;
+
   private TsFileLoadPage tsFileLoadPage;
 
   private File selectedfolder;
@@ -193,7 +195,16 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           });
           break;
         case TREE_ITEM_TYPE_CHUNK:
-          treeViewMenu.getItems().add(new MenuItem("chunk details"));
+          MenuItem chunkMenuItem = new MenuItem("chunk details");
+//          TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
+
+          treeViewMenu.getItems().add(chunkMenuItem);
+          chunkMenuItem.setOnAction(event -> {
+            Stage chunkInfoStage = new Stage();
+            chunkInfoStage.initStyle(StageStyle.UTILITY);
+            chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
+            chunkInfoPage = new ChunkInfoPage(chunkInfoStage, this, currItem);
+          });
           break;
         case TREE_ITEM_TYPE_CHUNK_PAGE:
           treeViewMenu.getItems().add(new MenuItem("page details"));
