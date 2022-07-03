@@ -86,6 +86,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private ChunkInfoPage chunkInfoPage;
 
+  private PageInfoPage pageInfoPage;
+
   private TsFileLoadPage tsFileLoadPage;
 
   private File selectedfolder;
@@ -159,7 +161,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
                   showItemChunk(treeItem);
                 } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
-                  showPageDetail(treeItem);
+//                  showPageDetail(treeItem);
                 } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
                   this.fileTableView.setVisible(true);
                   this.chunkTableView.setVisible(false);
@@ -196,8 +198,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           break;
         case TREE_ITEM_TYPE_CHUNK:
           MenuItem chunkMenuItem = new MenuItem("chunk details");
-//          TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
-
           treeViewMenu.getItems().add(chunkMenuItem);
           chunkMenuItem.setOnAction(event -> {
             Stage chunkInfoStage = new Stage();
@@ -207,15 +207,20 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           });
           break;
         case TREE_ITEM_TYPE_CHUNK_PAGE:
-          treeViewMenu.getItems().add(new MenuItem("page details"));
+          MenuItem pageMenuItem = new MenuItem("page details");
+          treeViewMenu.getItems().add(pageMenuItem);
+          pageMenuItem.setOnAction(event -> {
+            Stage pageInfoStage = new Stage();
+            pageInfoStage.initStyle(StageStyle.UTILITY);
+            pageInfoStage.initModality(Modality.APPLICATION_MODAL);
+            pageInfoPage = new PageInfoPage(pageInfoStage, this, currItem);
+          });
           break;
         default:
           logger.info("unexpect type:{}", type);
       }
     });
     treeView.setContextMenu(treeViewMenu);
-
-
 
     // TODO 代码结构（应该把这些都拆出来， menu 单独的）
     // menu region

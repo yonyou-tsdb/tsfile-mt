@@ -68,37 +68,37 @@ public class ChunkInfoPage {
         // 可以参考 IDEA 一键复制
         // Logo
         // 字体颜色
-        Label tsfileNameLabel = new Label("DataSize:");
-        TextField tsfileNameResult = new TextField(chunkHeader.getDataSize() + "");
-        tsfileNameResult.setEditable(false);
-        tsfileNameResult.setFocusTraversable(false);
-        tsfileNameResult.getStyleClass().add("copiable-text");
-        pane.add(tsfileNameLabel, 0, 0);
-        pane.add(tsfileNameResult, 1, 0);
+        Label dataSizeLabel = new Label("DataSize:");
+        TextField dataSizeResult = new TextField(chunkHeader.getDataSize() + "");
+        dataSizeResult.setEditable(false);
+        dataSizeResult.setFocusTraversable(false);
+        dataSizeResult.getStyleClass().add("copiable-text");
+        pane.add(dataSizeLabel, 0, 0);
+        pane.add(dataSizeResult, 1, 0);
 
-        Label versionLabel = new Label("DataType:");
-        TextField versionResult = new TextField(chunkHeader.getDataType() + "");
-        versionResult.setEditable(false);
-        versionResult.setFocusTraversable(false);
-        versionResult.getStyleClass().add("copiable-text");
-        pane.add(versionLabel, 0, 1);
-        pane.add(versionResult, 1, 1);
+        Label dataTypeLabel = new Label("DataType:");
+        TextField dataTypeResult = new TextField(chunkHeader.getDataType() + "");
+        dataTypeResult.setEditable(false);
+        dataTypeResult.setFocusTraversable(false);
+        dataTypeResult.getStyleClass().add("copiable-text");
+        pane.add(dataTypeLabel, 0, 1);
+        pane.add(dataTypeResult, 1, 1);
 
-        Label sizeLabel = new Label("CompressionType:");
-        TextField sizeResult = new TextField(chunkHeader.getCompressionType() + "");
-        sizeResult.setEditable(false);
-        sizeResult.setFocusTraversable(false);
-        sizeResult.getStyleClass().add("copiable-text");
-        pane.add(sizeLabel, 0, 2);
-        pane.add(sizeResult, 1, 2);
+        Label compressionLabel = new Label("CompressionType:");
+        TextField compressionResult = new TextField(chunkHeader.getCompressionType() + "");
+        compressionResult.setEditable(false);
+        compressionResult.setFocusTraversable(false);
+        compressionResult.getStyleClass().add("copiable-text");
+        pane.add(compressionLabel, 0, 2);
+        pane.add(compressionResult, 1, 2);
 
-        Label dataCountsLabel = new Label("EncodingType:");
-        TextField dataCountsResult = new TextField(chunkHeader.getEncodingType() + "");
-        dataCountsResult.setEditable(false);
-        dataCountsResult.setFocusTraversable(false);
-        dataCountsResult.getStyleClass().add("copiable-text");
-        pane.add(dataCountsLabel, 0, 3);
-        pane.add(dataCountsResult, 1, 3);
+        Label encodingTypeLabel = new Label("EncodingType:");
+        TextField encodingTypeResult = new TextField(chunkHeader.getEncodingType() + "");
+        encodingTypeResult.setEditable(false);
+        encodingTypeResult.setFocusTraversable(false);
+        encodingTypeResult.getStyleClass().add("copiable-text");
+        pane.add(encodingTypeLabel, 0, 3);
+        pane.add(encodingTypeResult, 1, 3);
 
         stage.show();
         URL uiDarkCssResource = getClass().getClassLoader().getResource("css/copiable-text.css");
