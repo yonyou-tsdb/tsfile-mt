@@ -24,6 +24,8 @@
 * {
 	-fx-highlight-fill: rgba(0, 180, 255, 0.4);
 }
+
+
 /* Scroll */
 .scroll-bar {
 	-fx-background-color: rgb(61,61,62);
@@ -327,6 +329,15 @@ hyperlink:visited {
 	/*-fx-background-color: blue;*/
 	-fx-accent: #4682B4;
 }
+.search-filter-box {
+	-fx-background-color: rgb(27, 27, 28);
+	-fx-alignment: top-left;
+	-fx-spacing: 5;
+	-fx-padding: 5 5 5 5;
+	-fx-border-color: black;
+	-fx-border-width: 2;
+}
+
 .resource-selector {
 	-fx-prompt-text-fill: rgb(134, 134, 135);
 	-fx-background-color: rgb(39, 39, 41);

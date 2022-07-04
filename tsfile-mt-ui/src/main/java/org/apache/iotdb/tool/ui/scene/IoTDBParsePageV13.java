@@ -1,21 +1,12 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import com.sun.javafx.scene.control.skin.LabeledText;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
+import javafx.scene.input.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
@@ -23,33 +14,26 @@ import org.apache.iotdb.tool.ui.node.IndexNode;
 import org.apache.iotdb.tool.ui.view.IconView;
 import org.apache.iotdb.tsfile.file.header.ChunkHeader;
 import org.apache.iotdb.tsfile.file.metadata.ChunkMetadata;
-import org.apache.iotdb.tsfile.read.common.BatchData;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
 
-import com.browniebytes.javafx.control.DateTimePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.time.ZoneId;
 import java.util.*;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
-import javafx.scene.shape.*;
-import javafx.util.Callback;
 
 /**
  * IoTDBParsePage
@@ -61,7 +45,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
   public static final double WIDTH = 1080;
   public static final double HEIGHT = 750;
-
+  // TODO 优化
   private static final String TREE_ITEM_TYPE_CHUNK_GROUP = "cg";
   private static final String TREE_ITEM_TYPE_CHUNK = "c";
   private static final String TREE_ITEM_TYPE_CHUNK_PAGE = "cp";
@@ -94,8 +78,14 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private List<String> timeseriesList = new ArrayList<>();
 
-  /** timeseriesSearch stage */
-  private TimeseriesSearchPage timeseriesSearchPage;
+  /** measurementSearch Stage*/
+  private MeasurementSearchPage measurementSearchPage;
+
+  private TsFileInfoPage tsfileInfoPage;
+
+  private ChunkInfoPage chunkInfoPage;
+
+  private PageInfoPage pageInfoPage;
 
   private TsFileLoadPage tsFileLoadPage;
 
@@ -116,71 +106,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   // public
   public void init(Stage baseStage) {
-    /**
-    // query region
-    GridPane pan = new GridPane();
-    pan.setLayoutX(0);
-    pan.setLayoutY(0);
-    pan.setPrefWidth(WIDTH);
-    pan.setPrefHeight(HEIGHT * 0.1);
-    pan.setVgap(10);
-    pan.setHgap(5);
-    pan.setPadding(new Insets(5));
-    children.add(pan);
-    Label startTime = new Label("startTime:");
-    pan.add(startTime, 0, 0);
-    DateTimePicker startPicker = new DateTimePicker();
-    pan.add(startPicker, 1, 0);
-    Label endTime = new Label("endTime:");
-    pan.add(endTime, 2, 0);
-    DateTimePicker endPicker = new DateTimePicker();
-    pan.add(endPicker, 3, 0);
-
-    Label deviceIdLabel = new Label("deviceId:");
-    pan.add(deviceIdLabel, 4, 0);
-    TextField deviceIdText = new TextField();
-    pan.add(deviceIdText, 5, 0);
-    Label measurementIdLabel = new Label("measurementId:");
-    pan.add(measurementIdLabel, 6, 0);
-    TextField measurementIdText = new TextField();
-    pan.add(measurementIdText, 7, 0);
-    //        Label valueLabel = new Label("value:");
-    //        pan.add(valueLabel, 0, 2);
-    //        TextField valueText = new TextField();
-    //        pan.add(valueText, 1, 2);
-    Button queryButton = new Button("search...");
-    queryButton.setPrefWidth(WIDTH);
-    pan.add(queryButton, 0, 1, 8, 1);
-    queryButton.setOnMouseClicked(
-        e -> {
-          long startLocalTime =
-              startPicker
-                  .dateTimeProperty()
-                  .getValue()
-                  .atZone(ZoneId.systemDefault())
-                  .toInstant()
-                  .toEpochMilli();
-          long endLocalTime =
-              endPicker
-                  .dateTimeProperty()
-                  .getValue()
-                  .atZone(ZoneId.systemDefault())
-                  .toInstant()
-                  .toEpochMilli();
-          String dv = deviceIdText.getText();
-          String mv = measurementIdText.getText();
-          //            String vv = valueText.getText();
-          try {
-            QueryDataSet queryDataSet =
-                this.tsFileAnalyserV13.queryResult(startLocalTime, endLocalTime, dv, mv, "", 0, 0);
-            showQueryDataSet(dv, mv, queryDataSet);
-          } catch (Exception ex) {
-            logger.error("Failed to query data set, deviceId:{}, measurementId:{}", dv, mv);
-            ex.printStackTrace();
-          }
-        });
-  */
-
     // TreeView Region
     treeView = new TreeView<ChunkTreeItemValue>();
     treeView.setLayoutX(0);
@@ -193,7 +118,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent event) {
-        if (event.getTarget() instanceof LabeledText && event.getClickCount() == 2) {
+        MouseButton mouseButton = event.getButton();
+        if (event.getTarget() instanceof LabeledText && mouseButton == MouseButton.PRIMARY && event.getClickCount() == 2) {
           // create new stage
           TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
           if (currItem != null) {
@@ -213,7 +139,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
               tsfileLoadStage = new Stage();
               tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
               tsfileLoadStage.show();
-              // 3. load file, 实际上在弹窗
+              // 3. load file 初始化, 实际上在弹窗 load
               tsfileItem = currItem;
               tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
               tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
@@ -233,7 +159,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
                   showItemChunk(treeItem);
                 } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
-                  showPageDetail(treeItem);
+                    // TODO 删掉相关逻辑
+//                  showPageDetail(treeItem);
                 } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
                   this.fileTableView.setVisible(true);
                   this.chunkTableView.setVisible(false);
@@ -247,6 +174,54 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 }
             });
 
+    // TODO
+    // TreeView Menu
+    ContextMenu treeViewMenu = new ContextMenu();
+    treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+      // TODO 对于已加载的文件才会显示
+      // PlanA: 弹出警告框（文件未加载）
+      // PlanB: 未加载的文件直接邮件没有反应
+      TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
+      treeViewMenu.getItems().clear();
+      String type = currItem.getValue().getType();
+      switch (type) {
+        case TREE_ITEM_TYPE_TSFILE:
+          MenuItem tsfileMenuItem = new MenuItem("tsfile details");
+          treeViewMenu.getItems().add(tsfileMenuItem);
+          tsfileMenuItem.setOnAction(event -> {
+              Stage tsfileInfoStage = new Stage();
+              tsfileInfoStage.initStyle(StageStyle.UTILITY);
+              tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
+              tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
+          });
+          break;
+        case TREE_ITEM_TYPE_CHUNK:
+          MenuItem chunkMenuItem = new MenuItem("chunk details");
+          treeViewMenu.getItems().add(chunkMenuItem);
+          chunkMenuItem.setOnAction(event -> {
+            Stage chunkInfoStage = new Stage();
+            chunkInfoStage.initStyle(StageStyle.UTILITY);
+            chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
+            chunkInfoPage = new ChunkInfoPage(chunkInfoStage, this, currItem);
+          });
+          break;
+        case TREE_ITEM_TYPE_CHUNK_PAGE:
+          MenuItem pageMenuItem = new MenuItem("page details");
+          treeViewMenu.getItems().add(pageMenuItem);
+          pageMenuItem.setOnAction(event -> {
+            Stage pageInfoStage = new Stage();
+            pageInfoStage.initStyle(StageStyle.UTILITY);
+            pageInfoStage.initModality(Modality.APPLICATION_MODAL);
+            pageInfoPage = new PageInfoPage(pageInfoStage, this, currItem);
+          });
+          break;
+        default:
+          logger.info("unexpect type:{}", type);
+      }
+    });
+    treeView.setContextMenu(treeViewMenu);
+
+    // TODO 代码结构（应该把这些都拆出来， menu 单独的）
     // menu region
     MenuBar menuBar = new MenuBar();
     menuBar.prefWidthProperty().bind(baseStage.widthProperty());
@@ -266,6 +241,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         treeRoot.setGraphic(folderIcon);
 
         File[] files = selectedfolder.listFiles();
+        // TODO 判断 files != null
         for (File f : files) {
           String filePath = f.getPath();
           TreeItem<ChunkTreeItemValue> fileItem = new TreeItem<>(new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
@@ -285,7 +261,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     });
 
     Menu searchMenu = new Menu("Search");
-    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + F)");
+    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + SHIFT + F)");
     searchMenu.getItems().addAll(searchMenuItem);
     Menu encodeMenu = new Menu("Encode");
     CheckMenuItem simulateMenuItem = new CheckMenuItem("Encode Simulation");
@@ -297,71 +273,21 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
             new CheckMenuItem("Contact"));
     menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
 
-    /**
-    // chunk data table view init
-    tableViewInit(
-        pageTableView,
-        pageDatas,
-        false,
-        genColumn(TableAlign.CENTER, "uncompressedSize", "uncompressedSize"),
-        genColumn(TableAlign.CENTER, "compressedSize", "compressedSize"),
-        genColumn(TableAlign.CENTER_LEFT, "statistics", "statistics"));
-    pageTableView.setLayoutX(WIDTH * 0.4);
-    pageTableView.setLayoutY(HEIGHT * 0.1);
-    pageTableView.setPrefWidth(WIDTH * 0.6);
-    pageTableView.setPrefHeight(HEIGHT * 0.1);
-    tableViewInit(
-        tvTableView,
-        tvDatas,
-        false,
-        genColumn(TableAlign.CENTER, "timestamp", "timestamp"),
-        genColumn(TableAlign.CENTER_LEFT, "value", "value"));
-    tvTableView.setLayoutX(WIDTH * 0.4);
-    tvTableView.setLayoutY(HEIGHT * 0.2);
-    tvTableView.setPrefWidth(WIDTH * 0.6);
-    tvTableView.setPrefHeight(HEIGHT * 0.2);
-    tableViewInit(
-        chunkTableView,
-        chunkDatas,
-        false,
-        genColumn(TableAlign.CENTER, "dataSize", "dataSize"),
-        genColumn(TableAlign.CENTER, "dataType", "dataType"),
-        genColumn(TableAlign.CENTER, "compression", "compression"),
-        genColumn(TableAlign.CENTER, "encoding", "encoding"));
-    chunkTableView.setLayoutX(WIDTH * 0.4);
-    chunkTableView.setLayoutY(HEIGHT * 0.1);
-    chunkTableView.setPrefWidth(WIDTH * 0.6);
-    chunkTableView.setPrefHeight(HEIGHT * 0.3);
-    fileTableView = new TableView();
-    ObservableList<FileInfo> fileDatas = FXCollections.observableArrayList();
-    tableViewInit(
-        fileTableView,
-        fileDatas,
-        false,
-        genColumn(TableAlign.CENTER, "fileVersion", "fileVersion"),
-        genColumn(TableAlign.CENTER, "fileSize(M)", "fileSize"),
-        genColumn(TableAlign.CENTER, "dataCounts", "dataCounts"));
-    fileTableView.setLayoutX(WIDTH * 0.4);
-    fileTableView.setLayoutY(HEIGHT * 0.1);
-    fileTableView.setPrefWidth(WIDTH * 0.6);
-    fileTableView.setPrefHeight(HEIGHT * 0.1);
-    fileDatas.add(
-        new FileInfo(
-            3,
-            (long) (this.tsFileAnalyserV13.getFileSize() / 1024),
-            this.tsFileAnalyserV13.getAllCount()));
-    */
+    // Measurement Search
+    searchMenuItem.setOnAction(event -> {
+      Stage measurementSearchStage = new Stage();
+      measurementSearchStage.initStyle(StageStyle.UTILITY);
+      measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
+    });
+    // TODO shorcut key binding: CTR+SHIFT+F
 
-    // TODO
-    // CTR + F 光标定位
-    // 搜索 button
-    // Search field
-    // 可以优化成高亮显示
+    // TimeSeries search
     HBox searchHBox = new HBox();
     TextField searchText = new TextField();
     searchText.setPromptText("Search...");
     searchText.getStyleClass().add("search-field");
     searchText.setOnKeyReleased(e -> {
+      // TODO switch
       // Clear search
       if(e.getCode() == KeyCode.ESCAPE)
         searchText.setText("");
@@ -381,11 +307,11 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.root.getChildren().add(searchHBox);
     // search hidden button
     Button searchHiddenButton = new Button("searchHiddenButton");
-    searchHiddenButton.setVisible(false);
+    searchHiddenButton.setManaged(false);
     this.root.getChildren().add(searchHiddenButton);
-    // shorcut key binding: CTR+F
-    KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
-    this.getScene().getAccelerators().put(shButtonKC, ()-> searchHiddenButton.fire());
+    // shortcut key binding: CTR + F
+    KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
+    this.getScene().getAccelerators().put(shButtonKC, searchHiddenButton::fire);
     // hiddenButton: focus event
     searchHiddenButton.setOnAction(event ->  {
       searchText.requestFocus();
@@ -393,7 +319,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     });
     // searchButton: ENTER shortcut binding
     KeyCombination sButtonKC = new KeyCodeCombination(KeyCode.ENTER);
-    this.getScene().getAccelerators().put(sButtonKC, () -> searchButton.fire());
+    this.getScene().getAccelerators().put(sButtonKC, searchButton::fire);
     // searchButton: search event
     searchButton.setOnAction(
             event -> {
@@ -417,27 +343,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     indexRegion.setPrefWidth(WIDTH);
     indexRegion.setPrefHeight(HEIGHT * 0.96);
     root.getChildren().add(indexRegion);
+    // TODO
 //    indexDataInit();
-
-    /**
-    // search hidden button
-    Button searchHiddenButton = new Button("searchHiddenButton");
-    searchHiddenButton.setVisible(false);
-    this.root.getChildren().add(searchHiddenButton);
-
-    // shorcut key binding: CTR+F
-    KeyCombination kccb = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
-    this.getScene().getAccelerators().put(kccb, ()-> searchHiddenButton.fire());
-
-    // 为按钮添加事件——触发快捷键时打开新的窗口
-    searchHiddenButton.setOnAction(event ->  {
-      // 创建新的stage
-      Stage secondStage = new Stage();
-      timeseriesSearchPage = new TimeseriesSearchPage(secondStage, this);
-
-      secondStage.show();
-    });
-    */
 
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
@@ -458,8 +365,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     return "";
   }
 
-  private void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
-
+  public void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
     // select root
     this.treeView.getSelectionModel().select(0);
     // show datas
@@ -555,59 +461,11 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     }
   }
 
-  /**
-   * click page item show detail
-   *
-   * @param value
-   */
-  private void showPageDetail(TreeItem<ChunkTreeItemValue> value) {
-    this.tvDatas.clear();
-    this.pageDatas.clear();
-    this.fileTableView.setVisible(false);
-    this.chunkTableView.setVisible(false);
-    org.apache.iotdb.tool.core.model.PageInfo pageInfo =
-        (org.apache.iotdb.tool.core.model.PageInfo) value.getValue().getParams();
-    try {
-      if (pageInfo != null) {
-        this.pageDatas.add(
-            new PageInfo(
-                pageInfo.getUncompressedSize(),
-                pageInfo.getCompressedSize(),
-                pageInfo.getStatistics() == null ? "" : pageInfo.getStatistics().toString()));
-      }
-      BatchData batchData = this.tsFileAnalyserV13.fetchBatchDataByPageInfo(pageInfo);
-      while (batchData.hasCurrent()) {
-        Object currValue = batchData.currentValue();
-        this.tvDatas.add(
-            new TimesValues(
-                new Date(batchData.currentTime()).toString(),
-                currValue == null ? "" : currValue.toString()));
-        batchData.next();
-      }
-    } catch (Exception e) {
-      logger.error(
-          "Failed to get page details, the page statistics:{}",
-          pageInfo.getStatistics().toString());
-      e.printStackTrace();
-    }
-    this.tvTableView.setVisible(true);
-    this.pageTableView.setVisible(true);
-  }
-
-  private void tableViewInit(
-      TableView tableView, ObservableList datas, boolean isShow, TableColumn... genColumn) {
-
-    tableView.setItems(datas);
-    tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-    super.root.getChildren().add(tableView);
-    tableView.getColumns().addAll(genColumn);
-    tableView.setVisible(isShow);
-  }
-
   /** chunk group tree data set */
   public void chunkGroupTreeDataInit() {
     // 阻塞文件加载完成展示
     while (true) {
+        // TODO double 精度问题  0.9999..........
         if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
             break;
         }
@@ -663,45 +521,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         });
     tsfileItem.setExpanded(true);
     tsfileLoadStage.close();
-  }
 
-  private TableColumn genColumn(TableAlign align, String showName, String name) {
-
-    if (align == null) {
-      align = TableAlign.CENTER;
-    }
-    TableColumn column = new TableColumn<>(showName);
-    column.setCellValueFactory(new PropertyValueFactory<>(name));
-    column.setCellFactory(
-        new Callback<TableColumn<?, ?>, TableCell<?, ?>>() {
-          private final Tooltip tooltip = new Tooltip();
-
-          @Override
-          public TableCell<?, ?> call(TableColumn<?, ?> param) {
-            return new TableCell<Object, Object>() {
-              @Override
-              protected void updateItem(Object item, boolean empty) {
-                if (item == getItem()) return;
-                super.updateItem(item, empty);
-                if (item == null) {
-                  super.setText(null);
-                  super.setGraphic(null);
-                } else if (item instanceof Node) {
-                  super.setText(null);
-                  super.setGraphic((Node) item);
-                } else {
-                  // tool tip
-                  super.setText(item.toString());
-                  super.setGraphic(null);
-                  super.setTooltip(tooltip);
-                  tooltip.setText(item.toString());
-                }
-              }
-            };
-          }
-        });
-    column.setStyle("-fx-alignment: " + align.getAlign() + ";");
-    return column;
+    // TODO  改成异步？
+    indexDataInit();
   }
 
   @Override
@@ -909,34 +731,12 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     }
   }
 
-  /**
-   * table align [ top-left | top-center | top-right | center-left | center | center-right
-   * bottom-left | bottom-center | bottom-right | baseline-left | baseline-center | baseline-right ]
-   */
-  public enum TableAlign {
-    CENTER("CENTER"),
-    CENTER_LEFT("center-left");
-
-    String align;
-
-    TableAlign(String align) {
-      this.align = align;
-    }
-
-    public String getAlign() {
-      return align;
-    }
-
-    public void setAlign(String align) {
-      this.align = align;
-    }
-  }
-
   public class ChunkTreeItemValue {
 
     private String name;
     private String type;
     private Object params;
+//    private Button button;
 
     public ChunkTreeItemValue(String name, String type, Object params) {
       this.name = name;

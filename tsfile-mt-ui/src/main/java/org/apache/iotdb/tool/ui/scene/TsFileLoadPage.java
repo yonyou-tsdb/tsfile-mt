@@ -10,6 +10,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 import org.slf4j.Logger;
@@ -119,8 +120,8 @@ public class TsFileLoadPage {
     }
 
     public File loadFolder(Stage baseStage) {
-        DirectoryChooser folderChooser = new DirectoryChooser();
-        folderChooser.setTitle("Open Folder");
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Open Folder");
 
         // directoryCache.txt
         File cacheFile = new File("directoryCache.txt");
@@ -131,7 +132,7 @@ public class TsFileLoadPage {
                 inputStream.read(bytes);
                 File directory = new File(new String(bytes));
                 if (directory.exists()) {
-                    folderChooser.setInitialDirectory(directory);
+                    directoryChooser.setInitialDirectory(directory);
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -140,7 +141,7 @@ public class TsFileLoadPage {
             }
         }
 
-        File selectedfolder = folderChooser.showDialog(baseStage);
+        File selectedfolder = directoryChooser.showDialog(baseStage);
 
         // Store the directory to the directoryCache.txt
         if (selectedfolder != null) {
