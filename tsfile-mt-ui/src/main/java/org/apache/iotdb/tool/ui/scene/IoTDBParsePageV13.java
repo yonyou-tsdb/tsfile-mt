@@ -14,7 +14,6 @@ import org.apache.iotdb.tool.ui.node.IndexNode;
 import org.apache.iotdb.tool.ui.view.IconView;
 import org.apache.iotdb.tsfile.file.header.ChunkHeader;
 import org.apache.iotdb.tsfile.file.metadata.ChunkMetadata;
-import org.apache.iotdb.tsfile.read.common.BatchData;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
@@ -150,7 +149,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
       }
     });
 
-
     // tree listener
     treeView.getSelectionModel()
         .selectedItemProperty()
@@ -161,6 +159,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
                   showItemChunk(treeItem);
                 } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
+                    // TODO 删掉相关逻辑
 //                  showPageDetail(treeItem);
                 } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
                   this.fileTableView.setVisible(true);
@@ -281,64 +280,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
       measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
     });
     // TODO shorcut key binding: CTR+SHIFT+F
-
-    /**
-    // chunk data table view init
-    tableViewInit(
-        pageTableView,
-        pageDatas,
-        false,
-        genColumn(TableAlign.CENTER, "uncompressedSize", "uncompressedSize"),
-        genColumn(TableAlign.CENTER, "compressedSize", "compressedSize"),
-        genColumn(TableAlign.CENTER_LEFT, "statistics", "statistics"));
-    pageTableView.setLayoutX(WIDTH * 0.4);
-    pageTableView.setLayoutY(HEIGHT * 0.1);
-    pageTableView.setPrefWidth(WIDTH * 0.6);
-    pageTableView.setPrefHeight(HEIGHT * 0.1);
-
-    tableViewInit(
-        tvTableView,
-        tvDatas,
-        false,
-        genColumn(TableAlign.CENTER, "timestamp", "timestamp"),
-        genColumn(TableAlign.CENTER_LEFT, "value", "value"));
-    tvTableView.setLayoutX(WIDTH * 0.4);
-    tvTableView.setLayoutY(HEIGHT * 0.2);
-    tvTableView.setPrefWidth(WIDTH * 0.6);
-    tvTableView.setPrefHeight(HEIGHT * 0.2);
-
-    tableViewInit(
-        chunkTableView,
-        chunkDatas,
-        false,
-        genColumn(TableAlign.CENTER, "dataSize", "dataSize"),
-        genColumn(TableAlign.CENTER, "dataType", "dataType"),
-        genColumn(TableAlign.CENTER, "compression", "compression"),
-        genColumn(TableAlign.CENTER, "encoding", "encoding"));
-    chunkTableView.setLayoutX(WIDTH * 0.4);
-    chunkTableView.setLayoutY(HEIGHT * 0.1);
-    chunkTableView.setPrefWidth(WIDTH * 0.6);
-    chunkTableView.setPrefHeight(HEIGHT * 0.3);
-
-    fileTableView = new TableView();
-    ObservableList<FileInfo> fileDatas = FXCollections.observableArrayList();
-    tableViewInit(
-        fileTableView,
-        fileDatas,
-        false,
-        genColumn(TableAlign.CENTER, "fileVersion", "fileVersion"),
-        genColumn(TableAlign.CENTER, "fileSize(M)", "fileSize"),
-        genColumn(TableAlign.CENTER, "dataCounts", "dataCounts"));
-    fileTableView.setLayoutX(WIDTH * 0.4);
-    fileTableView.setLayoutY(HEIGHT * 0.1);
-    fileTableView.setPrefWidth(WIDTH * 0.6);
-    fileTableView.setPrefHeight(HEIGHT * 0.1);
-    fileDatas.add(
-        new FileInfo(
-            3,
-            (long) (this.tsFileAnalyserV13.getFileSize() / 1024),
-            this.tsFileAnalyserV13.getAllCount()));
-    */
 
     // TimeSeries search
     HBox searchHBox = new HBox();
@@ -520,45 +461,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     }
   }
 
-  /**
-   * click page item show detail
-   *
-   * @param value
-   */
-  private void showPageDetail(TreeItem<ChunkTreeItemValue> value) {
-    this.tvDatas.clear();
-    this.pageDatas.clear();
-    this.fileTableView.setVisible(false);
-    this.chunkTableView.setVisible(false);
-    org.apache.iotdb.tool.core.model.PageInfo pageInfo =
-        (org.apache.iotdb.tool.core.model.PageInfo) value.getValue().getParams();
-    try {
-      if (pageInfo != null) {
-        this.pageDatas.add(
-            new PageInfo(
-                pageInfo.getUncompressedSize(),
-                pageInfo.getCompressedSize(),
-                pageInfo.getStatistics() == null ? "" : pageInfo.getStatistics().toString()));
-      }
-      BatchData batchData = this.tsFileAnalyserV13.fetchBatchDataByPageInfo(pageInfo);
-      while (batchData.hasCurrent()) {
-        Object currValue = batchData.currentValue();
-        this.tvDatas.add(
-            new TimesValues(
-                new Date(batchData.currentTime()).toString(),
-                currValue == null ? "" : currValue.toString()));
-        batchData.next();
-      }
-    } catch (Exception e) {
-      logger.error(
-          "Failed to get page details, the page statistics:{}",
-          pageInfo.getStatistics().toString());
-      e.printStackTrace();
-    }
-    this.tvTableView.setVisible(true);
-    this.pageTableView.setVisible(true);
-  }
-
   /** chunk group tree data set */
   public void chunkGroupTreeDataInit() {
     // 阻塞文件加载完成展示
@@ -619,6 +521,9 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         });
     tsfileItem.setExpanded(true);
     tsfileLoadStage.close();
+
+    // TODO  改成异步？
+    indexDataInit();
   }
 
   @Override
