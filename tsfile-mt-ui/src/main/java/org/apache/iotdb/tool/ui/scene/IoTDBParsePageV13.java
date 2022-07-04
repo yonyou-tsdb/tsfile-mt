@@ -1,12 +1,5 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import com.sun.javafx.scene.control.skin.LabeledText;
-import javafx.event.EventHandler;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
@@ -18,6 +11,7 @@ import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
 
+import com.sun.javafx.scene.control.skin.LabeledText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +24,16 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  * IoTDBParsePage
@@ -78,7 +78,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private List<String> timeseriesList = new ArrayList<>();
 
-  /** measurementSearch Stage*/
+  /** measurementSearch Stage */
   private MeasurementSearchPage measurementSearchPage;
 
   private TsFileInfoPage tsfileInfoPage;
@@ -115,110 +115,129 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.root.getChildren().add(treeView);
 
     // 双击打开 tsfile 监听事件
-    treeView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
-      @Override
-      public void handle(MouseEvent event) {
-        MouseButton mouseButton = event.getButton();
-        if (event.getTarget() instanceof LabeledText && mouseButton == MouseButton.PRIMARY && event.getClickCount() == 2) {
-          // create new stage
-          TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
-          if (currItem != null) {
-            String type = currItem.getValue().getType();
-            if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
-              String filePath = (String) currItem.getValue().getParams();
-              // 1. file type check
-              if (!tsFileLoadPage.fileTypeCheck(filePath)) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Please choose TsFile!", ButtonType.OK);
-                alert.showAndWait();
+    treeView.addEventHandler(
+        MouseEvent.MOUSE_CLICKED,
+        new EventHandler<MouseEvent>() {
+          @Override
+          public void handle(MouseEvent event) {
+            MouseButton mouseButton = event.getButton();
+            if (event.getTarget() instanceof LabeledText
+                && mouseButton == MouseButton.PRIMARY
+                && event.getClickCount() == 2) {
+              // create new stage
+              TreeItem<ChunkTreeItemValue> currItem =
+                  treeView.getSelectionModel().getSelectedItem();
+              if (currItem != null) {
+                String type = currItem.getValue().getType();
+                if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
+                  String filePath = (String) currItem.getValue().getParams();
+                  // 1. file type check
+                  if (!tsFileLoadPage.fileTypeCheck(filePath)) {
+                    Alert alert =
+                        new Alert(Alert.AlertType.ERROR, "Please choose TsFile!", ButtonType.OK);
+                    alert.showAndWait();
+                  }
+                  // 2. file version check
+                  if (!tsFileLoadPage.fileVersionCheck(filePath)) {
+                    Alert alert =
+                        new Alert(
+                            Alert.AlertType.ERROR,
+                            "Sorry, We currently only support the 3.0 TsFile version!",
+                            ButtonType.OK);
+                    alert.showAndWait();
+                  }
+                  tsfileLoadStage = new Stage();
+                  tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
+                  tsfileLoadStage.show();
+                  // 3. load file 初始化, 实际上在弹窗 load
+                  tsfileItem = currItem;
+                  tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
+                  tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
+                }
               }
-              // 2. file version check
-              if (!tsFileLoadPage.fileVersionCheck(filePath)) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "Sorry, We currently only support the 3.0 TsFile version!", ButtonType.OK);
-                alert.showAndWait();
-              }
-              tsfileLoadStage = new Stage();
-              tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
-              tsfileLoadStage.show();
-              // 3. load file 初始化, 实际上在弹窗 load
-              tsfileItem = currItem;
-              tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
-              tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
             }
           }
-        }
-      }
-    });
+        });
 
     // tree listener
-    treeView.getSelectionModel()
+    treeView
+        .getSelectionModel()
         .selectedItemProperty()
         .addListener(
             (observable, oldValue, newValue) -> {
-                TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
-                String type = treeItem.getValue().getType();
-                if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
-                  showItemChunk(treeItem);
-                } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
-                    // TODO 删掉相关逻辑
-//                  showPageDetail(treeItem);
-                } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
-                  this.fileTableView.setVisible(true);
-                  this.chunkTableView.setVisible(false);
-                  this.tvTableView.setVisible(false);
-                  this.pageTableView.setVisible(false);
-                } else {
-                  this.fileTableView.setVisible(false);
-                  this.chunkTableView.setVisible(false);
-                  this.tvTableView.setVisible(false);
-                  this.pageTableView.setVisible(false);
-                }
+              TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
+              String type = treeItem.getValue().getType();
+              if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
+                showItemChunk(treeItem);
+              } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
+                // TODO 删掉相关逻辑
+                //                  showPageDetail(treeItem);
+              } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
+                this.fileTableView.setVisible(true);
+                this.chunkTableView.setVisible(false);
+                this.tvTableView.setVisible(false);
+                this.pageTableView.setVisible(false);
+              } else {
+                this.fileTableView.setVisible(false);
+                this.chunkTableView.setVisible(false);
+                this.tvTableView.setVisible(false);
+                this.pageTableView.setVisible(false);
+              }
             });
 
     // TODO
     // TreeView Menu
     ContextMenu treeViewMenu = new ContextMenu();
-    treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-      // TODO 对于已加载的文件才会显示
-      // PlanA: 弹出警告框（文件未加载）
-      // PlanB: 未加载的文件直接邮件没有反应
-      TreeItem<ChunkTreeItemValue> currItem = treeView.getSelectionModel().getSelectedItem();
-      treeViewMenu.getItems().clear();
-      String type = currItem.getValue().getType();
-      switch (type) {
-        case TREE_ITEM_TYPE_TSFILE:
-          MenuItem tsfileMenuItem = new MenuItem("tsfile details");
-          treeViewMenu.getItems().add(tsfileMenuItem);
-          tsfileMenuItem.setOnAction(event -> {
-              Stage tsfileInfoStage = new Stage();
-              tsfileInfoStage.initStyle(StageStyle.UTILITY);
-              tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
-              tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
-          });
-          break;
-        case TREE_ITEM_TYPE_CHUNK:
-          MenuItem chunkMenuItem = new MenuItem("chunk details");
-          treeViewMenu.getItems().add(chunkMenuItem);
-          chunkMenuItem.setOnAction(event -> {
-            Stage chunkInfoStage = new Stage();
-            chunkInfoStage.initStyle(StageStyle.UTILITY);
-            chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
-            chunkInfoPage = new ChunkInfoPage(chunkInfoStage, this, currItem);
-          });
-          break;
-        case TREE_ITEM_TYPE_CHUNK_PAGE:
-          MenuItem pageMenuItem = new MenuItem("page details");
-          treeViewMenu.getItems().add(pageMenuItem);
-          pageMenuItem.setOnAction(event -> {
-            Stage pageInfoStage = new Stage();
-            pageInfoStage.initStyle(StageStyle.UTILITY);
-            pageInfoStage.initModality(Modality.APPLICATION_MODAL);
-            pageInfoPage = new PageInfoPage(pageInfoStage, this, currItem);
-          });
-          break;
-        default:
-          logger.info("unexpect type:{}", type);
-      }
-    });
+    treeView
+        .getSelectionModel()
+        .selectedItemProperty()
+        .addListener(
+            (observable, oldValue, newValue) -> {
+              // TODO 对于已加载的文件才会显示
+              // PlanA: 弹出警告框（文件未加载）
+              // PlanB: 未加载的文件直接邮件没有反应
+              TreeItem<ChunkTreeItemValue> currItem =
+                  treeView.getSelectionModel().getSelectedItem();
+              treeViewMenu.getItems().clear();
+              String type = currItem.getValue().getType();
+              switch (type) {
+                case TREE_ITEM_TYPE_TSFILE:
+                  MenuItem tsfileMenuItem = new MenuItem("tsfile details");
+                  treeViewMenu.getItems().add(tsfileMenuItem);
+                  tsfileMenuItem.setOnAction(
+                      event -> {
+                        Stage tsfileInfoStage = new Stage();
+                        tsfileInfoStage.initStyle(StageStyle.UTILITY);
+                        tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
+                        tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
+                      });
+                  break;
+                case TREE_ITEM_TYPE_CHUNK:
+                  MenuItem chunkMenuItem = new MenuItem("chunk details");
+                  treeViewMenu.getItems().add(chunkMenuItem);
+                  chunkMenuItem.setOnAction(
+                      event -> {
+                        Stage chunkInfoStage = new Stage();
+                        chunkInfoStage.initStyle(StageStyle.UTILITY);
+                        chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
+                        chunkInfoPage = new ChunkInfoPage(chunkInfoStage, this, currItem);
+                      });
+                  break;
+                case TREE_ITEM_TYPE_CHUNK_PAGE:
+                  MenuItem pageMenuItem = new MenuItem("page details");
+                  treeViewMenu.getItems().add(pageMenuItem);
+                  pageMenuItem.setOnAction(
+                      event -> {
+                        Stage pageInfoStage = new Stage();
+                        pageInfoStage.initStyle(StageStyle.UTILITY);
+                        pageInfoStage.initModality(Modality.APPLICATION_MODAL);
+                        pageInfoPage = new PageInfoPage(pageInfoStage, this, currItem);
+                      });
+                  break;
+                default:
+                  logger.info("unexpect type:{}", type);
+              }
+            });
     treeView.setContextMenu(treeViewMenu);
 
     // TODO 代码结构（应该把这些都拆出来， menu 单独的）
@@ -233,32 +252,37 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     Menu fileMenu = new Menu("File");
     MenuItem loadFileMenuItem = new MenuItem("Load");
     fileMenu.getItems().addAll(loadFileMenuItem);
-    loadFileMenuItem.setOnAction(event -> {
-      selectedfolder = tsFileLoadPage.loadFolder(baseStage);
-      if (selectedfolder != null) {
-        TreeItem<ChunkTreeItemValue> treeRoot = new TreeItem<>(new ChunkTreeItemValue(selectedfolder.getName(), TREE_ITEM_TYPE_FOLDER, null));
-        Node folderIcon = new IconView("/icons/folder-package.png");
-        treeRoot.setGraphic(folderIcon);
+    loadFileMenuItem.setOnAction(
+        event -> {
+          selectedfolder = tsFileLoadPage.loadFolder(baseStage);
+          if (selectedfolder != null) {
+            TreeItem<ChunkTreeItemValue> treeRoot =
+                new TreeItem<>(
+                    new ChunkTreeItemValue(selectedfolder.getName(), TREE_ITEM_TYPE_FOLDER, null));
+            Node folderIcon = new IconView("/icons/folder-package.png");
+            treeRoot.setGraphic(folderIcon);
 
-        File[] files = selectedfolder.listFiles();
-        // TODO 判断 files != null
-        for (File f : files) {
-          String filePath = f.getPath();
-          TreeItem<ChunkTreeItemValue> fileItem = new TreeItem<>(new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
-          treeRoot.getChildren().add(fileItem);
-          Node tsfileIcon = new IconView("/icons/folder-source.png");
-          fileItem.setGraphic(tsfileIcon);
-          // TODO 每个 fileItem 增加双击打开监听事件
-          // 不能让用户重复点击某一个已打开的 tsfile
-          // 清空缓存
-          // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
-          // 加载文件的窗口需要优化：按钮点击之后，不能重复点（可以隐藏起来）
-          // 选中文件加 Enter 快捷键
-        }
-        treeView.setRoot(treeRoot);
-        treeRoot.setExpanded(true);
-      }
-    });
+            File[] files = selectedfolder.listFiles();
+            // TODO 判断 files != null
+            for (File f : files) {
+              String filePath = f.getPath();
+              TreeItem<ChunkTreeItemValue> fileItem =
+                  new TreeItem<>(
+                      new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
+              treeRoot.getChildren().add(fileItem);
+              Node tsfileIcon = new IconView("/icons/folder-source.png");
+              fileItem.setGraphic(tsfileIcon);
+              // TODO 每个 fileItem 增加双击打开监听事件
+              // 不能让用户重复点击某一个已打开的 tsfile
+              // 清空缓存
+              // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
+              // 加载文件的窗口需要优化：按钮点击之后，不能重复点（可以隐藏起来）
+              // 选中文件加 Enter 快捷键
+            }
+            treeView.setRoot(treeRoot);
+            treeRoot.setExpanded(true);
+          }
+        });
 
     Menu searchMenu = new Menu("Search");
     CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + SHIFT + F)");
@@ -268,17 +292,16 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     encodeMenu.getItems().addAll(simulateMenuItem);
     Menu configMenu = new Menu("Config");
     Menu helpManeu = new Menu("Help");
-    helpManeu.getItems().addAll(
-            new CheckMenuItem("Documentation"),
-            new CheckMenuItem("Contact"));
+    helpManeu.getItems().addAll(new CheckMenuItem("Documentation"), new CheckMenuItem("Contact"));
     menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
 
     // Measurement Search
-    searchMenuItem.setOnAction(event -> {
-      Stage measurementSearchStage = new Stage();
-      measurementSearchStage.initStyle(StageStyle.UTILITY);
-      measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
-    });
+    searchMenuItem.setOnAction(
+        event -> {
+          Stage measurementSearchStage = new Stage();
+          measurementSearchStage.initStyle(StageStyle.UTILITY);
+          measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
+        });
     // TODO shorcut key binding: CTR+SHIFT+F
 
     // TimeSeries search
@@ -286,17 +309,16 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     TextField searchText = new TextField();
     searchText.setPromptText("Search...");
     searchText.getStyleClass().add("search-field");
-    searchText.setOnKeyReleased(e -> {
-      // TODO switch
-      // Clear search
-      if(e.getCode() == KeyCode.ESCAPE)
-        searchText.setText("");
-        // Navigation keys refocus the tree
-      else if (e.getCode() == KeyCode.UP ||
-              e.getCode() == KeyCode.DOWN) {
-        treeView.requestFocus();
-      }
-    });
+    searchText.setOnKeyReleased(
+        e -> {
+          // TODO switch
+          // Clear search
+          if (e.getCode() == KeyCode.ESCAPE) searchText.setText("");
+          // Navigation keys refocus the tree
+          else if (e.getCode() == KeyCode.UP || e.getCode() == KeyCode.DOWN) {
+            treeView.requestFocus();
+          }
+        });
     Button searchButton = new Button();
     searchButton.setGraphic(new ImageView("/icons/find-light.png"));
     searchButton.getStyleClass().add("search-button");
@@ -313,26 +335,26 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     KeyCombination shButtonKC = new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN);
     this.getScene().getAccelerators().put(shButtonKC, searchHiddenButton::fire);
     // hiddenButton: focus event
-    searchHiddenButton.setOnAction(event ->  {
-      searchText.requestFocus();
-      searchText.selectAll();
-    });
+    searchHiddenButton.setOnAction(
+        event -> {
+          searchText.requestFocus();
+          searchText.selectAll();
+        });
     // searchButton: ENTER shortcut binding
     KeyCombination sButtonKC = new KeyCodeCombination(KeyCode.ENTER);
     this.getScene().getAccelerators().put(sButtonKC, searchButton::fire);
     // searchButton: search event
     searchButton.setOnAction(
-            event -> {
-              // TODO
-              // 1. 优化为忽略大小写
-              // 2. 动态查询（例如 idea） 也可以全部高亮显示
-              String searchResult = timeseriesSearch(searchText.getText());
-              if (searchResult == null) {
-                return;
-              }
-              chooseTree(searchResult);
-            }
-    );
+        event -> {
+          // TODO
+          // 1. 优化为忽略大小写
+          // 2. 动态查询（例如 idea） 也可以全部高亮显示
+          String searchResult = timeseriesSearch(searchText.getText());
+          if (searchResult == null) {
+            return;
+          }
+          chooseTree(searchResult);
+        });
 
     // index region
     ScrollPane indexRegion = new ScrollPane();
@@ -344,7 +366,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     indexRegion.setPrefHeight(HEIGHT * 0.96);
     root.getChildren().add(indexRegion);
     // TODO
-//    indexDataInit();
+    //    indexDataInit();
 
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
@@ -365,7 +387,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     return "";
   }
 
-  public void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet) throws Exception {
+  public void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet)
+      throws Exception {
     // select root
     this.treeView.getSelectionModel().select(0);
     // show datas
@@ -444,7 +467,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         if (pageInfoList != null && pageInfoList.get(0) != null) {
           for (int i = 1; i <= pageInfoList.size(); i++) {
             ChunkTreeItemValue pageValue =
-                new ChunkTreeItemValue("page " + i, TREE_ITEM_TYPE_CHUNK_PAGE, pageInfoList.get(i - 1));
+                new ChunkTreeItemValue(
+                    "page " + i, TREE_ITEM_TYPE_CHUNK_PAGE, pageInfoList.get(i - 1));
             TreeItem<ChunkTreeItemValue> pageItem = new TreeItem<>(pageValue);
             Node pageIcon = new IconView("/icons/text.png");
             pageItem.setGraphic(pageIcon);
@@ -465,15 +489,15 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   public void chunkGroupTreeDataInit() {
     // 阻塞文件加载完成展示
     while (true) {
-        // TODO double 精度问题  0.9999..........
-        if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
-            break;
-        }
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+      // TODO double 精度问题  0.9999..........
+      if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
+        break;
+      }
+      try {
+        Thread.sleep(200);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
 
     List<ChunkGroupMetadataModel> chunkGroupMetadataModelList =
@@ -512,7 +536,8 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
               Node measurementIcon = new IconView("icons/text-code.png");
               chunkMetaItem.setGraphic(measurementIcon);
               chunkGroupMetaItem.getChildren().add(chunkMetaItem);
-              timeseriesList.add(chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
+              timeseriesList.add(
+                  chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
               indexMap.put(
                   chunkGroupMetadataMode.getDevice() + "." + chunkMetadata.getMeasurementUid(),
                   chunkMetaItem);
@@ -736,7 +761,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     private String name;
     private String type;
     private Object params;
-//    private Button button;
+    //    private Button button;
 
     public ChunkTreeItemValue(String name, String type, Object params) {
       this.name = name;

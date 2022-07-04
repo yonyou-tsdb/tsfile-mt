@@ -3,7 +3,6 @@ package org.apache.iotdb.tool.core.test;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
-import org.apache.iotdb.tsfile.read.common.BatchData;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,13 +19,13 @@ public class TsFilePageBatchDataTest {
                 .get(0)
                 .getChunkMetadataList()
                 .get(0));
-    for (PageInfo pageInfo : pageInfoList) {
-      BatchData batchData = tsFileAnalyserV13.fetchBatchDataByPageInfo(pageInfo);
-      while (batchData.hasCurrent()) {
-        System.out.println(
-            "time :" + batchData.currentTime() + " value:" + batchData.currentValue());
-        batchData.next();
-      }
-    }
+    //    for (PageInfo pageInfo : pageInfoList) {
+    //      BatchData batchData = tsFileAnalyserV13.fetchBatchDataByPageInfo(pageInfo);
+    //      while (batchData.hasCurrent()) {
+    //        System.out.println(
+    //            "time :" + batchData.currentTime() + " value:" + batchData.currentValue());
+    //        batchData.next();
+    //      }
+    //    }
   }
 }

@@ -1,21 +1,22 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.event.EventHandler;
-import javafx.scene.image.Image;
-import javafx.stage.WindowEvent;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javafx.stage.WindowEvent;
 
 /**
  * scenes manager for scene change
@@ -94,21 +95,23 @@ public class ScenesManager {
       case HOME:
         page = pages.computeIfAbsent(SceneType.HOME, (key) -> new HomePage());
         break;
-//      case TSFILE_CHOOSE:
-//        page =
-//            pages.computeIfAbsent(SceneType.TSFILE_CHOOSE, (key) -> new TsFileChooserPage(stage));
-//        logger.info("TsFile Choose, the page: {}", page);
-//        break;
+        //      case TSFILE_CHOOSE:
+        //        page =
+        //            pages.computeIfAbsent(SceneType.TSFILE_CHOOSE, (key) -> new
+        // TsFileChooserPage(stage));
+        //        logger.info("TsFile Choose, the page: {}", page);
+        //        break;
       default:
         logger.info("Unexpect sceneType, the sceneType: {}", sceneType);
         return;
     }
 
-    stage.setOnCloseRequest(new EventHandler<WindowEvent>(){
-      public void handle(WindowEvent event) {
-        Platform.exit();
-      }
-    });
+    stage.setOnCloseRequest(
+        new EventHandler<WindowEvent>() {
+          public void handle(WindowEvent event) {
+            Platform.exit();
+          }
+        });
 
     stage.setScene(page.getScene());
     stage.setTitle(page.getName());

@@ -3,13 +3,12 @@ package org.apache.iotdb.tool.ui.node;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13;
 
+import java.util.List;
 import javafx.scene.Group;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import java.util.List;
 
 /**
  * index entity node
@@ -140,10 +139,10 @@ public class EntityNode {
 
   private void stretch() {
     closeBrotherNode(this);
-    if(!this.childNode.isDraw()) {
+    if (!this.childNode.isDraw()) {
       this.childNode.draw();
     } else {
-      if(this.childNode != null) {
+      if (this.childNode != null) {
         this.childNode.setVisible(true);
       }
     }
@@ -151,7 +150,7 @@ public class EntityNode {
   }
 
   private void shorten() {
-    if(this.childNode != null) {
+    if (this.childNode != null) {
       this.childNode.setVisible(false);
       this.stretch = false;
     }
