@@ -1,5 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
 import org.apache.iotdb.tsfile.read.common.BatchData;
@@ -8,7 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -68,17 +72,21 @@ public class PageInfoPage {
 
     // 数据来源
     ObservableList<IoTDBParsePageV13.PageInfo> pageDatas = FXCollections.observableArrayList();
-    org.apache.iotdb.tool.core.model.PageInfo pageInfo =
-        (org.apache.iotdb.tool.core.model.PageInfo) pageItem.getValue().getParams();
+//    org.apache.iotdb.tool.core.model.PageInfo pageInfo =
+//        (org.apache.iotdb.tool.core.model.PageInfo) pageItem.getValue().getParams();
+//
+    List<PageInfo> pageInfos = new ArrayList<>();
+    pageInfos.add((PageInfo) pageItem.getValue().getParams());
     try {
       pageDatas.add(
           new IoTDBParsePageV13.PageInfo(
-              pageInfo.getUncompressedSize(),
-              pageInfo.getCompressedSize(),
-              pageInfo.getStatistics() == null ? "" : pageInfo.getStatistics().toString()));
+              // TODO 优化代码
+              pageInfos.get(0).getUncompressedSize(),
+              pageInfos.get(0).getCompressedSize(),
+              pageInfos.get(0).getStatistics() == null ? "" : pageInfos.get(0).getStatistics().toString()));
 
       BatchData batchData =
-          ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfo);
+          ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfos);
       while (batchData.hasCurrent()) {
         Object currValue = batchData.currentValue();
         this.tvDatas.add(
@@ -90,7 +98,7 @@ public class PageInfoPage {
     } catch (Exception e) {
       logger.error(
           "Failed to get page details, the page statistics:{}",
-          pageInfo.getStatistics().toString());
+          pageInfos.get(0).getStatistics().toString());
       // TODO
       e.printStackTrace();
     }

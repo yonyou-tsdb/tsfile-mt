@@ -6,9 +6,12 @@ import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.ui.node.IndexNode;
 import org.apache.iotdb.tool.ui.view.IconView;
 import org.apache.iotdb.tsfile.file.header.ChunkHeader;
+import org.apache.iotdb.tsfile.file.metadata.AlignedChunkMetadata;
 import org.apache.iotdb.tsfile.file.metadata.ChunkMetadata;
+import org.apache.iotdb.tsfile.file.metadata.IChunkMetadata;
 import org.apache.iotdb.tsfile.read.common.Field;
 import org.apache.iotdb.tsfile.read.common.RowRecord;
+import org.apache.iotdb.tsfile.read.controller.IChunkLoader;
 import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
 
 import com.sun.javafx.scene.control.skin.LabeledText;
@@ -458,7 +461,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.chunkTableView.setVisible(true);
     try {
       List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList =
-          this.tsFileAnalyserV13.fetchPageInfoListByChunkMetadata(params.getChunkMetadata());
+          this.tsFileAnalyserV13.fetchPageInfoListByChunkMetadata(params.getiChunkMetadata());
       ObservableList<TreeItem<ChunkTreeItemValue>> chunkChild = value.getChildren();
       if (chunkChild == null) {
         return;
@@ -479,7 +482,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     } catch (IOException e) {
       logger.error(
           "Failed to get pageInfo list of the chunk, the chunk dataType:{}",
-          params.getChunkMetadata().getDataType());
+          params.getiChunkMetadata().getDataType());
       e.printStackTrace();
       return;
     }
@@ -519,28 +522,69 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
           timeseriesList.add(chunkGroupMetaItemValue.getName());
           indexMap.put(chunkGroupMetadataMode.getDevice(), chunkGroupMetaItem);
-          List<ChunkMetadata> chunkMetadataList = chunkGroupMetadataMode.getChunkMetadataList();
-          List<ChunkHeader> chunkHeaderList = chunkGroupMetadataMode.getChunkHeaderList();
-          if (chunkMetadataList != null
-              && chunkHeaderList != null
-              && chunkMetadataList.size() == chunkHeaderList.size()) {
-            for (int i = 0; i < chunkMetadataList.size(); i++) {
-              ChunkMetadata chunkMetadata = chunkMetadataList.get(i);
-              ChunkHeader chunkHeader = chunkHeaderList.get(i);
-              ChunkTreeItemValue chunkMetaItemValue =
-                  new ChunkTreeItemValue(
-                      chunkMetadata.getMeasurementUid(),
-                      TREE_ITEM_TYPE_CHUNK,
-                      new ChunkWrap(chunkMetadata, chunkHeader));
-              TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
-              Node measurementIcon = new IconView("icons/text-code.png");
-              chunkMetaItem.setGraphic(measurementIcon);
-              chunkGroupMetaItem.getChildren().add(chunkMetaItem);
-              timeseriesList.add(
-                  chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
-              indexMap.put(
-                  chunkGroupMetadataMode.getDevice() + "." + chunkMetadata.getMeasurementUid(),
-                  chunkMetaItem);
+          // TODO
+          List<IChunkMetadata> chunkMetadataList = chunkGroupMetadataMode.getChunkMetadataList();
+          List<List<ChunkHeader>> chunkHeaderList = chunkGroupMetadataMode.getChunkHeaderList();
+          if (chunkMetadataList != null && !chunkMetadataList.isEmpty() && chunkHeaderList != null && !chunkHeaderList.isEmpty()) {
+            ChunkTreeItemValue chunkMetaItemValue = null;
+            if (chunkMetadataList.get(0) != null) {
+              // 1. aligned
+              if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
+                chunkGroupMetaItem.getValue().setName("[Aligned]" + chunkGroupMetaItem.getValue().getName());
+                // 对齐 Chunk: chunkMetadataList, chunkHeaderList 的 size() 都为 1
+                IChunkMetadata iChunkMetadata = chunkMetadataList.get(0);
+                List<ChunkHeader> chunkHeaders = chunkHeaderList.get(0);
+                AlignedChunkMetadata alignedChunkMetadata = (AlignedChunkMetadata)iChunkMetadata;
+                for (int i = 0; i < chunkHeaders.size(); i++) {
+                  if (i == 0) {
+                    String timeChunkName = "TimeChunk";
+                    chunkMetaItemValue =
+                      new ChunkTreeItemValue(
+                              timeChunkName,
+                              TREE_ITEM_TYPE_CHUNK,
+                              new ChunkWrap(alignedChunkMetadata, chunkHeaders.get(i))
+                      );
+                  } else {
+                    String measurementId = alignedChunkMetadata.getValueChunkMetadataList().get(i - 1).getMeasurementUid();
+                    chunkMetaItemValue =
+                      new ChunkTreeItemValue(
+                              measurementId,
+                              TREE_ITEM_TYPE_CHUNK,
+                              new ChunkWrap(alignedChunkMetadata, chunkHeaders.get(i))
+                      );
+                  }
+                  TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
+                  Node measurementIcon = new IconView("icons/text-code.png");
+                  chunkMetaItem.setGraphic(measurementIcon);
+                  chunkGroupMetaItem.getChildren().add(chunkMetaItem);
+                  timeseriesList.add(
+                          chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
+                  indexMap.put(
+                          chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName(),
+                          chunkMetaItem);
+                }
+              } else {
+                // 2. non-aligned
+                for (int i = 0; i < chunkMetadataList.size(); i++) {
+                  IChunkMetadata iChunkMetadata = chunkMetadataList.get(i);
+                  List<ChunkHeader> chunkHeaders = chunkHeaderList.get(i);
+                  chunkMetaItemValue =
+                          new ChunkTreeItemValue(
+                                  iChunkMetadata.getMeasurementUid(),
+                                  TREE_ITEM_TYPE_CHUNK,
+                                  new ChunkWrap(iChunkMetadata, chunkHeaders.get(0))
+                          );
+                  TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
+                  Node measurementIcon = new IconView("icons/text-code.png");
+                  chunkMetaItem.setGraphic(measurementIcon);
+                  chunkGroupMetaItem.getChildren().add(chunkMetaItem);
+                  timeseriesList.add(
+                          chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
+                  indexMap.put(
+                          chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName(),
+                          chunkMetaItem);
+                }
+              }
             }
           }
         });
@@ -800,20 +844,20 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   }
 
   public static class ChunkWrap {
-    public ChunkMetadata chunkMetadata;
+    public IChunkMetadata iChunkMetadata;
     public ChunkHeader chunkHeader;
 
-    public ChunkWrap(ChunkMetadata chunkMetadata, ChunkHeader chunkHeader) {
-      this.chunkMetadata = chunkMetadata;
+    public ChunkWrap(IChunkMetadata iChunkMetadata, ChunkHeader chunkHeader) {
+      this.iChunkMetadata = iChunkMetadata;
       this.chunkHeader = chunkHeader;
     }
 
-    public ChunkMetadata getChunkMetadata() {
-      return chunkMetadata;
+    public IChunkMetadata getiChunkMetadata() {
+      return iChunkMetadata;
     }
 
-    public void setChunkMetadata(ChunkMetadata chunkMetadata) {
-      this.chunkMetadata = chunkMetadata;
+    public void setChunkMetadata(IChunkMetadata iChunkMetadata) {
+      this.iChunkMetadata = iChunkMetadata;
     }
 
     public ChunkHeader getChunkHeader() {
