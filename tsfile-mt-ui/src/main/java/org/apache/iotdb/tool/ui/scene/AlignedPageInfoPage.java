@@ -73,7 +73,8 @@ public class AlignedPageInfoPage {
         alignedTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         alignedTableView.setVisible(true);
         // Add Column and Data to TableView
-        List<PageInfo> pageInfoList = (List<PageInfo>) pageItem.getValue().getParams();
+        IoTDBParsePageV13.AlignedPageItemParams pageItemParams = (IoTDBParsePageV13.AlignedPageItemParams) pageItem.getValue().getParams();
+        List<PageInfo> pageInfoList = pageItemParams.getPageInfoList();
         try {
             BatchData batchData = ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfoList);
             // 1. Add Time Column and it's Data
@@ -92,7 +93,8 @@ public class AlignedPageInfoPage {
                 for (int i = 0; i < measurementCounts; i++) {
                     // Add value columns
                     if (idx == 0) {
-                        TableColumn<HashMap<String, SimpleStringProperty>, String> valueCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>("value" + i);
+                        String measurementId = pageItemParams.getChunkHeaderList().get(i + 1).getMeasurementID();
+                        TableColumn<HashMap<String, SimpleStringProperty>, String> valueCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>(measurementId);
                         valueCol.setCellValueFactory(new MapValueFactory("value" + i));
                         alignedTableView.getColumns().add(valueCol);
                     }

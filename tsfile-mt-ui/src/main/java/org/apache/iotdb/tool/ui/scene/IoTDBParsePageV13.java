@@ -473,19 +473,21 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   /** click Aligned Chunk show its pages */
   public void showItemAlignedChunk(TreeItem<ChunkTreeItemValue> alignedChunkItem) {
     AlignedChunkWrap params = (AlignedChunkWrap) alignedChunkItem.getValue().getParams();
+    List<ChunkHeader> chunkHeaderList = params.getChunkHeaderList().get(0);
     try {
-      List<List<org.apache.iotdb.tool.core.model.PageInfo>> pageLists =
+      List<List<org.apache.iotdb.tool.core.model.PageInfo>> pageInfoLists =
               tsFileAnalyserV13.fetchPageInfoListByIChunkMetadata(params.getChunkMetadataList().get(0));
       ObservableList<TreeItem<ChunkTreeItemValue>> chunkChild = alignedChunkItem.getChildren();
       if (chunkChild == null) {
         return;
       }
       if (chunkChild.size() == 0) {
-        if (pageLists != null && pageLists.get(0) != null) {
-          for (int i = 1; i <= pageLists.size(); i++) {
+        if (pageInfoLists != null && pageInfoLists.get(0) != null) {
+          for (int i = 1; i <= pageInfoLists.size(); i++) {
+            AlignedPageItemParams pageItemParams = new AlignedPageItemParams(pageInfoLists.get(i - 1), chunkHeaderList);
             ChunkTreeItemValue pageValue =
                     new ChunkTreeItemValue(
-                            "page " + i, TREE_ITEM_TYPE_CHUNK_PAGE, pageLists.get(i - 1));
+                            "page " + i, TREE_ITEM_TYPE_CHUNK_PAGE, pageItemParams);
             TreeItem<ChunkTreeItemValue> pageItem = new TreeItem<>(pageValue);
             Node pageIcon = new IconView("/icons/text.png");
             pageItem.setGraphic(pageIcon);
@@ -554,7 +556,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 chunkMetaItem.setGraphic(measurementIcon);
                 chunkGroupMetaItem.getChildren().add(chunkMetaItem);
               }
-
               // 1. aligned
               if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
                 chunkGroupMetaItem.getValue().setName("[Aligned]" + chunkGroupMetaItem.getValue().getName());
@@ -919,6 +920,35 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     }
 
     public void setChunkHeaderList(List<List<ChunkHeader>> chunkHeaderList) {
+      this.chunkHeaderList = chunkHeaderList;
+    }
+  }
+
+  public static class AlignedPageItemParams {
+    private List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList;
+    private List<ChunkHeader> chunkHeaderList;
+
+    public AlignedPageItemParams() {
+    }
+
+    public AlignedPageItemParams(List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList, List<ChunkHeader> chunkHeaderList) {
+      this.pageInfoList = pageInfoList;
+      this.chunkHeaderList = chunkHeaderList;
+    }
+
+    public List<org.apache.iotdb.tool.core.model.PageInfo> getPageInfoList() {
+      return pageInfoList;
+    }
+
+    public void setPageInfoList(List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList) {
+      this.pageInfoList = pageInfoList;
+    }
+
+    public List<ChunkHeader> getChunkHeaderList() {
+      return chunkHeaderList;
+    }
+
+    public void setChunkHeaderList(List<ChunkHeader> chunkHeaderList) {
       this.chunkHeaderList = chunkHeaderList;
     }
   }
