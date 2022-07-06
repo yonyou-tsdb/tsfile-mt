@@ -1,5 +1,7 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
@@ -63,18 +65,26 @@ public class PageInfoPage {
   }
 
   private void init(Stage stage) {
+    // page of Aligned ChunkGroup
+    if (!(pageItem.getValue().getParams() instanceof PageInfo)) {
+      System.out.println("Aligned Page");
+      Stage chunkInfoStage = new Stage();
+      chunkInfoStage.initStyle(StageStyle.UTILITY);
+      chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
+      AlignedPageInfoPage alignedPageInfoPage = new AlignedPageInfoPage(stage, ioTDBParsePage, pageItem);
+      return;
+    }
+
     anchorPane = new AnchorPane();
     scene = new Scene(anchorPane, WIDTH, HEIGHT);
     stage.setScene(scene);
-    stage.setTitle("Search: Measurement");
+    stage.setTitle("Page Information");
     stage.show();
     stage.setResizable(false);
 
     // 数据来源
     ObservableList<IoTDBParsePageV13.PageInfo> pageDatas = FXCollections.observableArrayList();
-//    org.apache.iotdb.tool.core.model.PageInfo pageInfo =
-//        (org.apache.iotdb.tool.core.model.PageInfo) pageItem.getValue().getParams();
-//
+
     List<PageInfo> pageInfos = new ArrayList<>();
     pageInfos.add((PageInfo) pageItem.getValue().getParams());
     try {
@@ -91,8 +101,8 @@ public class PageInfoPage {
         Object currValue = batchData.currentValue();
         this.tvDatas.add(
             new IoTDBParsePageV13.TimesValues(
-                new Date(batchData.currentTime()).toString(),
-                currValue == null ? "" : currValue.toString()));
+                    new Date(batchData.currentTime()).toString(),
+            currValue == null ? "" : currValue.toString()));
         batchData.next();
       }
     } catch (Exception e) {

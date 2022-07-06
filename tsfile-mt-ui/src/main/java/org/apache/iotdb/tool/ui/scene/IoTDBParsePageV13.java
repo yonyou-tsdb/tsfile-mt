@@ -1,6 +1,7 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
+import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.ui.node.IndexNode;
@@ -171,7 +172,11 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
               TreeItem<ChunkTreeItemValue> treeItem = observable.getValue();
               String type = treeItem.getValue().getType();
               if (TREE_ITEM_TYPE_CHUNK.equals(type)) {
-                showItemChunk(treeItem);
+                if (treeItem.getValue().getName().equals("Aligned Chunk")) {
+                  showItemAlignedChunk(treeItem);
+                } else {
+                  showItemChunk(treeItem);
+                }
               } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
                 // TODO 删掉相关逻辑
                 //                  showPageDetail(treeItem);
@@ -368,8 +373,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     indexRegion.setPrefWidth(WIDTH);
     indexRegion.setPrefHeight(HEIGHT * 0.96);
     root.getChildren().add(indexRegion);
-    // TODO
-    //    indexDataInit();
 
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
@@ -388,27 +391,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
       }
     }
     return "";
-  }
-
-  public void showQueryDataSet(String deviceId, String measurementId, QueryDataSet queryDataSet)
-      throws Exception {
-    // select root
-    this.treeView.getSelectionModel().select(0);
-    // show datas
-    this.tvDatas.clear();
-    this.pageDatas.clear();
-    this.chunkTableView.setVisible(false);
-    while (queryDataSet.hasNext()) {
-      RowRecord next = queryDataSet.next();
-      StringBuilder sb = new StringBuilder();
-      for (Field f : next.getFields()) {
-        sb.append("\t");
-        sb.append(f);
-      }
-      this.tvDatas.add(new TimesValues(new Date(next.getTimestamp()).toString(), sb.toString()));
-    }
-    this.tvTableView.setVisible(true);
-    this.pageTableView.setVisible(true);
   }
 
   /**
@@ -461,7 +443,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.chunkTableView.setVisible(true);
     try {
       List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList =
-          this.tsFileAnalyserV13.fetchPageInfoListByChunkMetadata(params.getiChunkMetadata());
+          tsFileAnalyserV13.fetchPageInfoListByChunkMetadata(params.getiChunkMetadata());
       ObservableList<TreeItem<ChunkTreeItemValue>> chunkChild = value.getChildren();
       if (chunkChild == null) {
         return;
@@ -485,6 +467,36 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           params.getiChunkMetadata().getDataType());
       e.printStackTrace();
       return;
+    }
+  }
+
+  /** click Aligned Chunk show its pages */
+  public void showItemAlignedChunk(TreeItem<ChunkTreeItemValue> alignedChunkItem) {
+    AlignedChunkWrap params = (AlignedChunkWrap) alignedChunkItem.getValue().getParams();
+    try {
+      List<List<org.apache.iotdb.tool.core.model.PageInfo>> pageLists =
+              tsFileAnalyserV13.fetchPageInfoListByIChunkMetadata(params.getChunkMetadataList().get(0));
+      ObservableList<TreeItem<ChunkTreeItemValue>> chunkChild = alignedChunkItem.getChildren();
+      if (chunkChild == null) {
+        return;
+      }
+      if (chunkChild.size() == 0) {
+        if (pageLists != null && pageLists.get(0) != null) {
+          for (int i = 1; i <= pageLists.size(); i++) {
+            ChunkTreeItemValue pageValue =
+                    new ChunkTreeItemValue(
+                            "page " + i, TREE_ITEM_TYPE_CHUNK_PAGE, pageLists.get(i - 1));
+            TreeItem<ChunkTreeItemValue> pageItem = new TreeItem<>(pageValue);
+            Node pageIcon = new IconView("/icons/text.png");
+            pageItem.setGraphic(pageIcon);
+            chunkChild.add(pageItem);
+          }
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
   }
 
@@ -522,12 +534,27 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
           timeseriesList.add(chunkGroupMetaItemValue.getName());
           indexMap.put(chunkGroupMetadataMode.getDevice(), chunkGroupMetaItem);
-          // TODO
+          // TODO 代码优化
           List<IChunkMetadata> chunkMetadataList = chunkGroupMetadataMode.getChunkMetadataList();
           List<List<ChunkHeader>> chunkHeaderList = chunkGroupMetadataMode.getChunkHeaderList();
           if (chunkMetadataList != null && !chunkMetadataList.isEmpty() && chunkHeaderList != null && !chunkHeaderList.isEmpty()) {
             ChunkTreeItemValue chunkMetaItemValue = null;
             if (chunkMetadataList.get(0) != null) {
+              // 0. Aligned Chunk (虚拟 Chunk)
+              if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
+                chunkMetaItemValue =
+                        new ChunkTreeItemValue(
+                                "Aligned Chunk",
+                                TREE_ITEM_TYPE_CHUNK,
+                                // List<List<PageInfo>>
+                                new AlignedChunkWrap(chunkMetadataList, chunkHeaderList)
+                        );
+                TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
+                Node measurementIcon = new IconView("icons/text-code.png");
+                chunkMetaItem.setGraphic(measurementIcon);
+                chunkGroupMetaItem.getChildren().add(chunkMetaItem);
+              }
+
               // 1. aligned
               if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
                 chunkGroupMetaItem.getValue().setName("[Aligned]" + chunkGroupMetaItem.getValue().getName());
@@ -805,7 +832,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     private String name;
     private String type;
     private Object params;
-    //    private Button button;
 
     public ChunkTreeItemValue(String name, String type, Object params) {
       this.name = name;
@@ -866,6 +892,34 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
     public void setChunkHeader(ChunkHeader chunkHeader) {
       this.chunkHeader = chunkHeader;
+    }
+  }
+
+  public static class AlignedChunkWrap {
+    private List<IChunkMetadata> chunkMetadataList;
+    private List<List<ChunkHeader>> chunkHeaderList;
+
+    public AlignedChunkWrap() {}
+
+    public AlignedChunkWrap(List<IChunkMetadata> chunkMetadataList, List<List<ChunkHeader>> chunkHeaderList) {
+      this.chunkMetadataList = chunkMetadataList;
+      this.chunkHeaderList = chunkHeaderList;
+    }
+
+    public List<IChunkMetadata> getChunkMetadataList() {
+      return chunkMetadataList;
+    }
+
+    public void setChunkMetadataList(List<IChunkMetadata> chunkMetadataList) {
+      this.chunkMetadataList = chunkMetadataList;
+    }
+
+    public List<List<ChunkHeader>> getChunkHeaderList() {
+      return chunkHeaderList;
+    }
+
+    public void setChunkHeaderList(List<List<ChunkHeader>> chunkHeaderList) {
+      this.chunkHeaderList = chunkHeaderList;
     }
   }
 }
