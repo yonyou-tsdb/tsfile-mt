@@ -1,19 +1,13 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
-import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.ui.node.IndexNode;
 import org.apache.iotdb.tool.ui.view.IconView;
 import org.apache.iotdb.tsfile.file.header.ChunkHeader;
 import org.apache.iotdb.tsfile.file.metadata.AlignedChunkMetadata;
-import org.apache.iotdb.tsfile.file.metadata.ChunkMetadata;
 import org.apache.iotdb.tsfile.file.metadata.IChunkMetadata;
-import org.apache.iotdb.tsfile.read.common.Field;
-import org.apache.iotdb.tsfile.read.common.RowRecord;
-import org.apache.iotdb.tsfile.read.controller.IChunkLoader;
-import org.apache.iotdb.tsfile.read.query.dataset.QueryDataSet;
 
 import com.sun.javafx.scene.control.skin.LabeledText;
 import org.slf4j.Logger;
@@ -94,8 +88,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   private TsFileLoadPage tsFileLoadPage;
 
   private File selectedfolder;
-
-  private boolean hasTsFileLoaded;
 
   private Stage tsfileLoadStage;
 
@@ -293,7 +285,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         });
 
     Menu searchMenu = new Menu("Search");
-    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements (CTR + SHIFT + F)");
+    CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements");
     searchMenu.getItems().addAll(searchMenuItem);
     Menu encodeMenu = new Menu("Encode");
     CheckMenuItem simulateMenuItem = new CheckMenuItem("Encode Simulation");
@@ -304,6 +296,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     menuBar.getMenus().addAll(fileMenu, searchMenu, encodeMenu, configMenu, helpManeu);
 
     // Measurement Search
+    searchMenuItem.setSelected(false);
     searchMenuItem.setOnAction(
         event -> {
           Stage measurementSearchStage = new Stage();
@@ -506,8 +499,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
   public void chunkGroupTreeDataInit() {
     // 阻塞文件加载完成展示
     while (true) {
-      // TODO double 精度问题  0.9999..........
-      if (tsFileAnalyserV13.getRateOfProcess() >= 1) {
+      if (tsFileAnalyserV13.getRateOfProcess() > 0.9999999999) {
         break;
       }
       try {

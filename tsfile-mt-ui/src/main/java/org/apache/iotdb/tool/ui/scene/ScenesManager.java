@@ -29,14 +29,10 @@ public class ScenesManager {
 
   static final ScenesManager scenesManager = new ScenesManager();
 
-  private Page curPage = null;
-
   private IoTDBParsePageV13 ioTDBParsePage;
 
   /** base stage */
   private Stage baseStage = null;
-
-  private Map<SceneType, Page> pages = new HashMap<>(8);
 
   private ScenesManager() {
     ioTDBParsePage = new IoTDBParsePageV13();
@@ -54,21 +50,6 @@ public class ScenesManager {
     this.baseStage = stage;
   }
 
-  public void converToIoTDBParsePage(Stage stage) {
-    converToPage(stage, SceneType.TSFILE_PARSE_PAGE);
-  }
-
-  /**
-   * conver to page for page inside
-   *
-   * @param sceneType
-   */
-  public void converToPage(SceneType sceneType) {
-    if (this.baseStage != null) {
-      converToPage(this.baseStage, sceneType);
-    }
-  }
-
   public void loadTsFile(ProgressBar progressBar) {
     Task progressTask = progressWorker(ioTDBParsePage);
     progressBar.progressProperty().unbind();
@@ -83,40 +64,6 @@ public class ScenesManager {
     baseStage.getIcons().add(new Image("/icons/yonyou-logo.png"));
     baseStage.centerOnScreen();
     baseStage.show();
-  }
-
-  public void converToPage(Stage stage, SceneType sceneType) {
-    if (stage == null) {
-      logger.error("Stage is null");
-      return;
-    }
-    Page page;
-    switch (sceneType) {
-      case HOME:
-        page = pages.computeIfAbsent(SceneType.HOME, (key) -> new HomePage());
-        break;
-        //      case TSFILE_CHOOSE:
-        //        page =
-        //            pages.computeIfAbsent(SceneType.TSFILE_CHOOSE, (key) -> new
-        // TsFileChooserPage(stage));
-        //        logger.info("TsFile Choose, the page: {}", page);
-        //        break;
-      default:
-        logger.info("Unexpect sceneType, the sceneType: {}", sceneType);
-        return;
-    }
-
-    stage.setOnCloseRequest(
-        new EventHandler<WindowEvent>() {
-          public void handle(WindowEvent event) {
-            Platform.exit();
-          }
-        });
-
-    stage.setScene(page.getScene());
-    stage.setTitle(page.getName());
-    stage.show();
-    curPage = page;
   }
 
   public boolean fileCheck(String path) {
@@ -148,11 +95,5 @@ public class ScenesManager {
         return true;
       }
     };
-  }
-
-  public enum SceneType {
-    HOME,
-    TSFILE_CHOOSE,
-    TSFILE_PARSE_PAGE
   }
 }
