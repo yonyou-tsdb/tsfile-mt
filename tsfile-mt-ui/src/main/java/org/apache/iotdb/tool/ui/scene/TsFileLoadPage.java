@@ -1,5 +1,7 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import javafx.geometry.Rectangle2D;
+import javafx.stage.Screen;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 
@@ -79,7 +81,7 @@ public class TsFileLoadPage {
     pane.add(infoLabel, 0, 0);
 
     stage.setTitle("Confirm Loading");
-    loadButton = new Button("load");
+    loadButton = new Button("open");
     cancelButton = new Button("cancel");
     pane.add(loadButton, 1, 1);
     pane.add(cancelButton, 2, 1);
@@ -110,6 +112,12 @@ public class TsFileLoadPage {
         });
 
     stage.show();
+
+    // The stage is centered on the screen
+    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+    stage.setX((screenBounds.getWidth() - 400) / 2);
+    stage.setY((screenBounds.getHeight() - 400) / 2);
+
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
       this.getScene().getStylesheets().add(uiDarkCssResource.toExternalForm());
