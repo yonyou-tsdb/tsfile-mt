@@ -66,21 +66,6 @@ public class ScenesManager {
     baseStage.show();
   }
 
-  public boolean fileCheck(String path) {
-    int i = 0;
-    try {
-      i = OffLineTsFileUtil.fetchTsFileVersionNumber(path);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    if (i != 3) {
-      Alert alert = new Alert(Alert.AlertType.ERROR, "none support version", ButtonType.OK);
-      alert.showAndWait();
-      return false;
-    }
-    return true;
-  }
-
   public Task progressWorker(IoTDBParsePageV13 ioTDBParsePage) {
     return new Task() {
       @Override

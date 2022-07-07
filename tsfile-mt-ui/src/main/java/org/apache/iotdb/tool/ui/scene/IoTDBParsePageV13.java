@@ -91,8 +91,11 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private Stage tsfileLoadStage;
 
+  private String loadedTSFileName;
+
   public IoTDBParsePageV13() {
     super(new Group(), WIDTH, HEIGHT);
+//    loadedTSFileName = "";
     tsFileLoadPage = new TsFileLoadPage();
   }
 
@@ -111,6 +114,12 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     this.root.getChildren().add(treeView);
 
     // 双击打开 tsfile 监听事件
+    // TODO
+    // 不能让用户重复点击某一个已打开的 tsfile
+    // 清空缓存
+    // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
+    // 加载文件的窗口需要优化：按钮点击之后，不能重复点（可以隐藏起来）
+    // 选中文件加 Enter 快捷键
     treeView.addEventHandler(
         MouseEvent.MOUSE_CLICKED,
         new EventHandler<MouseEvent>() {
@@ -127,11 +136,19 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 String type = currItem.getValue().getType();
                 if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
                   String filePath = (String) currItem.getValue().getParams();
+                  // 0. 是否重复加载
+                  if (loadedTSFileName != null && currItem.getValue().getName().equals(loadedTSFileName)) {
+                    Alert alert =
+                            new Alert(Alert.AlertType.ERROR, "Cannot open the same file repeatedly!", ButtonType.OK);
+                    alert.showAndWait();
+                    return;
+                  }
                   // 1. file type check
                   if (!tsFileLoadPage.fileTypeCheck(filePath)) {
                     Alert alert =
                         new Alert(Alert.AlertType.ERROR, "Please choose TsFile!", ButtonType.OK);
                     alert.showAndWait();
+                    return;
                   }
                   // 2. file version check
                   if (!tsFileLoadPage.fileVersionCheck(filePath)) {
@@ -141,11 +158,13 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                             "Sorry, We currently only support the 3.0 TsFile version!",
                             ButtonType.OK);
                     alert.showAndWait();
+                    return;
                   }
                   tsfileLoadStage = new Stage();
+                  tsfileLoadStage.initStyle(StageStyle.TRANSPARENT);
                   tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
                   tsfileLoadStage.show();
-                  // 3. load file 初始化, 实际上在弹窗 load
+                  // 3. load file 初始化, 实际上在弹窗 load （点击 load 时，若已加载其他 TSFile, 应首先清空缓存）
                   tsfileItem = currItem;
                   tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
                   tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
@@ -169,9 +188,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
                 } else {
                   showItemChunk(treeItem);
                 }
-              } else if (TREE_ITEM_TYPE_CHUNK_PAGE.equals(type)) {
-                // TODO 删掉相关逻辑
-                //                  showPageDetail(treeItem);
               } else if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
                 this.fileTableView.setVisible(true);
                 this.chunkTableView.setVisible(false);
@@ -185,7 +201,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
               }
             });
 
-    // TODO
     // TreeView Menu
     ContextMenu treeViewMenu = new ContextMenu();
     treeView
@@ -272,7 +287,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
               treeRoot.getChildren().add(fileItem);
               Node tsfileIcon = new IconView("/icons/folder-source.png");
               fileItem.setGraphic(tsfileIcon);
-              // TODO 每个 fileItem 增加双击打开监听事件
+              // TODO
               // 不能让用户重复点击某一个已打开的 tsfile
               // 清空缓存
               // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
@@ -497,7 +512,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   /** chunk group tree data set */
   public void chunkGroupTreeDataInit() {
-    // 阻塞文件加载完成展示
+    // 1. 阻塞文件加载完成展示
     while (true) {
       if (tsFileAnalyserV13.getRateOfProcess() > 0.9999999999) {
         break;
@@ -508,7 +523,10 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         e.printStackTrace();
       }
     }
-
+    // 2. cached tsfileName
+    loadedTSFileName = tsfileItem.getValue().toString();
+    System.out.println("cached tsfileName:" + loadedTSFileName);
+    // 3. init TreeView
     List<ChunkGroupMetadataModel> chunkGroupMetadataModelList =
         this.tsFileAnalyserV13.getChunkGroupMetadataModelList();
     if (chunkGroupMetadataModelList == null) {
@@ -615,9 +633,21 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     indexDataInit();
   }
 
+  // TODO
+  // 清空缓存
+  public void clearCache() {
+    // 1. 清空 UI 中的数据
+    // 2. 清空 UI
+    // 3. 清空 analyzerV13 与 parsePage 对象
+  }
+
   @Override
   public String getName() {
     return "TsFileV0.13";
+  }
+
+  public String getLoadedTSFileName() {
+    return loadedTSFileName;
   }
 
   /** time value table */

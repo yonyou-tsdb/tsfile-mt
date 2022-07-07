@@ -1,6 +1,7 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.paint.Paint;
 import javafx.stage.Screen;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
@@ -43,7 +44,7 @@ public class TsFileLoadPage {
   private TsFileAnalyserV13 tsFileAnalyserV13;
 
   // TODO 这里代码需要优化，重构
-  private IoTDBParsePageV13 ioTDBParsePageV13;
+  private IoTDBParsePageV13 ioTDBParsePage;
 
   private String filePath;
 
@@ -59,8 +60,8 @@ public class TsFileLoadPage {
     return scene;
   }
 
-  public void setIoTDBParsePageV13(IoTDBParsePageV13 ioTDBParsePageV13) {
-    this.ioTDBParsePageV13 = ioTDBParsePageV13;
+  public void setIoTDBParsePageV13(IoTDBParsePageV13 ioTDBParsePage) {
+    this.ioTDBParsePage = ioTDBParsePage;
   }
 
   private void init(Stage stage) {
@@ -71,9 +72,9 @@ public class TsFileLoadPage {
 
     pane.setHgap(10);
     pane.setVgap(10);
-
     pane.setPadding(new Insets(20));
     pane.setAlignment(Pos.CENTER);
+    pane.getStyleClass().add("tsfile-load-pane");
 
     String[] filePathArr = filePath.split("\\\\");
     String tsfileName = filePathArr[filePathArr.length - 1];
@@ -99,11 +100,17 @@ public class TsFileLoadPage {
 
     loadButton.setOnAction(
         event -> {
-          // TODO 清空上一个打开的 tsfile 的缓存
+          // 1. 将 cancelButton 设为不可用
+          cancelButton.setDisable(true);
+
+          // TODO
+          // 2. 清空上一个 tsfile 相关缓存
+          ioTDBParsePage.clearCache();
+
           // 异步加载文件
           loadTsFile(filePath);
           // TODO 优化代码
-          ioTDBParsePageV13.setTsFileAnalyserV13(tsFileAnalyserV13);
+          ioTDBParsePage.setTsFileAnalyserV13(tsFileAnalyserV13);
           // 进度条
           ScenesManager scenesManager = ScenesManager.getInstance();
           progressBar.setVisible(true);
@@ -144,6 +151,7 @@ public class TsFileLoadPage {
       } catch (IOException e1) {
         e1.printStackTrace();
       }
+      // TODO 释放资源？
     }
 
     File selectedfolder = directoryChooser.showDialog(baseStage);

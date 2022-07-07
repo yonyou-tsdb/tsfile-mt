@@ -25,6 +25,12 @@
 	-fx-highlight-fill: rgba(0, 180, 255, 0.4);
 }
 
+.tsfile-load-pane {
+	-fx-border-color: rgb(220, 220, 220);
+	-fx-border-style: solid;
+	-fx-border-width: 3;
+	-fx-background-insets: 0;
+}
 
 /* Scroll */
 .scroll-bar {
