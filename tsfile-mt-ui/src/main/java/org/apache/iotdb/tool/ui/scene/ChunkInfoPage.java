@@ -65,6 +65,7 @@ public class ChunkInfoPage {
     // 数据来源
     IoTDBParsePageV13.ChunkWrap params =
         (IoTDBParsePageV13.ChunkWrap) chunkItem.getValue().getParams();
+
     ChunkHeader chunkHeader = params.getChunkHeader();
 
     // TODO 支持复制（text lable 不支持复制）

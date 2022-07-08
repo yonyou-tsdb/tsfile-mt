@@ -104,10 +104,12 @@ public class TsFileLoadPage {
           cancelButton.setDisable(true);
 
           // TODO
-          // 2. 清空上一个 tsfile 相关缓存
-          ioTDBParsePage.clearCache();
+          // 2. 清空上一个 tsfile 相关缓存（若不是第一次加载）
+          if (ioTDBParsePage.getLoadedTSFileName() != null) {
+            ScenesManager.getInstance().clearCache();
+          }
 
-          // 异步加载文件
+          // 3. 异步加载文件
           loadTsFile(filePath);
           // TODO 优化代码
           ioTDBParsePage.setTsFileAnalyserV13(tsFileAnalyserV13);

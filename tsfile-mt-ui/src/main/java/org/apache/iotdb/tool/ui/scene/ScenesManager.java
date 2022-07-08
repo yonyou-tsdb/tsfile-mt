@@ -1,19 +1,24 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Group;
+import javafx.scene.control.*;
+import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -64,6 +69,11 @@ public class ScenesManager {
     baseStage.getIcons().add(new Image("/icons/yonyou-logo.png"));
     baseStage.centerOnScreen();
     baseStage.show();
+    // 关闭 stage 时清空缓存
+    baseStage.setOnCloseRequest(event -> {
+      clearCache();
+      baseStage = null;
+    });
   }
 
   public Task progressWorker(IoTDBParsePageV13 ioTDBParsePage) {
@@ -80,5 +90,11 @@ public class ScenesManager {
         return true;
       }
     };
+  }
+
+  // TODO
+  // 清空缓存
+  public void clearCache() {
+    ioTDBParsePage.clearParsePageCache();
   }
 }
