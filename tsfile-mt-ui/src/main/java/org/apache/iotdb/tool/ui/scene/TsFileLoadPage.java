@@ -43,7 +43,6 @@ public class TsFileLoadPage {
 
   private TsFileAnalyserV13 tsFileAnalyserV13;
 
-  // TODO 这里代码需要优化，重构
   private IoTDBParsePageV13 ioTDBParsePage;
 
   private String filePath;
@@ -102,6 +101,7 @@ public class TsFileLoadPage {
         event -> {
           // 1. 将 cancelButton 设为不可用
           cancelButton.setDisable(true);
+          loadButton.setDisable(true);
 
           // 2. 清空上一个 tsfile 相关缓存（若不是第一次加载）
           if (ioTDBParsePage.getLoadedTSFileName() != null) {
@@ -152,7 +152,6 @@ public class TsFileLoadPage {
       } catch (IOException e1) {
         e1.printStackTrace();
       }
-      // TODO 释放资源？
     }
 
     File selectedfolder = directoryChooser.showDialog(baseStage);

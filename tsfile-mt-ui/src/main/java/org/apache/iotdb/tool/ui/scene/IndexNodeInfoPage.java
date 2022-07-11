@@ -17,12 +17,7 @@ public class IndexNodeInfoPage {
 
     private AnchorPane anchorPane;
     private Scene scene;
-    private IoTDBParsePageV13 ioTDBParsePage;
     private Stage stage;
-
-    private AnchorPane pageHeaderPane;
-
-    private AnchorPane pageDataPane;
 
     private String menuItemInfo;
 
@@ -57,7 +52,6 @@ public class IndexNodeInfoPage {
         textArea.setPrefWidth(WIDTH);
         textArea.setPrefHeight(HEIGHT);
         anchorPane.getChildren().add(textArea);
-
 
         URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
         if (uiDarkCssResource != null) {
