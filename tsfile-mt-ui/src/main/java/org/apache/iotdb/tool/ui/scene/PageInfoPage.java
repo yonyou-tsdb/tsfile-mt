@@ -159,7 +159,6 @@ public class PageInfoPage {
     pageTVTableView.setPrefWidth(WIDTH);
     pageTVTableView.setPrefHeight(HEIGHT * 0.65);
 
-    stage.show();
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
       this.getScene().getStylesheets().add(uiDarkCssResource.toExternalForm());

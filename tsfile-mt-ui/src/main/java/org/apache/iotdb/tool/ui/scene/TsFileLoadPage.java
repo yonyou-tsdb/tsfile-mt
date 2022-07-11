@@ -103,7 +103,6 @@ public class TsFileLoadPage {
           // 1. 将 cancelButton 设为不可用
           cancelButton.setDisable(true);
 
-          // TODO
           // 2. 清空上一个 tsfile 相关缓存（若不是第一次加载）
           if (ioTDBParsePage.getLoadedTSFileName() != null) {
             ScenesManager.getInstance().clearCache();

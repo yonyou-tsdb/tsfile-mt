@@ -52,12 +52,8 @@ public class IndexNode {
     this.indexRegion = indexRegion;
     this.parent = parent;
     // default:root index
-    int parentX = INDEX_ENTITY_SP_WIDTH;
-    int parentY = INDEX_ENTITY_SP_WIDTH;
-    if (parent != null) {
-      parentX = parent.getX();
-      parentY = parent.getY();
-    }
+    int parentX = parent == null ? INDEX_ENTITY_SP_WIDTH : parent.getX();
+    int parentY = parent == null ? INDEX_ENTITY_SP_WIDTH : parent.getY();
     this.x = parentX;
     this.y = parentY + ((parent == null) ? 0 : INDEX_LINE_HEIGHT);
     this.totalWidth = INDEX_ENTITY_WIDTH + INDEX_ENTITY_SP_WIDTH + INDEX_ENTITY_SP_WIDTH;

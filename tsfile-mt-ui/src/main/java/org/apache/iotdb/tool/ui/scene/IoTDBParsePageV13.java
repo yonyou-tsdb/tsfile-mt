@@ -357,7 +357,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
           // TODO
           // 1. 优化为忽略大小写
           // 2. 动态查询（例如 idea） 也可以全部高亮显示
-          String searchResult = timeseriesSearch(searchText.getText());
+          String searchResult = timeseriesSearch(searchText.getText().trim());
           if (searchResult == null) {
             return;
           }
@@ -624,10 +624,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
       preTSFileItem.getChildren().clear();
       preTSFileItem = null;
     }
-//    if (treeViewMenu != null) {
-//      treeViewMenu.getItems().clear();
-//      treeViewMenu = null;
-//    }
     if (indexGroup != null) {
       indexGroup.getChildren().clear();
     }
@@ -637,7 +633,6 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
     pageInfoPage = null;
     measurementSearchPage = null;
     // 4. 清空 others
-//    tsFileLoadPage = null;
     selectedfolder = null;
     loadedTSFileName = null;
     // 5. 清空 analyzer 对象

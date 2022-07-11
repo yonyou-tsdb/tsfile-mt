@@ -21,11 +21,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.apache.iotdb.tool.ui.common.constant.StageConstant.ALIGNED_PAGE_INFO_PAGE_HEIGHT;
+import static org.apache.iotdb.tool.ui.common.constant.StageConstant.ALIGNED_PAGE_INFO_PAGE_WIDTH;
+import static org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13.HEIGHT;
+
 public class AlignedPageInfoPage {
     private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
-
-    private static final double WIDTH = 1080;
-    private static final double HEIGHT = 300;
 
     private AnchorPane anchorPane;
     private Scene scene;
@@ -54,7 +55,7 @@ public class AlignedPageInfoPage {
 
     private void init(Stage stage) {
         anchorPane = new AnchorPane();
-        scene = new Scene(anchorPane, WIDTH, HEIGHT);
+        scene = new Scene(anchorPane, ALIGNED_PAGE_INFO_PAGE_WIDTH, ALIGNED_PAGE_INFO_PAGE_HEIGHT);
         stage.setScene(scene);
         stage.setTitle("Aligned Page Information");
         stage.show();
@@ -67,7 +68,7 @@ public class AlignedPageInfoPage {
         pageDataPane = new AnchorPane();
         pageDataPane.setLayoutX(0);
         pageDataPane.setLayoutY(0);
-        pageDataPane.setPrefHeight(WIDTH);
+        pageDataPane.setPrefHeight(ALIGNED_PAGE_INFO_PAGE_WIDTH);
         anchorPane.getChildren().add(pageDataPane);
         pageDataPane.getChildren().add(alignedTableView);
         alignedTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -78,6 +79,7 @@ public class AlignedPageInfoPage {
         try {
             BatchData batchData = ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfoList);
             // 1. Add Time Column and it's Data
+            // TODO solve hard code
             TableColumn<HashMap<String, SimpleStringProperty>, String> timestampCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>("timestamp");
             alignedTableView.getColumns().add(timestampCol);
             timestampCol.setCellValueFactory(new MapValueFactory("timestamp"));
@@ -98,14 +100,17 @@ public class AlignedPageInfoPage {
                         valueCol.setCellValueFactory(new MapValueFactory("value" + i));
                         alignedTableView.getColumns().add(valueCol);
                     }
-                    if (values[i] != null && values[i].length() > 0) {
-                        values[i] = values[i].trim();
-                        if (i == 0) {
-                            values[i] = values[i].substring(1);
-                        } else if (i == measurementCounts - 1) {
-                            values[i] = values[i].substring(0, values[i].length() - 1);
-                        }
+                    if (values[i] == null || values[i].length() == 0) {
+                        logger.error("there is a null value in a page of aligned chunk's BatchData");
+                        return;
                     }
+                    values[i] = values[i].trim();
+                    if (i == 0) {
+                        values[i] = values[i].substring(1);
+                    } else if (i == measurementCounts - 1) {
+                        values[i] = values[i].substring(0, values[i].length() - 1);
+                    }
+                    // TODO solve hard code
                     pageInfoMap.put("value" + i, new SimpleStringProperty(values[i]));
                 }
                 columnDataList.add(pageInfoMap);
@@ -121,7 +126,7 @@ public class AlignedPageInfoPage {
         alignedTableView.setItems(columnDataList);
         alignedTableView.setLayoutX(0);
         alignedTableView.setLayoutY(0);
-        alignedTableView.setPrefWidth(WIDTH);
+        alignedTableView.setPrefWidth(ALIGNED_PAGE_INFO_PAGE_WIDTH);
         alignedTableView.setPrefHeight(HEIGHT * 0.9);
 
         stage.show();

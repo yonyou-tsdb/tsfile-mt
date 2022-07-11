@@ -1,6 +1,12 @@
 package org.apache.iotdb.tool.ui.node;
 
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
+import org.apache.iotdb.tool.ui.scene.IndexNodeInfoPage;
 import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13;
 
 import java.util.List;
@@ -9,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import org.apache.iotdb.tsfile.file.metadata.enums.MetadataIndexNodeType;
 
 /**
  * index entity node
@@ -88,6 +95,24 @@ public class EntityNode {
           });
       // tips,show detail
       Tooltip.install(this.entityShape, new Tooltip(getTip()));
+
+      // TODO show details
+      MetadataIndexNodeType type = timeSeriesMetadataNode.getNodeType();
+      switch (type) {
+        case INTERNAL_DEVICE:
+          addMenuToNode(entityShape, "InternalDevice Details");
+          break;
+        case LEAF_DEVICE:
+          addMenuToNode(entityShape, "LeafDevice Details");
+          break;
+        case INTERNAL_MEASUREMENT:
+          addMenuToNode(entityShape, "InternalMeasurement Details");
+          break;
+        case LEAF_MEASUREMENT:
+          addMenuToNode(entityShape, "LeafMeasurement Details");
+          break;
+      }
+
       this.indexRegion.getChildren().add(this.entityShape);
       if (!this.isLeafMeasurement) {
         this.childButton =
@@ -190,5 +215,20 @@ public class EntityNode {
         break;
       }
     }
+  }
+
+  private void addMenuToNode(TextField entityShape, String menuItemInfo) {
+    ContextMenu contextMenu = new ContextMenu();
+    MenuItem menuItem = new MenuItem(menuItemInfo);
+    contextMenu.getItems().add(menuItem);
+    entityShape.setContextMenu(contextMenu);
+    menuItem.setOnAction(
+            event -> {
+              Stage pageInfoStage = new Stage();
+              pageInfoStage.initStyle(StageStyle.UTILITY);
+              pageInfoStage.initModality(Modality.APPLICATION_MODAL);
+              String nodeInfo = getTip();
+              IndexNodeInfoPage pageInfoPage = new IndexNodeInfoPage(pageInfoStage, menuItemInfo, nodeInfo);
+            });
   }
 }

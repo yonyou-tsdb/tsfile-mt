@@ -1,5 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import javafx.scene.Node;
 import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
 import org.apache.iotdb.tsfile.read.common.Field;
@@ -22,6 +23,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import static org.apache.iotdb.tool.ui.common.constant.StageConstant.*;
+
 /**
  * measurement search stage
  *
@@ -30,9 +33,6 @@ import javafx.stage.Stage;
 public class MeasurementSearchPage {
 
   private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
-
-  private static final double WIDTH = 1080;
-  private static final double HEIGHT = 300;
 
   private AnchorPane anchorPane;
   private Scene scene;
@@ -43,8 +43,7 @@ public class MeasurementSearchPage {
   private AnchorPane searchResultPane;
 
   /** table datas */
-  // TODO 这里 new 是不是不好
-  private TableView tvTableView = new TableView();
+  private TableView<String> tvTableView;
 
   private ObservableList<IoTDBParsePageV13.TimesValues> tvDatas =
       FXCollections.observableArrayList();
@@ -61,7 +60,7 @@ public class MeasurementSearchPage {
   private void init(Stage stage) {
 
     anchorPane = new AnchorPane();
-    scene = new Scene(anchorPane, WIDTH, HEIGHT);
+    scene = new Scene(anchorPane, MEASUREMENT_SEARCH_PAGE_WIDTH, MEASUREMENT_SEARCH_PAGE_HEIGHT);
     stage.setScene(scene);
     stage.setTitle("Search: Measurement");
     stage.show();
@@ -70,10 +69,8 @@ public class MeasurementSearchPage {
     searchFilterBox = new VBox();
     anchorPane.getChildren().add(searchFilterBox);
     searchFilterBox.getStyleClass().add("search-filter-box");
-    // TODO 换成位运算
-    //  searchFilterBox.setPrefWidth(stage.getWidth() / 4);  写成字段
-    searchFilterBox.setPrefWidth(stage.getWidth() / 4);
-    searchFilterBox.setPrefHeight(stage.getHeight());
+    searchFilterBox.setPrefWidth(SEARCH_FILTER_BOX_WIDTH);
+    searchFilterBox.setPrefHeight(SEARCH_FILTER_BOX_HEIGHT);
     stage
         .heightProperty()
         .addListener(
@@ -84,15 +81,15 @@ public class MeasurementSearchPage {
         .widthProperty()
         .addListener(
             (observable, oldValueb, newValue) -> {
-              searchFilterBox.setPrefWidth(stage.getWidth() / 4);
+              searchFilterBox.setPrefWidth((int)stage.getWidth() >> 2);
             });
 
     Label startTime = new Label("startTime:");
     DateTimePicker startPicker = new DateTimePicker();
     Label endTime = new Label("endTime:");
     DateTimePicker endPicker = new DateTimePicker();
-    // TODO searchFilterBox.getChildren() 写成一个字段
-    searchFilterBox.getChildren().addAll(startTime, startPicker, endTime, endPicker);
+    ObservableList<Node> searchFilterBoxChildren = searchFilterBox.getChildren();
+    searchFilterBoxChildren.addAll(startTime, startPicker, endTime, endPicker);
 
     Label deviceIdLabel = new Label("deviceName:");
     TextField deviceIdText = new TextField();
@@ -101,10 +98,10 @@ public class MeasurementSearchPage {
     Button searchButton = new Button("Search");
     searchButton.setGraphic(new ImageView("/icons/find-light.png"));
     searchButton.getStyleClass().add("search-button");
-    searchFilterBox
-        .getChildren()
-        .addAll(deviceIdLabel, deviceIdText, measurementIdLabel, measurementIdText, searchButton);
 
+    searchFilterBoxChildren
+            .addAll(deviceIdLabel, deviceIdText, measurementIdLabel, measurementIdText, searchButton);
+    // TODO  ENTER 绑定
     // shortcut: Enter
     //        KeyCombination searchButtonKC = new KeyCodeCombination(KeyCode.ENTER);
     //        this.getScene().getAccelerators().put(searchButtonKC, ()-> searchButton.fire());
@@ -127,9 +124,8 @@ public class MeasurementSearchPage {
                   .atZone(ZoneId.systemDefault())
                   .toInstant()
                   .toEpochMilli();
-          // TODO trim()
-          String deviceIdTextText = deviceIdText.getText();
-          String measurementIdTextText = measurementIdText.getText();
+          String deviceIdTextText = deviceIdText.getText().trim();
+          String measurementIdTextText = measurementIdText.getText().trim();
           try {
             QueryDataSet queryDataSet =
                 ioTDBParsePage
@@ -171,11 +167,10 @@ public class MeasurementSearchPage {
               searchResultPane.setLayoutX(searchFilterBox.getWidth());
               searchResultPane.setPrefWidth(stage.getWidth() - searchFilterBox.getWidth());
             });
-    // TODO
-    // 4. ENTER 绑定
 
+    // TVTable 初始化与写入数据
+    tvTableView = new TableView<String>();
     BaseTableView baseTableView = new BaseTableView();
-    // TODO 泛型具体化
     TableColumn<Date, String> timestampCol =
         baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
     TableColumn<String, String> valueCol =

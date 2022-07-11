@@ -92,7 +92,6 @@ public class ScenesManager {
     };
   }
 
-  // TODO
   // 清空缓存
   public void clearCache() {
     ioTDBParsePage.clearParsePageCache();
