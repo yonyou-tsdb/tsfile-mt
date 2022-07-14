@@ -9,7 +9,6 @@ import org.apache.iotdb.tsfile.file.header.ChunkHeader;
 import org.apache.iotdb.tsfile.file.metadata.AlignedChunkMetadata;
 import org.apache.iotdb.tsfile.file.metadata.IChunkMetadata;
 
-import com.sun.javafx.scene.control.skin.LabeledText;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -39,9 +37,9 @@ import static org.apache.iotdb.tool.ui.common.constant.TSFileMTConstant.*;
  *
  * @author oortCloudFei
  */
-public class IoTDBParsePageV13 extends IoTDBParsePage {
+public class IoTDBParsePageV3 extends IoTDBParsePage {
 
-  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
   public static final double WIDTH = 1080;
   public static final double HEIGHT = 750;
   // TODO 优化
@@ -88,7 +86,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
 
   private String loadedTSFileName;
 
-  public IoTDBParsePageV13() {
+  public IoTDBParsePageV3() {
     super(new Group(), WIDTH, HEIGHT);
     tsFileLoadPage = new TsFileLoadPage();
   }
@@ -440,7 +438,7 @@ public class IoTDBParsePageV13 extends IoTDBParsePage {
         }
         tsfileItem = currItem;
         tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
-        tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
+        tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV3.this);
       }
     }
   }

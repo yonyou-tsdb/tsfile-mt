@@ -1,7 +1,7 @@
 package org.apache.iotdb.tool.ui.node;
 
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
-import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13;
+import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3;
 import org.apache.iotdb.tsfile.file.metadata.enums.MetadataIndexNodeType;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class IndexNode {
       TimeSeriesMetadataNode timeSeriesMetadataNode,
       EntityNode parent,
       Group indexRegion,
-      IoTDBParsePageV13 ioTDBParsePageV13) {
+      IoTDBParsePageV3 ioTDBParsePageV13) {
 
     this.timeSeriesMetadataNode = timeSeriesMetadataNode;
     this.indexRegion = indexRegion;

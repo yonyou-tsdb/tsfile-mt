@@ -1,7 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import javafx.geometry.Rectangle2D;
-import javafx.scene.paint.Paint;
 import javafx.stage.Screen;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
@@ -43,7 +42,7 @@ public class TsFileLoadPage {
 
   private TsFileAnalyserV13 tsFileAnalyserV13;
 
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
 
   private String filePath;
 
@@ -59,7 +58,7 @@ public class TsFileLoadPage {
     return scene;
   }
 
-  public void setIoTDBParsePageV13(IoTDBParsePageV13 ioTDBParsePage) {
+  public void setIoTDBParsePageV13(IoTDBParsePageV3 ioTDBParsePage) {
     this.ioTDBParsePage = ioTDBParsePage;
   }
 

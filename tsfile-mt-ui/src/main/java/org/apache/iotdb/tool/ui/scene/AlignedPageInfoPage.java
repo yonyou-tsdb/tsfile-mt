@@ -23,26 +23,26 @@ import java.util.List;
 
 import static org.apache.iotdb.tool.ui.common.constant.StageConstant.ALIGNED_PAGE_INFO_PAGE_HEIGHT;
 import static org.apache.iotdb.tool.ui.common.constant.StageConstant.ALIGNED_PAGE_INFO_PAGE_WIDTH;
-import static org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13.HEIGHT;
+import static org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3.HEIGHT;
 
 public class AlignedPageInfoPage {
-    private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+    private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
 
     private AnchorPane anchorPane;
     private Scene scene;
-    private IoTDBParsePageV13 ioTDBParsePage;
+    private IoTDBParsePageV3 ioTDBParsePage;
     private Stage stage;
 
     private AnchorPane pageDataPane;
 
-    private TreeItem<IoTDBParsePageV13.ChunkTreeItemValue> pageItem;
+    private TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem;
 
     public AlignedPageInfoPage() {}
 
     public AlignedPageInfoPage(
             Stage stage,
-            IoTDBParsePageV13 ioTDBParsePage,
-            TreeItem<IoTDBParsePageV13.ChunkTreeItemValue> pageItem) {
+            IoTDBParsePageV3 ioTDBParsePage,
+            TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem) {
         this.stage = stage;
         this.ioTDBParsePage = ioTDBParsePage;
         this.pageItem = pageItem;
@@ -74,7 +74,7 @@ public class AlignedPageInfoPage {
         alignedTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         alignedTableView.setVisible(true);
         // Add Column and Data to TableView
-        IoTDBParsePageV13.AlignedPageItemParams pageItemParams = (IoTDBParsePageV13.AlignedPageItemParams) pageItem.getValue().getParams();
+        IoTDBParsePageV3.AlignedPageItemParams pageItemParams = (IoTDBParsePageV3.AlignedPageItemParams) pageItem.getValue().getParams();
         List<PageInfo> pageInfoList = pageItemParams.getPageInfoList();
         try {
             BatchData batchData = ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfoList);

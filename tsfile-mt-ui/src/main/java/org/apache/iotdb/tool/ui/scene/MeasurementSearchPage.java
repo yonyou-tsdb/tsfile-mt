@@ -32,11 +32,11 @@ import static org.apache.iotdb.tool.ui.common.constant.StageConstant.*;
  */
 public class MeasurementSearchPage {
 
-  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
 
   private AnchorPane anchorPane;
   private Scene scene;
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
 
   private VBox searchFilterBox;
 
@@ -45,10 +45,10 @@ public class MeasurementSearchPage {
   /** table datas */
   private TableView<String> tvTableView;
 
-  private ObservableList<IoTDBParsePageV13.TimesValues> tvDatas =
+  private ObservableList<IoTDBParsePageV3.TimesValues> tvDatas =
       FXCollections.observableArrayList();
 
-  public MeasurementSearchPage(Stage stage, IoTDBParsePageV13 ioTDBParsePage) {
+  public MeasurementSearchPage(Stage stage, IoTDBParsePageV3 ioTDBParsePage) {
     this.ioTDBParsePage = ioTDBParsePage;
     init(stage);
   }
@@ -212,7 +212,7 @@ public class MeasurementSearchPage {
       }
       // TODO LocalDateTime
       tvDatas.add(
-          new IoTDBParsePageV13.TimesValues(
+          new IoTDBParsePageV3.TimesValues(
               new Date(next.getTimestamp()).toString(), sb.toString()));
     }
     tvTableView.setVisible(true);
