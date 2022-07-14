@@ -105,68 +105,6 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     treeView.setPrefHeight(HEIGHT * 0.93);
     this.root.getChildren().add(treeView);
 
-    // TSFile 监听事件: 双击打开
-    // TODO
-    // 加载大文件，最后渲染时，进度条会卡主（此时文件已经加载完，在渲染）
-    // 选中文件加 Enter 快捷键
-//    treeView.addEventHandler(
-//        MouseEvent.MOUSE_CLICKED,
-//        new EventHandler<MouseEvent>() {
-//          @Override
-//          public void handle(MouseEvent event) {
-//            MouseButton mouseButton = event.getButton();
-//            if (event.getTarget() instanceof LabeledText
-//                && mouseButton == MouseButton.PRIMARY
-//                && event.getClickCount() == 2) {
-//              // create new stage
-//              TreeItem<ChunkTreeItemValue> currItem =
-//                  treeView.getSelectionModel().getSelectedItem();
-//              if (currItem != null) {
-//                String type = currItem.getValue().getType();
-//                if (TREE_ITEM_TYPE_TSFILE.equals(type)) {
-//                  String filePath = (String) currItem.getValue().getParams();
-//                  // 0. 是否重复加载
-//                  if (loadedTSFileName != null && currItem.getValue().getName().equals(loadedTSFileName)) {
-//                    Alert alert =
-//                            new Alert(Alert.AlertType.ERROR, "Cannot open the same file repeatedly!", ButtonType.OK);
-//                    alert.showAndWait();
-//                    return;
-//                  }
-//                  // 1. file type check
-//                  if (!tsFileLoadPage.fileTypeCheck(filePath)) {
-//                    Alert alert =
-//                        new Alert(Alert.AlertType.ERROR, "Please choose TsFile!", ButtonType.OK);
-//                    alert.showAndWait();
-//                    return;
-//                  }
-//                  // 2. file version check
-//                  if (!tsFileLoadPage.fileVersionCheck(filePath)) {
-//                    Alert alert =
-//                        new Alert(
-//                            Alert.AlertType.ERROR,
-//                            "Sorry, We currently only support the 3.0 TsFile version!",
-//                            ButtonType.OK);
-//                    alert.showAndWait();
-//                    return;
-//                  }
-//                  tsfileLoadStage = new Stage();
-//                  tsfileLoadStage.initStyle(StageStyle.TRANSPARENT);
-//                  tsfileLoadStage.initModality(Modality.APPLICATION_MODAL);
-//                  tsfileLoadStage.show();
-//                  // 3. load file 初始化, 实际上在弹窗 load
-//                  // 应记录 preTSFileItem, 方便后续清空缓存
-//                  if (tsfileItem != null) {
-//                    preTSFileItem = tsfileItem;
-//                  }
-//                  tsfileItem = currItem;
-//                  tsFileLoadPage = new TsFileLoadPage(tsfileLoadStage, filePath);
-//                  tsFileLoadPage.setIoTDBParsePageV13(IoTDBParsePageV13.this);
-//                }
-//              }
-//            }
-//          }
-//        });
-
     // tree listener
     treeView
         .getSelectionModel()
