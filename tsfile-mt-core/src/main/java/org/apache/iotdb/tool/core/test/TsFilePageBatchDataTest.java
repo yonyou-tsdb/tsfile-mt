@@ -1,5 +1,6 @@
 package org.apache.iotdb.tool.core.test;
 
+import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
@@ -12,7 +13,7 @@ public class TsFilePageBatchDataTest {
     TsFileAnalyserV13 tsFileAnalyserV13 = new TsFileAnalyserV13("./1650952199003-7-0-0.tsfile");
     System.out.println(OffLineTsFileUtil.fetchTsFileVersionNumber("./1650952199003-7-0-0.tsfile"));
 
-    List<PageInfo> pageInfoList =
+    List<IPageInfo> pageInfoList =
         tsFileAnalyserV13.fetchPageInfoListByChunkMetadata(
             tsFileAnalyserV13
                 .getChunkGroupMetadataModelList()

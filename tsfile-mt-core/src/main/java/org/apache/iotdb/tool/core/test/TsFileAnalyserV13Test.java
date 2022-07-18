@@ -1,6 +1,7 @@
 package org.apache.iotdb.tool.core.test;
 
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
+import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
@@ -17,9 +18,12 @@ public class TsFileAnalyserV13Test {
 
     System.out.println(
         OffLineTsFileUtil.fetchTsFileVersionNumber("1652336687038-87274-2-5.tsfile"));
+
+
+
     TimeSeriesMetadataNode node = tsFileAnalyserV13.getTimeSeriesMetadataNode();
     List<ChunkGroupMetadataModel> modelList = tsFileAnalyserV13.getChunkGroupMetadataModelList();
-    List<List<PageInfo>> pageInfosList =
+    List<IPageInfo> pageInfosList =
         tsFileAnalyserV13.fetchPageInfoListByIChunkMetadata(
             modelList.get(0).getChunkMetadataList().get(0));
 

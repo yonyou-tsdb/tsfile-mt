@@ -1,9 +1,6 @@
 package org.apache.iotdb.tool.core.service;
 
-import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
-import org.apache.iotdb.tool.core.model.ChunkModel;
-import org.apache.iotdb.tool.core.model.PageInfo;
-import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
+import org.apache.iotdb.tool.core.model.*;
 import org.apache.iotdb.tsfile.common.conf.TSFileConfig;
 import org.apache.iotdb.tsfile.common.conf.TSFileDescriptor;
 import org.apache.iotdb.tsfile.common.constant.TsFileConstant;
@@ -501,42 +498,38 @@ public class TsFileAnalyserV13 {
    * @throws IOException
    * @throws InterruptedException
    */
-  public List<List<PageInfo>> fetchPageInfoListByIChunkMetadata(IChunkMetadata iChunkMetadata)
+  public List<IPageInfo> fetchPageInfoListByIChunkMetadata(IChunkMetadata iChunkMetadata)
       throws IOException, InterruptedException {
     countDownLatch.await();
-    List<List<PageInfo>> pageInfosList = new ArrayList<>();
+    List<IPageInfo> pageInfoList = new ArrayList<>();
     if (iChunkMetadata instanceof AlignedChunkMetadata) {
       AlignedChunkMetadata alignedChunkMetadata = (AlignedChunkMetadata) iChunkMetadata;
       IChunkMetadata timeChunkMetadata = alignedChunkMetadata.getTimeChunkMetadata();
       List<IChunkMetadata> valueChunkMetadatas = alignedChunkMetadata.getValueChunkMetadataList();
-      List<PageInfo> timePageInfoList = fetchPageInfoListByChunkMetadata(timeChunkMetadata);
-      List<List<PageInfo>> valuePageInfosList = new ArrayList<>();
+      List<IPageInfo> alignedPageInfoList = new ArrayList<>();
+      List<IPageInfo> timePageInfoList = fetchPageInfoListByChunkMetadata(timeChunkMetadata);
+      List<List<IPageInfo>> valuePageInfosList = new ArrayList<>();
       for (IChunkMetadata valueChunkMetadata : valueChunkMetadatas) {
-        List<PageInfo> valuePageInfoList = fetchPageInfoListByChunkMetadata(valueChunkMetadata);
+        List<IPageInfo> valuePageInfoList = fetchPageInfoListByChunkMetadata(valueChunkMetadata);
         valuePageInfosList.add(valuePageInfoList);
       }
 
       // 合并timePageInfo和valuePageInfo
       for (int i = 0; i < timePageInfoList.size(); i++) {
-        List<PageInfo> alignedPageInfos = new ArrayList<>();
-        alignedPageInfos.add(timePageInfoList.get(i));
-        for (List<PageInfo> pageInfoList : valuePageInfosList) {
-          if (pageInfoList.size() > i + 1) {
-            alignedPageInfos.add(pageInfoList.get(i));
-          }
+
+        AlignedPageInfo alignedPageInfos = new AlignedPageInfo();
+        alignedPageInfos.setTimePageInfo(timePageInfoList.get(i));
+        for (List<IPageInfo> valuePageInfoList : valuePageInfosList) {
+            alignedPageInfos.setValuePageInfoList(valuePageInfoList);
         }
-        pageInfosList.add(alignedPageInfos);
+        pageInfoList.add(alignedPageInfos);
       }
 
     } else {
-      List<PageInfo> pageInfos = fetchPageInfoListByChunkMetadata(iChunkMetadata);
-      for (PageInfo pageInfo : pageInfos) {
-        List<PageInfo> tmpPageInfos = new ArrayList<>();
-        tmpPageInfos.add(pageInfo);
-        pageInfosList.add(new ArrayList<>(tmpPageInfos));
-      }
+      pageInfoList = fetchPageInfoListByChunkMetadata(iChunkMetadata);
+
     }
-    return pageInfosList;
+    return pageInfoList;
   }
 
   /**
@@ -546,7 +539,7 @@ public class TsFileAnalyserV13 {
    * @return
    * @throws IOException
    */
-  public List<PageInfo> fetchPageInfoListByChunkMetadata(IChunkMetadata chunkMetadata)
+  public List<IPageInfo> fetchPageInfoListByChunkMetadata(IChunkMetadata chunkMetadata)
       throws IOException {
 
     long offsetOfChunkHeader = chunkMetadata.getOffsetOfChunkHeader();
@@ -558,7 +551,7 @@ public class TsFileAnalyserV13 {
         Statistics.getStatsByType(chunkMetadata.getDataType());
     int dataSize = chunkHeader.getDataSize();
 
-    List<PageInfo> pageInfoList = new ArrayList<>();
+    List<IPageInfo> pageInfoList = new ArrayList<>();
 
     if (((byte) (chunkHeader.getChunkType() & CHUNK_HEADER_MASK)) == MetaMarker.CHUNK_HEADER) {
       logger.info(
@@ -623,14 +616,15 @@ public class TsFileAnalyserV13 {
     return pageInfoList;
   }
 
+
   /**
    * 获取页数据点迭代器
    *
-   * @param pageInfos
+   * @param pageInfo
    * @return
    * @throws IOException
    */
-  public BatchData fetchBatchDataByPageInfo(List<PageInfo> pageInfos) throws IOException {
+  public BatchData fetchBatchDataByPageInfo(IPageInfo pageInfo) throws IOException {
 
     BatchData batchData;
     Decoder timeDecoder =
@@ -638,8 +632,8 @@ public class TsFileAnalyserV13 {
             TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().getTimeEncoder()),
             TSDataType.INT64);
     // 非对齐时间序列
-    if (pageInfos.size() == 1) {
-      PageInfo pageInfo = pageInfos.get(0);
+    if (pageInfo instanceof PageInfo) {
+
       PageHeader pageHeader = fetchPageHeader(pageInfo);
       Decoder valueDecoder =
           Decoder.getDecoderByType(pageInfo.getEncodingType(), pageInfo.getDataType());
@@ -652,8 +646,8 @@ public class TsFileAnalyserV13 {
       batchData = pageReader.getAllSatisfiedPageData();
     }
     // 对齐时间序列
-    else if (pageInfos.size() > 1) {
-      PageInfo timePageInfo = pageInfos.get(0);
+    else if (pageInfo instanceof AlignedPageInfo) {
+      IPageInfo timePageInfo = ((AlignedPageInfo) pageInfo).getTimePageInfo();
       PageHeader timePageHeader = fetchPageHeader(timePageInfo);
       ByteBuffer timeByteBuffer =
           reader.readPage(timePageHeader, timePageInfo.getCompressionType());
@@ -662,8 +656,8 @@ public class TsFileAnalyserV13 {
       List<ByteBuffer> valueByteBuffers = new ArrayList<>();
       List<TSDataType> valueTSDataTypes = new ArrayList<>();
       List<Decoder> valueDecoders = new ArrayList<>();
-      for (int i = 1; i < pageInfos.size(); i++) {
-        PageInfo valuePageInfo = pageInfos.get(i);
+      List<IPageInfo> valuePageInfoList = ((AlignedPageInfo)pageInfo).getValuePageInfoList();
+      for (IPageInfo valuePageInfo: valuePageInfoList) {
         PageHeader valuePageHeader = fetchPageHeader(valuePageInfo);
         valuePageHeaders.add(valuePageHeader);
         valueByteBuffers.add(reader.readPage(valuePageHeader, valuePageInfo.getCompressionType()));
@@ -690,7 +684,7 @@ public class TsFileAnalyserV13 {
     return batchData;
   }
 
-  private PageHeader fetchPageHeader(PageInfo pageInfo) throws IOException {
+  private PageHeader fetchPageHeader(IPageInfo pageInfo) throws IOException {
     // [uncompressedSize:int][compressedSize:int][statistics?][batchData]
     reader.position(pageInfo.getPosition());
     PageHeader pageHeader;
@@ -821,6 +815,7 @@ public class TsFileAnalyserV13 {
      * @param buffer byte buffer
      * @param deviceId String
      * @param timeseriesMetadataMap map: deviceId -> timeseriesMetadata list
+     * @param tsNode TimeSeriesMetadataNode
      * @param needChunkMetadata deserialize chunk metadata list or not
      */
     private void generateMetadataIndexWithOffset(
