@@ -506,22 +506,21 @@ public class TsFileAnalyserV13 {
       AlignedChunkMetadata alignedChunkMetadata = (AlignedChunkMetadata) iChunkMetadata;
       IChunkMetadata timeChunkMetadata = alignedChunkMetadata.getTimeChunkMetadata();
       List<IChunkMetadata> valueChunkMetadatas = alignedChunkMetadata.getValueChunkMetadataList();
-      List<IPageInfo> alignedPageInfoList = new ArrayList<>();
       List<IPageInfo> timePageInfoList = fetchPageInfoListByChunkMetadata(timeChunkMetadata);
       List<List<IPageInfo>> valuePageInfosList = new ArrayList<>();
       for (IChunkMetadata valueChunkMetadata : valueChunkMetadatas) {
         List<IPageInfo> valuePageInfoList = fetchPageInfoListByChunkMetadata(valueChunkMetadata);
         valuePageInfosList.add(valuePageInfoList);
       }
-
       // 合并timePageInfo和valuePageInfo
       for (int i = 0; i < timePageInfoList.size(); i++) {
-
         AlignedPageInfo alignedPageInfos = new AlignedPageInfo();
         alignedPageInfos.setTimePageInfo(timePageInfoList.get(i));
-        for (List<IPageInfo> valuePageInfoList : valuePageInfosList) {
-            alignedPageInfos.setValuePageInfoList(valuePageInfoList);
+        List<IPageInfo> valuePageInfoList = new ArrayList<>();
+        for (int j = 0; j < valuePageInfosList.size(); j ++) {
+          valuePageInfoList.add(valuePageInfosList.get(j).get(i));
         }
+        alignedPageInfos.setValuePageInfoList(valuePageInfoList);
         pageInfoList.add(alignedPageInfos);
       }
 

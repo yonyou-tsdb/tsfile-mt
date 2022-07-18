@@ -14,10 +14,10 @@ import java.util.List;
 public class TsFileAnalyserV13Test {
 
   public static void main(String[] strings) throws IOException, InterruptedException {
-    TsFileAnalyserV13 tsFileAnalyserV13 = new TsFileAnalyserV13("1652336687038-87274-2-5.tsfile");
+    TsFileAnalyserV13 tsFileAnalyserV13 = new TsFileAnalyserV13("1653185217031-82-2-0.tsfile");
 
     System.out.println(
-        OffLineTsFileUtil.fetchTsFileVersionNumber("1652336687038-87274-2-5.tsfile"));
+        OffLineTsFileUtil.fetchTsFileVersionNumber("1653185217031-82-2-0.tsfile"));
 
 
 
