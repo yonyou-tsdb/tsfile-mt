@@ -27,15 +27,16 @@ public class TsFileInfoPage {
   private GridPane pane;
   private Scene scene;
   private Stage stage;
-  // TODO
   private TableView fileInfoTableView = new TableView();
   private ObservableList<FileInfo> fileDatas = FXCollections.observableArrayList();
+  private String tsfileName;
 
   public TsFileInfoPage() {}
 
-  public TsFileInfoPage(Stage stage, IoTDBParsePageV3 ioTDBParsePage) {
+  public TsFileInfoPage(Stage stage, IoTDBParsePageV3 ioTDBParsePage, String tsfileName) {
     this.stage = stage;
     this.ioTDBParsePage = ioTDBParsePage;
+    this.tsfileName = tsfileName;
     init(stage);
   }
 
@@ -56,7 +57,7 @@ public class TsFileInfoPage {
     pane.setAlignment(Pos.CENTER);
 
     Label tsfileNameLabel = new Label("TSFileName:");
-    TextField tsfileNameResult = new TextField("16121442xxxxx-1-0-0.tsfile");
+    TextField tsfileNameResult = new TextField(tsfileName);
     tsfileNameResult.setEditable(false);
     tsfileNameResult.setFocusTraversable(false);
     tsfileNameResult.getStyleClass().add("copiable-text");

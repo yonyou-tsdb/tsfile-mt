@@ -165,7 +165,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
                                 Stage tsfileInfoStage = new Stage();
                                 tsfileInfoStage.initStyle(StageStyle.UTILITY);
                                 tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
-                                tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
+                                tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this, currTSFileName);
                               });
                     }
                     break;
@@ -224,11 +224,11 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
               logger.error("The File[] files is null!");
               return;
             }
-            for (File f : files) {
-              String filePath = f.getPath();
+            for (File file : files) {
+              String filePath = file.getPath();
               TreeItem<ChunkTreeItemValue> fileItem =
                   new TreeItem<>(
-                      new ChunkTreeItemValue(f.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
+                      new ChunkTreeItemValue(file.getName(), TREE_ITEM_TYPE_TSFILE, filePath));
               treeRoot.getChildren().add(fileItem);
               Node tsfileIcon = new IconView("/icons/folder-source.png");
               fileItem.setGraphic(tsfileIcon);
@@ -257,7 +257,6 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
           measurementSearchStage.initStyle(StageStyle.UTILITY);
           measurementSearchPage = new MeasurementSearchPage(measurementSearchStage, this);
         });
-    // TODO shorcut key binding: CTR+SHIFT+F
 
     // TimeSeries search
     HBox searchHBox = new HBox();
