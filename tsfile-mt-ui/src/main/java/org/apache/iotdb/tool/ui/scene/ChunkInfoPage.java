@@ -19,12 +19,12 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class ChunkInfoPage {
-  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
 
   private static final double WIDTH = 455;
   private static final double HEIGHT = 345;
 
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
   private GridPane pane;
   private Scene scene;
   private Stage stage;
@@ -32,14 +32,14 @@ public class ChunkInfoPage {
   private TableView fileInfoTableView = new TableView();
   private ObservableList<TsFileInfoPage.FileInfo> fileDatas = FXCollections.observableArrayList();
 
-  private TreeItem<IoTDBParsePageV13.ChunkTreeItemValue> chunkItem;
+  private TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> chunkItem;
 
   public ChunkInfoPage() {}
 
   public ChunkInfoPage(
       Stage stage,
-      IoTDBParsePageV13 ioTDBParsePage,
-      TreeItem<IoTDBParsePageV13.ChunkTreeItemValue> chunkItem) {
+      IoTDBParsePageV3 ioTDBParsePage,
+      TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> chunkItem) {
     this.stage = stage;
     this.ioTDBParsePage = ioTDBParsePage;
     this.chunkItem = chunkItem;
@@ -63,8 +63,8 @@ public class ChunkInfoPage {
     pane.setAlignment(Pos.CENTER);
 
     // 数据来源
-    IoTDBParsePageV13.ChunkWrap params =
-        (IoTDBParsePageV13.ChunkWrap) chunkItem.getValue().getParams();
+    IoTDBParsePageV3.ChunkWrap params =
+        (IoTDBParsePageV3.ChunkWrap) chunkItem.getValue().getParams();
 
     ChunkHeader chunkHeader = params.getChunkHeader();
 

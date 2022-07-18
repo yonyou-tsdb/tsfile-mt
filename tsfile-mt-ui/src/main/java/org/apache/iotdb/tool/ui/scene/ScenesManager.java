@@ -1,27 +1,14 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Group;
 import javafx.scene.control.*;
-import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
-import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 /**
  * scenes manager for scene change
@@ -34,16 +21,16 @@ public class ScenesManager {
 
   static final ScenesManager scenesManager = new ScenesManager();
 
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
 
   /** base stage */
   private Stage baseStage = null;
 
   private ScenesManager() {
-    ioTDBParsePage = new IoTDBParsePageV13();
+    ioTDBParsePage = new IoTDBParsePageV3();
   }
 
-  public IoTDBParsePageV13 getIoTDBParsePage() {
+  public IoTDBParsePageV3 getIoTDBParsePage() {
     return ioTDBParsePage;
   }
 
@@ -76,7 +63,7 @@ public class ScenesManager {
     });
   }
 
-  public Task progressWorker(IoTDBParsePageV13 ioTDBParsePage) {
+  public Task progressWorker(IoTDBParsePageV3 ioTDBParsePage) {
     return new Task() {
       @Override
       protected Object call() throws Exception {

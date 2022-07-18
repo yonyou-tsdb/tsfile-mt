@@ -26,9 +26,9 @@ public class TimeseriesSearchPage {
   private Button tsSearchButton;
   private StackPane pane;
   private Scene scene;
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
 
-  public TimeseriesSearchPage(Stage stage, IoTDBParsePageV13 ioTDBParsePage) {
+  public TimeseriesSearchPage(Stage stage, IoTDBParsePageV3 ioTDBParsePage) {
     this.ioTDBParsePage = ioTDBParsePage;
     init(stage);
   }

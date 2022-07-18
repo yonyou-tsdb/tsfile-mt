@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.ui.scene.IndexNodeInfoPage;
-import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV13;
+import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3;
 
 import java.util.List;
 import javafx.scene.Group;
@@ -41,7 +41,7 @@ public class EntityNode {
   private int x;
   private int y;
 
-  private IoTDBParsePageV13 ioTDBParsePageV13;
+  private IoTDBParsePageV3 ioTDBParsePageV13;
 
   private boolean isLeafMeasurement;
 
@@ -52,7 +52,7 @@ public class EntityNode {
       int y,
       boolean isLeafMeasurement,
       Group indexRegion,
-      IoTDBParsePageV13 ioTDBParsePageV13) {
+      IoTDBParsePageV3 ioTDBParsePageV13) {
 
     this.parent = parent;
     this.timeSeriesMetadataNode = timeSeriesMetadataNode;

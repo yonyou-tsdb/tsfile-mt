@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 
 public class IndexNodeInfoPage {
-    private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+    private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
 
     private static final double WIDTH = 810;
     private static final double HEIGHT = 300;

@@ -18,12 +18,12 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class TsFileInfoPage {
-  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
 
   private static final double WIDTH = 455;
   private static final double HEIGHT = 345;
 
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
   private GridPane pane;
   private Scene scene;
   private Stage stage;
@@ -33,7 +33,7 @@ public class TsFileInfoPage {
 
   public TsFileInfoPage() {}
 
-  public TsFileInfoPage(Stage stage, IoTDBParsePageV13 ioTDBParsePage) {
+  public TsFileInfoPage(Stage stage, IoTDBParsePageV3 ioTDBParsePage) {
     this.stage = stage;
     this.ioTDBParsePage = ioTDBParsePage;
     init(stage);

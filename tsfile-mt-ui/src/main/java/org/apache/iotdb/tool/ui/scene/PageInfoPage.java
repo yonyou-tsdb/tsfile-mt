@@ -23,23 +23,23 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 public class PageInfoPage {
-  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV13.class);
+  private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
 
   private static final double WIDTH = 810;
   private static final double HEIGHT = 300;
 
   private AnchorPane anchorPane;
   private Scene scene;
-  private IoTDBParsePageV13 ioTDBParsePage;
+  private IoTDBParsePageV3 ioTDBParsePage;
   private Stage stage;
 
   private AnchorPane pageHeaderPane;
 
   private AnchorPane pageDataPane;
 
-  private TreeItem<IoTDBParsePageV13.ChunkTreeItemValue> pageItem;
+  private TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem;
   // todo
-  private ObservableList<IoTDBParsePageV13.TimesValues> tvDatas =
+  private ObservableList<IoTDBParsePageV3.TimesValues> tvDatas =
       FXCollections.observableArrayList();
 
   /** table datas */
@@ -52,8 +52,8 @@ public class PageInfoPage {
 
   public PageInfoPage(
       Stage stage,
-      IoTDBParsePageV13 ioTDBParsePage,
-      TreeItem<IoTDBParsePageV13.ChunkTreeItemValue> pageItem) {
+      IoTDBParsePageV3 ioTDBParsePage,
+      TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem) {
     this.stage = stage;
     this.ioTDBParsePage = ioTDBParsePage;
     this.pageItem = pageItem;
@@ -83,13 +83,13 @@ public class PageInfoPage {
     stage.setResizable(false);
 
     // 数据来源
-    ObservableList<IoTDBParsePageV13.PageInfo> pageDatas = FXCollections.observableArrayList();
+    ObservableList<IoTDBParsePageV3.PageInfo> pageDatas = FXCollections.observableArrayList();
 
     List<PageInfo> pageInfos = new ArrayList<>();
     pageInfos.add((PageInfo) pageItem.getValue().getParams());
     try {
       pageDatas.add(
-          new IoTDBParsePageV13.PageInfo(
+          new IoTDBParsePageV3.PageInfo(
               // TODO 优化代码
               pageInfos.get(0).getUncompressedSize(),
               pageInfos.get(0).getCompressedSize(),
@@ -100,7 +100,7 @@ public class PageInfoPage {
       while (batchData.hasCurrent()) {
         Object currValue = batchData.currentValue();
         this.tvDatas.add(
-            new IoTDBParsePageV13.TimesValues(
+            new IoTDBParsePageV3.TimesValues(
                     new Date(batchData.currentTime()).toString(),
             currValue == null ? "" : currValue.toString()));
         batchData.next();
