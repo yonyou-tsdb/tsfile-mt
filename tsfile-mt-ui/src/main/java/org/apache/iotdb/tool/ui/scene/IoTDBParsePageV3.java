@@ -154,16 +154,20 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
                       }
                     );
 
-                    // tsfile details item
-                    MenuItem tsfileMenuItem = new MenuItem("tsfile details");
-                    treeViewItems.add(tsfileMenuItem);
-                    tsfileMenuItem.setOnAction(
-                            event -> {
-                              Stage tsfileInfoStage = new Stage();
-                              tsfileInfoStage.initStyle(StageStyle.UTILITY);
-                              tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
-                              tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
-                            });
+                    // 判断是否已经加载，若未加载不显示 tsfile details
+                    String currTSFileName = currItem.getValue().getName();
+                    if (currTSFileName == loadedTSFileName) {
+                      // tsfile details item
+                      MenuItem tsfileMenuItem = new MenuItem("tsfile details");
+                      treeViewItems.add(tsfileMenuItem);
+                      tsfileMenuItem.setOnAction(
+                              event -> {
+                                Stage tsfileInfoStage = new Stage();
+                                tsfileInfoStage.initStyle(StageStyle.UTILITY);
+                                tsfileInfoStage.initModality(Modality.APPLICATION_MODAL);
+                                tsfileInfoPage = new TsFileInfoPage(tsfileInfoStage, this);
+                              });
+                    }
                     break;
                   case TREE_ITEM_TYPE_CHUNK:
                     MenuItem chunkMenuItem = new MenuItem("chunk details");

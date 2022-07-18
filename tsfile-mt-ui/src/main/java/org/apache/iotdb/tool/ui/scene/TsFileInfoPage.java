@@ -55,10 +55,6 @@ public class TsFileInfoPage {
     pane.setPadding(new Insets(20));
     pane.setAlignment(Pos.CENTER);
 
-    // TODO 支持复制（text lable 不支持复制）
-    // 可以参考 IDEA 一键复制
-    // Logo
-    // 字体颜色
     Label tsfileNameLabel = new Label("TSFileName:");
     TextField tsfileNameResult = new TextField("16121442xxxxx-1-0-0.tsfile");
     tsfileNameResult.setEditable(false);
