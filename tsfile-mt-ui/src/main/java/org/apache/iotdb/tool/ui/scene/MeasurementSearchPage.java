@@ -101,10 +101,6 @@ public class MeasurementSearchPage {
 
     searchFilterBoxChildren
             .addAll(deviceIdLabel, deviceIdText, measurementIdLabel, measurementIdText, searchButton);
-    // TODO  ENTER 绑定
-    // shortcut: Enter
-    //        KeyCombination searchButtonKC = new KeyCodeCombination(KeyCode.ENTER);
-    //        this.getScene().getAccelerators().put(searchButtonKC, ()-> searchButton.fire());
 
     // button click event
     searchButton.setOnMouseClicked(
@@ -124,8 +120,8 @@ public class MeasurementSearchPage {
                   .atZone(ZoneId.systemDefault())
                   .toInstant()
                   .toEpochMilli();
-          String deviceIdTextText = deviceIdText.getText().trim();
-          String measurementIdTextText = measurementIdText.getText().trim();
+          String deviceIdTextText = deviceIdText.getText().trim().toLowerCase();
+          String measurementIdTextText = measurementIdText.getText().trim().toLowerCase();
           try {
             QueryDataSet queryDataSet =
                 ioTDBParsePage

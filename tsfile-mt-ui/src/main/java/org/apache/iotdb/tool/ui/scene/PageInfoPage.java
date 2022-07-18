@@ -2,6 +2,7 @@ package org.apache.iotdb.tool.ui.scene;
 
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
@@ -85,18 +86,18 @@ public class PageInfoPage {
     // 数据来源
     ObservableList<IoTDBParsePageV3.PageInfo> pageDatas = FXCollections.observableArrayList();
 
-    List<PageInfo> pageInfos = new ArrayList<>();
-    pageInfos.add((PageInfo) pageItem.getValue().getParams());
+    IPageInfo pageInfo = (PageInfo) pageItem.getValue().getParams();
+
     try {
       pageDatas.add(
           new IoTDBParsePageV3.PageInfo(
               // TODO 优化代码
-              pageInfos.get(0).getUncompressedSize(),
-              pageInfos.get(0).getCompressedSize(),
-              pageInfos.get(0).getStatistics() == null ? "" : pageInfos.get(0).getStatistics().toString()));
+                  pageInfo.getUncompressedSize(),
+                  pageInfo.getCompressedSize(),
+                  pageInfo.getStatistics() == null ? "" : pageInfo.getStatistics().toString()));
 
       BatchData batchData =
-          ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfos);
+          ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo((PageInfo) pageItem.getValue().getParams());
       while (batchData.hasCurrent()) {
         Object currValue = batchData.currentValue();
         this.tvDatas.add(
@@ -108,7 +109,7 @@ public class PageInfoPage {
     } catch (Exception e) {
       logger.error(
           "Failed to get page details, the page statistics:{}",
-          pageInfos.get(0).getStatistics().toString());
+              pageInfo.getStatistics().toString());
       // TODO
       e.printStackTrace();
     }

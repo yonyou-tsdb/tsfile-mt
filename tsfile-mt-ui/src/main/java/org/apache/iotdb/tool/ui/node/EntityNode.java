@@ -96,7 +96,7 @@ public class EntityNode {
       // tips,show detail
       Tooltip.install(this.entityShape, new Tooltip(getTip()));
 
-      // TODO show details
+      // show details in new stage
       MetadataIndexNodeType type = timeSeriesMetadataNode.getNodeType();
       switch (type) {
         case INTERNAL_DEVICE:

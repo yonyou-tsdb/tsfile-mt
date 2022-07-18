@@ -10,6 +10,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tsfile.read.common.BatchData;
 import org.slf4j.Logger;
@@ -75,9 +76,9 @@ public class AlignedPageInfoPage {
         alignedTableView.setVisible(true);
         // Add Column and Data to TableView
         IoTDBParsePageV3.AlignedPageItemParams pageItemParams = (IoTDBParsePageV3.AlignedPageItemParams) pageItem.getValue().getParams();
-        List<PageInfo> pageInfoList = pageItemParams.getPageInfoList();
+        IPageInfo pageInfo = pageItemParams.getPageInfoList();
         try {
-            BatchData batchData = ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfoList);
+            BatchData batchData = ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfo);
             // 1. Add Time Column and it's Data
             // TODO solve hard code
             TableColumn<HashMap<String, SimpleStringProperty>, String> timestampCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>("timestamp");
@@ -120,7 +121,7 @@ public class AlignedPageInfoPage {
         } catch (IOException e) {
             logger.error(
                     "Failed to get Aligned Page details, the TimePage statistics:{}",
-            pageInfoList.get(0).getStatistics());
+            pageInfo.getStatistics());
         }
 
         alignedTableView.setItems(columnDataList);

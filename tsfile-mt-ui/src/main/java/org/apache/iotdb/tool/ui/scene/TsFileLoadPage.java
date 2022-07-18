@@ -5,6 +5,7 @@ import javafx.stage.Screen;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 
+import org.apache.iotdb.tool.ui.node.IndexNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,8 @@ public class TsFileLoadPage {
     cancelButton = new Button("cancel");
     pane.add(loadButton, 1, 1);
     pane.add(cancelButton, 2, 1);
+    loadButton.setMinWidth(50);
+    cancelButton.setMinWidth(60);
 
     pane.add(progressBar, 0, 2);
     progressBar.getStyleClass().add("progress-bar-field");
@@ -109,7 +112,6 @@ public class TsFileLoadPage {
 
           // 3. 异步加载文件
           loadTsFile(filePath);
-          // TODO 优化代码
           ioTDBParsePage.setTsFileAnalyserV13(tsFileAnalyserV13);
           // 进度条
           ScenesManager scenesManager = ScenesManager.getInstance();

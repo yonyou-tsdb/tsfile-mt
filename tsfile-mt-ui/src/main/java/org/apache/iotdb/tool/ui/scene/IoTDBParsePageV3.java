@@ -1,6 +1,7 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import org.apache.iotdb.tool.core.model.ChunkGroupMetadataModel;
+import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.ui.node.IndexNode;
@@ -128,8 +129,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     // TreeView Menu
     treeViewMenu = new ContextMenu();
     ObservableList<MenuItem> treeViewItems = treeViewMenu.getItems();
-    // mouse Event zuojiasn {
-    // }
+
     treeView
         .getSelectionModel()
         .selectedItemProperty()
@@ -194,7 +194,6 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
             });
     treeView.setContextMenu(treeViewMenu);
 
-    // TODO 代码结构（应该把这些都拆出来， menu 单独的）
     // menu region
     MenuBar menuBar = new MenuBar();
     menuBar.prefWidthProperty().bind(baseStage.widthProperty());
@@ -303,10 +302,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     // searchButton: search event
     searchButton.setOnAction(
         event -> {
-          // TODO
-          // 1. 优化为忽略大小写
-          // 2. 动态查询（例如 idea） 也可以全部高亮显示
-          String searchResult = timeseriesSearch(searchText.getText().trim());
+          String searchResult = timeseriesSearch(searchText.getText().trim().toLowerCase());
           if (searchResult == null) {
             return;
           }
@@ -428,7 +424,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
   public void showItemChunk(TreeItem<ChunkTreeItemValue> value) {
     ChunkWrap params = (ChunkWrap) value.getValue().getParams();
     try {
-      List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList =
+      List<org.apache.iotdb.tool.core.model.IPageInfo> pageInfoList =
           tsFileAnalyserV13.fetchPageInfoListByChunkMetadata(params.getiChunkMetadata());
       ObservableList<TreeItem<ChunkTreeItemValue>> chunkChild = value.getChildren();
       if (chunkChild == null) {
@@ -460,7 +456,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     AlignedChunkWrap params = (AlignedChunkWrap) alignedChunkItem.getValue().getParams();
     List<ChunkHeader> chunkHeaderList = params.getChunkHeaderList().get(0);
     try {
-      List<List<org.apache.iotdb.tool.core.model.PageInfo>> pageInfoLists =
+      List<org.apache.iotdb.tool.core.model.IPageInfo> pageInfoLists =
               tsFileAnalyserV13.fetchPageInfoListByIChunkMetadata(params.getChunkMetadataList().get(0));
       ObservableList<TreeItem<ChunkTreeItemValue>> chunkChild = alignedChunkItem.getChildren();
       if (chunkChild == null) {
@@ -604,7 +600,6 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     tsfileItem.setExpanded(true);
     tsfileLoadStage.close();
 
-    // TODO  改成异步？
     indexDataInit();
   }
 
@@ -942,23 +937,23 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
   }
 
   public static class AlignedPageItemParams {
-    private List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList;
+    private IPageInfo alignedPageInfo;
     private List<ChunkHeader> chunkHeaderList;
 
     public AlignedPageItemParams() {
     }
 
-    public AlignedPageItemParams(List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList, List<ChunkHeader> chunkHeaderList) {
-      this.pageInfoList = pageInfoList;
+    public AlignedPageItemParams(IPageInfo pageInfo, List<ChunkHeader> chunkHeaderList) {
+      this.alignedPageInfo = pageInfo;
       this.chunkHeaderList = chunkHeaderList;
     }
 
-    public List<org.apache.iotdb.tool.core.model.PageInfo> getPageInfoList() {
-      return pageInfoList;
+    public IPageInfo getPageInfoList() {
+      return alignedPageInfo;
     }
 
-    public void setPageInfoList(List<org.apache.iotdb.tool.core.model.PageInfo> pageInfoList) {
-      this.pageInfoList = pageInfoList;
+    public void setPageInfoList(IPageInfo pageInfo) {
+      this.alignedPageInfo = pageInfo;
     }
 
     public List<ChunkHeader> getChunkHeaderList() {
