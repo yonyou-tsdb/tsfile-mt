@@ -11,7 +11,6 @@ import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import org.apache.iotdb.tool.core.model.IPageInfo;
-import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tsfile.read.common.BatchData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +19,21 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import static org.apache.iotdb.tool.ui.common.constant.StageConstant.ALIGNED_PAGE_INFO_PAGE_HEIGHT;
 import static org.apache.iotdb.tool.ui.common.constant.StageConstant.ALIGNED_PAGE_INFO_PAGE_WIDTH;
 import static org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3.HEIGHT;
 
+/**
+ * AlignedPageInfoPage
+ *
+ * @author shenguanchu
+ */
 public class AlignedPageInfoPage {
     private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
+
+    private static final String TIMESTAMP_COLUMN = "timestamp";
+    private static final String VALUE_COLUMN = "value";
 
     private AnchorPane anchorPane;
     private Scene scene;
@@ -80,16 +86,15 @@ public class AlignedPageInfoPage {
         try {
             BatchData batchData = ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfo);
             // 1. Add Time Column and it's Data
-            // TODO solve hard code
-            TableColumn<HashMap<String, SimpleStringProperty>, String> timestampCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>("timestamp");
+            TableColumn<HashMap<String, SimpleStringProperty>, String> timestampCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>(TIMESTAMP_COLUMN);
             alignedTableView.getColumns().add(timestampCol);
-            timestampCol.setCellValueFactory(new MapValueFactory("timestamp"));
+            timestampCol.setCellValueFactory(new MapValueFactory(TIMESTAMP_COLUMN));
             // 2. Add Value Columns and it's Data
             int idx = 0;
             while (batchData.hasCurrent()) {
                 HashMap<String, SimpleStringProperty> pageInfoMap = new HashMap<>();
                 // Add TimeColumn Data
-                pageInfoMap.put("timestamp", new SimpleStringProperty(new Date(batchData.currentTime()).toString()));
+                pageInfoMap.put(TIMESTAMP_COLUMN, new SimpleStringProperty(new Date(batchData.currentTime()).toString()));
                 // Add Value Column and it's data
                 String[] values = batchData.currentTsPrimitiveType().getStringValue().split(",");
                 int measurementCounts = values.length;
@@ -98,7 +103,7 @@ public class AlignedPageInfoPage {
                     if (idx == 0) {
                         String measurementId = pageItemParams.getChunkHeaderList().get(i + 1).getMeasurementID();
                         TableColumn<HashMap<String, SimpleStringProperty>, String> valueCol = new TableColumn<HashMap<String, SimpleStringProperty>, String>(measurementId);
-                        valueCol.setCellValueFactory(new MapValueFactory("value" + i));
+                        valueCol.setCellValueFactory(new MapValueFactory(VALUE_COLUMN + i));
                         alignedTableView.getColumns().add(valueCol);
                     }
                     if (values[i] == null || values[i].length() == 0) {
@@ -111,8 +116,7 @@ public class AlignedPageInfoPage {
                     } else if (i == measurementCounts - 1) {
                         values[i] = values[i].substring(0, values[i].length() - 1);
                     }
-                    // TODO solve hard code
-                    pageInfoMap.put("value" + i, new SimpleStringProperty(values[i]));
+                    pageInfoMap.put(VALUE_COLUMN + i, new SimpleStringProperty(values[i]));
                 }
                 columnDataList.add(pageInfoMap);
                 idx++;
