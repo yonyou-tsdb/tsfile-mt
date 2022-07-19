@@ -271,11 +271,9 @@ public class TsFileAnalyserV13 {
             setRateOfProcess();
             if (lastDeviceId != null) {
               // schema of last chunk group
-              if (newSchema != null) {
-                for (IMeasurementSchema tsSchema : measurementSchemaList) {
-                  newSchema.putIfAbsent(
-                      new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
-                }
+              for (IMeasurementSchema tsSchema : measurementSchemaList) {
+                newSchema.putIfAbsent(
+                    new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
               }
               measurementSchemaList = new ArrayList<>();
 
@@ -305,11 +303,9 @@ public class TsFileAnalyserV13 {
             setRateOfProcess();
             if (lastDeviceId != null) {
               // schema of last chunk group
-              if (newSchema != null) {
-                for (IMeasurementSchema tsSchema : measurementSchemaList) {
-                  newSchema.putIfAbsent(
-                      new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
-                }
+              for (IMeasurementSchema tsSchema : measurementSchemaList) {
+                newSchema.putIfAbsent(
+                    new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
               }
               measurementSchemaList = new ArrayList<>();
               if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
@@ -343,10 +339,8 @@ public class TsFileAnalyserV13 {
         logger.info("Read the tail of the data section, the lastDeviceId:{}", lastDeviceId);
         setRateOfProcess();
         // schema of last chunk group
-        if (newSchema != null) {
-          for (IMeasurementSchema tsSchema : measurementSchemaList) {
-            newSchema.putIfAbsent(new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
-          }
+        for (IMeasurementSchema tsSchema : measurementSchemaList) {
+          newSchema.putIfAbsent(new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
         }
         if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
           chunkMetadataList.add(
@@ -416,9 +410,7 @@ public class TsFileAnalyserV13 {
   /**
    * 通过chunkMetadata获取chunk实例
    *
-   * @param chunkMetadata
    * @return ChunkModel
-   * @throws IOException
    */
   public ChunkModel fetchChunkByChunkMetadata(ChunkMetadata chunkMetadata)
       throws IOException, InterruptedException {
@@ -493,6 +485,7 @@ public class TsFileAnalyserV13 {
   }
 
   /**
+   *
    * @param iChunkMetadata
    * @return
    * @throws IOException
@@ -517,8 +510,8 @@ public class TsFileAnalyserV13 {
         AlignedPageInfo alignedPageInfos = new AlignedPageInfo();
         alignedPageInfos.setTimePageInfo(timePageInfoList.get(i));
         List<IPageInfo> valuePageInfoList = new ArrayList<>();
-        for (int j = 0; j < valuePageInfosList.size(); j ++) {
-          valuePageInfoList.add(valuePageInfosList.get(j).get(i));
+        for (List<IPageInfo> iPageInfos : valuePageInfosList) {
+          valuePageInfoList.add(iPageInfos.get(i));
         }
         alignedPageInfos.setValuePageInfoList(valuePageInfoList);
         pageInfoList.add(alignedPageInfos);
@@ -532,11 +525,7 @@ public class TsFileAnalyserV13 {
   }
 
   /**
-   * 通过 ChunkMetadata 获取 Chunk 下的 pageInfoList
-   *
-   * @param chunkMetadata
-   * @return
-   * @throws IOException
+   * 获取PageInfo列表
    */
   public List<IPageInfo> fetchPageInfoListByChunkMetadata(IChunkMetadata chunkMetadata)
       throws IOException {
@@ -718,7 +707,7 @@ public class TsFileAnalyserV13 {
       int limit)
       throws IOException, InterruptedException {
     countDownLatch.await();
-    if (device == "" || device == null || measurement == "" || measurement == null) {
+    if (Objects.equals(device, "")  || Objects.equals(measurement, "") ) {
       logger.warn(
           "device or measurement is empty, please check. device:[{}], measurement:[{}]",
           device,
@@ -742,7 +731,7 @@ public class TsFileAnalyserV13 {
     }
 
     QueryExpression queryExpression;
-    if (!(value == "" || value == null)) {
+    if (!(Objects.equals(value, ""))) {
       IExpression valueFilter = new SingleSeriesExpression(path, ValueFilter.eq(value));
       IExpression finalExpression = BinaryExpression.and(timeFilter, valueFilter);
       queryExpression = QueryExpression.create(paths, finalExpression);
