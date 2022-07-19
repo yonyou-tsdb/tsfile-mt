@@ -132,7 +132,7 @@ public class AlignedPageInfoPage {
         alignedTableView.setLayoutX(0);
         alignedTableView.setLayoutY(0);
         alignedTableView.setPrefWidth(ALIGNED_PAGE_INFO_PAGE_WIDTH);
-        alignedTableView.setPrefHeight(HEIGHT * 0.9);
+        alignedTableView.setPrefHeight(ALIGNED_PAGE_INFO_PAGE_HEIGHT);
 
         stage.show();
         URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");

@@ -68,10 +68,6 @@ public class ChunkInfoPage {
 
     ChunkHeader chunkHeader = params.getChunkHeader();
 
-    // TODO 支持复制（text lable 不支持复制）
-    // 可以参考 IDEA 一键复制
-    // Logo
-    // 字体颜色
     Label dataSizeLabel = new Label("DataSize:");
     TextField dataSizeResult = new TextField(chunkHeader.getDataSize() + "");
     dataSizeResult.setEditable(false);

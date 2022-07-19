@@ -32,7 +32,6 @@ public class TsFileLoadPage {
   private static final double WIDTH = 540;
   private static final double HEIGHT = 200;
 
-  private Label infoLabel;
   private Button loadButton;
   private Button cancelButton;
   private GridPane pane;
@@ -77,20 +76,23 @@ public class TsFileLoadPage {
 
     String[] filePathArr = filePath.split("\\\\");
     String tsfileName = filePathArr[filePathArr.length - 1];
-    infoLabel = new Label("Please confirm whether to load: " + tsfileName);
+    Label infoLabel = new Label("Please confirm whether to load:");
     pane.add(infoLabel, 0, 0);
+    Label tsfileNameLabel = new Label(tsfileName);
+    pane.add(tsfileNameLabel, 0, 1);
+
 
     stage.setTitle("Confirm Loading");
     loadButton = new Button("open");
     cancelButton = new Button("cancel");
-    pane.add(loadButton, 1, 1);
-    pane.add(cancelButton, 2, 1);
+    pane.add(loadButton, 1, 2);
+    pane.add(cancelButton, 2, 2);
     loadButton.setMinWidth(50);
     cancelButton.setMinWidth(60);
 
     pane.add(progressBar, 0, 2);
     progressBar.getStyleClass().add("progress-bar-field");
-    progressBar.setPrefWidth(300);
+    progressBar.setPrefWidth(200);
     progressBar.setVisible(false);
     progressBar.setDisable(true);
 

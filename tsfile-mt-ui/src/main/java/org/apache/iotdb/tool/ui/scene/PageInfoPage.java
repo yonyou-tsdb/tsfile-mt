@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -44,10 +42,9 @@ public class PageInfoPage {
       FXCollections.observableArrayList();
 
   /** table datas */
-  // TODO 这里 new 是不是不好
-  private TableView pageHeaderTableView = new TableView();
+  private TableView pageHeaderTableView;
 
-  private TableView pageTVTableView = new TableView();
+  private TableView pageTVTableView;
 
   public PageInfoPage() {}
 
@@ -68,13 +65,15 @@ public class PageInfoPage {
   private void init(Stage stage) {
     // page of Aligned ChunkGroup
     if (!(pageItem.getValue().getParams() instanceof PageInfo)) {
-      System.out.println("Aligned Page");
       Stage chunkInfoStage = new Stage();
       chunkInfoStage.initStyle(StageStyle.UTILITY);
       chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
       AlignedPageInfoPage alignedPageInfoPage = new AlignedPageInfoPage(stage, ioTDBParsePage, pageItem);
       return;
     }
+
+    pageHeaderTableView = new TableView();
+    pageTVTableView = new TableView();
 
     anchorPane = new AnchorPane();
     scene = new Scene(anchorPane, WIDTH, HEIGHT);
@@ -91,7 +90,6 @@ public class PageInfoPage {
     try {
       pageDatas.add(
           new IoTDBParsePageV3.PageInfo(
-              // TODO 优化代码
                   pageInfo.getUncompressedSize(),
                   pageInfo.getCompressedSize(),
                   pageInfo.getStatistics() == null ? "" : pageInfo.getStatistics().toString()));
@@ -110,8 +108,6 @@ public class PageInfoPage {
       logger.error(
           "Failed to get page details, the page statistics:{}",
               pageInfo.getStatistics().toString());
-      // TODO
-      e.printStackTrace();
     }
 
     BaseTableView baseTableView = new BaseTableView();
@@ -122,7 +118,6 @@ public class PageInfoPage {
     pageHeaderPane.setPrefHeight(WIDTH);
     pageHeaderPane.setPrefWidth(HEIGHT * 0.1);
     anchorPane.getChildren().add(pageHeaderPane);
-    // TODO 泛型具体化
     TableColumn<String, String> uncompressedCol =
         baseTableView.genColumn(TableAlign.CENTER, "uncompressedSize", "uncompressedSize");
     TableColumn<String, String> compressedCol =
