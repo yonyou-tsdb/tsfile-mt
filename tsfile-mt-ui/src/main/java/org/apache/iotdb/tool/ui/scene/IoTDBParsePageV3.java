@@ -541,40 +541,6 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
             // 1. aligned
             if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
               chunkGroupMetaItem.getValue().setName("[Aligned]" + chunkGroupMetaItem.getValue().getName());
-              // 对齐 Chunk: chunkMetadataList, chunkHeaderList 的 size() 都为 1
-              IChunkMetadata iChunkMetadata = chunkMetadataList.get(0);
-              List<ChunkHeader> chunkHeaders = chunkHeaderList.get(0);
-              AlignedChunkMetadata alignedChunkMetadata = (AlignedChunkMetadata)iChunkMetadata;
-
-              // 对齐时间序列物理结构
-//              for (int i = 0; i < chunkHeaders.size(); i++) {
-//                if (i == 0) {
-//                  String timeChunkName = "TimeChunk";
-//                  chunkMetaItemValue =
-//                    new ChunkTreeItemValue(
-//                      timeChunkName,
-//                      TREE_ITEM_TYPE_CHUNK,
-//                      new ChunkWrap(alignedChunkMetadata, chunkHeaders.get(i))
-//                    );
-//                } else {
-//                  String measurementId = alignedChunkMetadata.getValueChunkMetadataList().get(i - 1).getMeasurementUid();
-//                  chunkMetaItemValue =
-//                    new ChunkTreeItemValue(
-//                      measurementId,
-//                      TREE_ITEM_TYPE_CHUNK,
-//                      new ChunkWrap(alignedChunkMetadata, chunkHeaders.get(i))
-//                    );
-//                }
-//                TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
-//                Node measurementIcon = new IconView("icons/text-code.png");
-//                chunkMetaItem.setGraphic(measurementIcon);
-//                chunkGroupMetaItem.getChildren().add(chunkMetaItem);
-//                timeseriesList.add(
-//                  chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName());
-//                indexMap.put(
-//                  chunkGroupMetaItemValue.getName() + "." + chunkMetaItemValue.getName(),
-//                  chunkMetaItem);
-//              }
             } else {
               // 2. non-aligned
               for (int i = 0; i < chunkMetadataList.size(); i++) {
