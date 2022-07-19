@@ -51,6 +51,7 @@ public class IndexNodeInfoPage {
         textArea.setEditable(false);
         textArea.setPrefWidth(WIDTH);
         textArea.setPrefHeight(HEIGHT);
+        textArea.setWrapText(true);
         anchorPane.getChildren().add(textArea);
 
         URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");

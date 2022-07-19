@@ -188,7 +188,6 @@ public class TsFileLoadPage {
   }
 
   private void loadTsFile(String filePath) {
-    // 异步
     try {
       // tsfile parse
       this.tsFileAnalyserV13 = new TsFileAnalyserV13(filePath);

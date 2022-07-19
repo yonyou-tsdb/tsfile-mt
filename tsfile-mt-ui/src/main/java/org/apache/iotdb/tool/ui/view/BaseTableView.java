@@ -49,7 +49,7 @@ public class BaseTableView {
             return new TableCell<Object, Object>() {
               @Override
               protected void updateItem(Object item, boolean empty) {
-                if (item == getItem()) return;
+                if (item == getItem()) {return;}
                 super.updateItem(item, empty);
                 if (item == null) {
                   super.setText(null);

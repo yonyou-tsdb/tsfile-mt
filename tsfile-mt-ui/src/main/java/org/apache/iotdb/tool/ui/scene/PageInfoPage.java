@@ -1,5 +1,10 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import com.sun.org.apache.xpath.internal.operations.String;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.IPageInfo;
@@ -37,7 +42,7 @@ public class PageInfoPage {
   private AnchorPane pageDataPane;
 
   private TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem;
-  // todo
+
   private ObservableList<IoTDBParsePageV3.TimesValues> tvDatas =
       FXCollections.observableArrayList();
 
@@ -82,18 +87,25 @@ public class PageInfoPage {
     stage.show();
     stage.setResizable(false);
 
-    // 数据来源
-    ObservableList<IoTDBParsePageV3.PageInfo> pageDatas = FXCollections.observableArrayList();
-
     IPageInfo pageInfo = (PageInfo) pageItem.getValue().getParams();
+    pageHeaderPane = new AnchorPane();
+    pageHeaderPane.setLayoutX(0);
+    pageHeaderPane.setLayoutY(0);
+    pageHeaderPane.setPrefHeight(WIDTH);
+    pageHeaderPane.setPrefWidth(HEIGHT * 0.3);
+    anchorPane.getChildren().add(pageHeaderPane);
 
+    StringBuilder pageHeaderSB = new StringBuilder();
+    pageHeaderSB.append("uncompressedSize: " + pageInfo.getUncompressedSize() + "\n");
+    pageHeaderSB.append("compressedSize: " + pageInfo.getCompressedSize() + "\n");
+    pageHeaderSB.append("statistics: " + pageInfo.getStatistics().toString());
+    TextArea pageHeaderInfo = new TextArea(pageHeaderSB.toString());
+    pageHeaderInfo.setPrefWidth(WIDTH);
+    pageHeaderInfo.setWrapText(true);
+    pageHeaderPane.getChildren().add(pageHeaderInfo);
+
+    // 数据来源
     try {
-      pageDatas.add(
-          new IoTDBParsePageV3.PageInfo(
-                  pageInfo.getUncompressedSize(),
-                  pageInfo.getCompressedSize(),
-                  pageInfo.getStatistics() == null ? "" : pageInfo.getStatistics().toString()));
-
       BatchData batchData =
           ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo((PageInfo) pageItem.getValue().getParams());
       while (batchData.hasCurrent()) {
@@ -111,33 +123,8 @@ public class PageInfoPage {
     }
 
     BaseTableView baseTableView = new BaseTableView();
-    // table 1 page statistic
-    pageHeaderPane = new AnchorPane();
-    pageHeaderPane.setLayoutX(0);
-    pageHeaderPane.setLayoutY(0);
-    pageHeaderPane.setPrefHeight(WIDTH);
-    pageHeaderPane.setPrefWidth(HEIGHT * 0.1);
-    anchorPane.getChildren().add(pageHeaderPane);
-    TableColumn<String, String> uncompressedCol =
-        baseTableView.genColumn(TableAlign.CENTER, "uncompressedSize", "uncompressedSize");
-    TableColumn<String, String> compressedCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedSize", "compressedSize");
-    TableColumn<String, String> statisticsCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "statistics", "statistics");
-    baseTableView.tableViewInit(
-        pageHeaderPane,
-        pageHeaderTableView,
-        pageDatas,
-        true,
-        uncompressedCol,
-        compressedCol,
-        statisticsCol);
-    pageHeaderTableView.setLayoutX(0);
-    pageHeaderTableView.setLayoutY(0);
-    pageHeaderTableView.setPrefWidth(WIDTH);
-    pageHeaderTableView.setPrefHeight(HEIGHT);
 
-    // table 2 page data
+    // table page data
     pageDataPane = new AnchorPane();
     pageDataPane.setLayoutX(0);
     pageDataPane.setLayoutY(HEIGHT * 0.2);
