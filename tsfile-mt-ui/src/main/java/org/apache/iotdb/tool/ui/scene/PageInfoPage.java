@@ -1,10 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
 import com.sun.org.apache.xpath.internal.operations.String;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.IPageInfo;
@@ -32,14 +28,8 @@ public class PageInfoPage {
   private static final double WIDTH = 810;
   private static final double HEIGHT = 300;
 
-  private AnchorPane anchorPane;
   private Scene scene;
   private IoTDBParsePageV3 ioTDBParsePage;
-  private Stage stage;
-
-  private AnchorPane pageHeaderPane;
-
-  private AnchorPane pageDataPane;
 
   private TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem;
 
@@ -57,7 +47,6 @@ public class PageInfoPage {
       Stage stage,
       IoTDBParsePageV3 ioTDBParsePage,
       TreeItem<IoTDBParsePageV3.ChunkTreeItemValue> pageItem) {
-    this.stage = stage;
     this.ioTDBParsePage = ioTDBParsePage;
     this.pageItem = pageItem;
     init(stage);
@@ -80,7 +69,7 @@ public class PageInfoPage {
     pageHeaderTableView = new TableView();
     pageTVTableView = new TableView();
 
-    anchorPane = new AnchorPane();
+    AnchorPane anchorPane = new AnchorPane();
     scene = new Scene(anchorPane, WIDTH, HEIGHT);
     stage.setScene(scene);
     stage.setTitle("Page Information");
@@ -88,18 +77,18 @@ public class PageInfoPage {
     stage.setResizable(false);
 
     IPageInfo pageInfo = (PageInfo) pageItem.getValue().getParams();
-    pageHeaderPane = new AnchorPane();
+    AnchorPane pageHeaderPane = new AnchorPane();
     pageHeaderPane.setLayoutX(0);
     pageHeaderPane.setLayoutY(0);
     pageHeaderPane.setPrefHeight(WIDTH);
     pageHeaderPane.setPrefWidth(HEIGHT * 0.3);
     anchorPane.getChildren().add(pageHeaderPane);
 
-    StringBuilder pageHeaderSB = new StringBuilder();
-    pageHeaderSB.append("uncompressedSize: " + pageInfo.getUncompressedSize() + "\n");
-    pageHeaderSB.append("compressedSize: " + pageInfo.getCompressedSize() + "\n");
-    pageHeaderSB.append("statistics: " + pageInfo.getStatistics().toString());
-    TextArea pageHeaderInfo = new TextArea(pageHeaderSB.toString());
+    java.lang.String pageHeaderStr = "uncompressedSize: " + pageInfo.getUncompressedSize() + "\n" +
+            "compressedSize: " + pageInfo.getCompressedSize() + "\n" +
+            "statistics: " + pageInfo.getStatistics().toString();
+    TextArea pageHeaderInfo = new TextArea(pageHeaderStr);
+    pageHeaderInfo.setEditable(false);
     pageHeaderInfo.setPrefWidth(WIDTH);
     pageHeaderInfo.setWrapText(true);
     pageHeaderPane.getChildren().add(pageHeaderInfo);
@@ -125,9 +114,9 @@ public class PageInfoPage {
     BaseTableView baseTableView = new BaseTableView();
 
     // table page data
-    pageDataPane = new AnchorPane();
+    AnchorPane pageDataPane = new AnchorPane();
     pageDataPane.setLayoutX(0);
-    pageDataPane.setLayoutY(HEIGHT * 0.2);
+    pageDataPane.setLayoutY(HEIGHT * 0.15);
     pageDataPane.setPrefHeight(WIDTH);
     pageHeaderPane.setPrefWidth(HEIGHT * 0.7);
     anchorPane.getChildren().add(pageDataPane);
@@ -136,7 +125,7 @@ public class PageInfoPage {
     TableColumn<String, String> valueCol =
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
     baseTableView.tableViewInit(
-        pageDataPane, pageTVTableView, tvDatas, true, timestampCol, valueCol);
+            pageDataPane, pageTVTableView, tvDatas, true, timestampCol, valueCol);
     pageTVTableView.setLayoutX(0);
     pageTVTableView.setLayoutY(HEIGHT * 0.12);
     pageTVTableView.setPrefWidth(WIDTH);
