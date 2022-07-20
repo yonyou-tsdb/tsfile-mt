@@ -67,12 +67,15 @@ public class ScenesManager {
     return new Task() {
       @Override
       protected Object call() throws Exception {
+        long loadFileStartTime = System.currentTimeMillis();
         while (ioTDBParsePage.getTsFileAnalyserV13().getRateOfProcess() < 1) {
           updateProgress(ioTDBParsePage.getTsFileAnalyserV13().getRateOfProcess(), 1);
         }
         updateProgress(1, 1);
         logger.info("TsFile Load completed.");
         System.out.println("TsFile Load completed.");
+        long loadFileEndTime = System.currentTimeMillis();
+        System.out.println("load file total time cost: " + (loadFileEndTime - loadFileStartTime));
         Platform.runLater(() -> ioTDBParsePage.chunkGroupTreeDataInit());
         return true;
       }
