@@ -1,11 +1,8 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import javafx.geometry.Rectangle2D;
-import javafx.stage.Screen;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 
-import org.apache.iotdb.tool.ui.node.IndexNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +10,14 @@ import java.io.*;
 import java.net.URL;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -80,7 +79,6 @@ public class TsFileLoadPage {
     pane.add(infoLabel, 0, 0);
     Label tsfileNameLabel = new Label(tsfileName);
     pane.add(tsfileNameLabel, 0, 1);
-
 
     stage.setTitle("Confirm Loading");
     loadButton = new Button("open");

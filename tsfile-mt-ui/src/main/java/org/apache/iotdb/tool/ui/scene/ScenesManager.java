@@ -1,12 +1,11 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import javafx.scene.control.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
@@ -57,10 +56,11 @@ public class ScenesManager {
     baseStage.centerOnScreen();
     baseStage.show();
     // 关闭 stage 时清空缓存
-    baseStage.setOnCloseRequest(event -> {
-      clearCache();
-      baseStage = null;
-    });
+    baseStage.setOnCloseRequest(
+        event -> {
+          clearCache();
+          baseStage = null;
+        });
   }
 
   public Task progressWorker(IoTDBParsePageV3 ioTDBParsePage) {

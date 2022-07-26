@@ -9,102 +9,102 @@ import java.io.Serializable;
 import java.util.List;
 
 public class AlignedPageInfo implements IPageInfo {
-    private IPageInfo timePageInfo;
-    private List<IPageInfo>  valuePageInfoList;
+  private IPageInfo timePageInfo;
+  private List<IPageInfo> valuePageInfoList;
 
-    @Override
-    public int getUncompressedSize() {
-        return this.timePageInfo.getUncompressedSize();
-    }
+  @Override
+  public int getUncompressedSize() {
+    return this.timePageInfo.getUncompressedSize();
+  }
 
-    @Override
-    public int getCompressedSize() {
-        return this.timePageInfo.getCompressedSize();
-    }
+  @Override
+  public int getCompressedSize() {
+    return this.timePageInfo.getCompressedSize();
+  }
 
-    @Override
-    public long getPosition() {
-        return this.timePageInfo.getPosition();
-    }
+  @Override
+  public long getPosition() {
+    return this.timePageInfo.getPosition();
+  }
 
-    @Override
-    public TSDataType getDataType() {
-        return this.timePageInfo.getDataType();
-    }
+  @Override
+  public TSDataType getDataType() {
+    return this.timePageInfo.getDataType();
+  }
 
-    @Override
-    public TSEncoding getEncodingType() {
-        return this.timePageInfo.getEncodingType();
-    }
+  @Override
+  public TSEncoding getEncodingType() {
+    return this.timePageInfo.getEncodingType();
+  }
 
-    @Override
-    public CompressionType getCompressionType() {
-        return this.timePageInfo.getCompressionType();
-    }
+  @Override
+  public CompressionType getCompressionType() {
+    return this.timePageInfo.getCompressionType();
+  }
 
-    @Override
-    public byte getChunkType() {
-        return this.timePageInfo.getChunkType();
-    }
+  @Override
+  public byte getChunkType() {
+    return this.timePageInfo.getChunkType();
+  }
 
-    @Override
-    public Statistics<? extends Serializable> getStatistics() {
-        return this.timePageInfo.getStatistics();
-    }
+  @Override
+  public Statistics<? extends Serializable> getStatistics() {
+    return this.timePageInfo.getStatistics();
+  }
 
-    @Override
-    public void setUncompressedSize(int uncompressedSize) {
-        this.timePageInfo.setUncompressedSize(uncompressedSize);
-    }
+  @Override
+  public void setUncompressedSize(int uncompressedSize) {
+    this.timePageInfo.setUncompressedSize(uncompressedSize);
+  }
 
-    @Override
-    public void setCompressedSize(int compressedSize) {
-        this.timePageInfo.setCompressedSize(compressedSize);
-    }
+  @Override
+  public void setCompressedSize(int compressedSize) {
+    this.timePageInfo.setCompressedSize(compressedSize);
+  }
 
-    @Override
-    public void setPosition(long position) {
-        this.timePageInfo.setPosition(position);
-    }
+  @Override
+  public void setPosition(long position) {
+    this.timePageInfo.setPosition(position);
+  }
 
-    @Override
-    public void setDataType(TSDataType dataType) {
-        this.timePageInfo.setDataType(dataType);
-    }
+  @Override
+  public void setDataType(TSDataType dataType) {
+    this.timePageInfo.setDataType(dataType);
+  }
 
-    @Override
-    public void setEncodingType(TSEncoding encodingType) {
-        this.timePageInfo.setEncodingType(encodingType);
-    }
+  @Override
+  public void setEncodingType(TSEncoding encodingType) {
+    this.timePageInfo.setEncodingType(encodingType);
+  }
 
-    @Override
-    public void setCompressionType(CompressionType compressionType) {
-        this.timePageInfo.setCompressionType(compressionType);
-    }
+  @Override
+  public void setCompressionType(CompressionType compressionType) {
+    this.timePageInfo.setCompressionType(compressionType);
+  }
 
-    @Override
-    public void setChunkType(byte chunkType) {
-        this.timePageInfo.setChunkType(chunkType);
-    }
+  @Override
+  public void setChunkType(byte chunkType) {
+    this.timePageInfo.setChunkType(chunkType);
+  }
 
-    @Override
-    public void setStatistics(Statistics<? extends Serializable> statistics) {
-        this.timePageInfo.setStatistics(statistics);
-    }
+  @Override
+  public void setStatistics(Statistics<? extends Serializable> statistics) {
+    this.timePageInfo.setStatistics(statistics);
+  }
 
-    public IPageInfo getTimePageInfo() {
-        return timePageInfo;
-    }
+  public IPageInfo getTimePageInfo() {
+    return timePageInfo;
+  }
 
-    public void setTimePageInfo(IPageInfo timePageInfo) {
-        this.timePageInfo = timePageInfo;
-    }
+  public void setTimePageInfo(IPageInfo timePageInfo) {
+    this.timePageInfo = timePageInfo;
+  }
 
-    public List<IPageInfo> getValuePageInfoList() {
-        return valuePageInfoList;
-    }
+  public List<IPageInfo> getValuePageInfoList() {
+    return valuePageInfoList;
+  }
 
-    public void setValuePageInfoList(List<IPageInfo> valuePageInfoList) {
-        this.valuePageInfoList = valuePageInfoList;
-    }
+  public void setValuePageInfoList(List<IPageInfo> valuePageInfoList) {
+    this.valuePageInfoList = valuePageInfoList;
+  }
 }
