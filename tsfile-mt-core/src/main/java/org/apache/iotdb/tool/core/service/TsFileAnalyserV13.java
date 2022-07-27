@@ -386,6 +386,19 @@ public class TsFileAnalyserV13 {
       if (chunkDataSize > 0) {
           // 此 chunk 中的 page 数量超过一页，需要通过每个 pageHeader 中的 statistic 构建并更新 chunk 的 statistic
           if (((byte) (chunkHeader.getChunkType() & CHUNK_HEADER_MASK)) == MetaMarker.CHUNK_HEADER) {
+              // TODO 多页判断对齐与非对齐
+              // 1. 若是对齐时间序列
+              // 1.1 TimeChunk（Pages）
+              if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
+                      == TsFileConstant.TIME_COLUMN_MASK) {
+                  alignedFlag = 1;
+              } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
+                      == TsFileConstant.VALUE_COLUMN_MASK) {
+                  // 1.2 ValueChunk（Pages）
+                  alignedFlag = 2;
+              }
+
+              // 2. 读取 Chunk 中所有的 page
               while (chunkDataSize > 0) {
                   // a new Page
                   PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), true);
@@ -477,6 +490,9 @@ public class TsFileAnalyserV13 {
           chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
       } else if (alignedFlag == 2) {
           chunkGroupMetaInfo.getAlignedValueChunkMetadata().add(chunkMetadata);
+          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
+      } else if (alignedFlag == 3) {
+
           chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
       } else {
           chunkGroupMetaInfo.getChunkMetadataList().add(chunkMetadata);
