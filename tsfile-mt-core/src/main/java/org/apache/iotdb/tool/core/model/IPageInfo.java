@@ -8,38 +8,35 @@ import org.apache.iotdb.tsfile.file.metadata.statistics.Statistics;
 import java.io.Serializable;
 
 public interface IPageInfo {
-    int getUncompressedSize();
+  int getUncompressedSize();
 
+  int getCompressedSize();
 
-    int getCompressedSize();
+  long getPosition();
 
-    long getPosition();
+  TSDataType getDataType();
 
+  TSEncoding getEncodingType();
 
-    TSDataType getDataType();
+  CompressionType getCompressionType();
 
+  byte getChunkType();
 
-    TSEncoding getEncodingType();
+  Statistics<? extends Serializable> getStatistics();
 
-    CompressionType getCompressionType();
+  void setUncompressedSize(int uncompressedSize);
 
-    byte getChunkType();
+  void setCompressedSize(int compressedSize);
 
-    Statistics<? extends Serializable> getStatistics();
+  void setPosition(long position);
 
-    void setUncompressedSize(int uncompressedSize);
+  void setDataType(TSDataType dataType);
 
-    void setCompressedSize(int compressedSize);
-    void setPosition(long position);
+  void setEncodingType(TSEncoding encodingType);
 
-    void setDataType(TSDataType dataType);
+  void setCompressionType(CompressionType compressionType);
 
-    void setEncodingType(TSEncoding encodingType);
+  void setChunkType(byte chunkType);
 
-    void setCompressionType(CompressionType compressionType);
-
-    void setChunkType(byte chunkType);
-
-    void setStatistics(Statistics<? extends Serializable> statistics);
-
+  void setStatistics(Statistics<? extends Serializable> statistics);
 }

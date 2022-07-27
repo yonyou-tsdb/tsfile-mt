@@ -1,26 +1,25 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import com.sun.org.apache.xpath.internal.operations.String;
-import javafx.stage.Modality;
-import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
 import org.apache.iotdb.tsfile.read.common.BatchData;
 
+import com.sun.org.apache.xpath.internal.operations.String;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.Date;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class PageInfoPage {
   private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
@@ -62,7 +61,8 @@ public class PageInfoPage {
       Stage chunkInfoStage = new Stage();
       chunkInfoStage.initStyle(StageStyle.UTILITY);
       chunkInfoStage.initModality(Modality.APPLICATION_MODAL);
-      AlignedPageInfoPage alignedPageInfoPage = new AlignedPageInfoPage(stage, ioTDBParsePage, pageItem);
+      AlignedPageInfoPage alignedPageInfoPage =
+          new AlignedPageInfoPage(stage, ioTDBParsePage, pageItem);
       return;
     }
 
@@ -103,7 +103,9 @@ public class PageInfoPage {
     // 数据来源
     try {
       BatchData batchData =
-          ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo((PageInfo) pageItem.getValue().getParams());
+          ioTDBParsePage
+              .getTsFileAnalyserV13()
+              .fetchBatchDataByPageInfo((PageInfo) pageItem.getValue().getParams());
       while (batchData.hasCurrent()) {
         Object currValue = batchData.currentValue();
         this.tvDatas.add(

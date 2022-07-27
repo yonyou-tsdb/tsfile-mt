@@ -45,6 +45,10 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+
+import static org.apache.iotdb.tool.core.util.TsFileEncodeCompressAnalysedUtil.generateEncodeAndCompressAnalysedWithBatchData;
+import static org.apache.iotdb.tool.core.util.TsFileEncodeCompressAnalysedUtil.generateEncodeAndCompressAnalysedWithTsPrimitives;
 
 public class TsFileAnalyserV13 {
 
@@ -704,7 +708,6 @@ public class TsFileAnalyserV13 {
   }
 
   /**
-   *
    * @param iChunkMetadata
    * @return
    * @throws IOException
@@ -742,9 +745,7 @@ public class TsFileAnalyserV13 {
     return pageInfoList;
   }
 
-  /**
-   * 获取PageInfo列表
-   */
+  /** 获取PageInfo列表 */
   public List<IPageInfo> fetchPageInfoListByChunkMetadata(IChunkMetadata chunkMetadata)
       throws IOException {
 
@@ -822,7 +823,6 @@ public class TsFileAnalyserV13 {
     return pageInfoList;
   }
 
-
   /**
    * 获取页数据点迭代器
    *
@@ -862,8 +862,8 @@ public class TsFileAnalyserV13 {
       List<ByteBuffer> valueByteBuffers = new ArrayList<>();
       List<TSDataType> valueTSDataTypes = new ArrayList<>();
       List<Decoder> valueDecoders = new ArrayList<>();
-      List<IPageInfo> valuePageInfoList = ((AlignedPageInfo)pageInfo).getValuePageInfoList();
-      for (IPageInfo valuePageInfo: valuePageInfoList) {
+      List<IPageInfo> valuePageInfoList = ((AlignedPageInfo) pageInfo).getValuePageInfoList();
+      for (IPageInfo valuePageInfo : valuePageInfoList) {
         PageHeader valuePageHeader = fetchPageHeader(valuePageInfo);
         valuePageHeaders.add(valuePageHeader);
         valueByteBuffers.add(reader.readPage(valuePageHeader, valuePageInfo.getCompressionType()));
@@ -925,7 +925,7 @@ public class TsFileAnalyserV13 {
       int limit)
       throws IOException, InterruptedException {
     countDownLatch.await();
-    if (Objects.equals(device, "")  || Objects.equals(measurement, "") ) {
+    if (Objects.equals(device, "") || Objects.equals(measurement, "")) {
       logger.warn(
           "device or measurement is empty, please check. device:[{}], measurement:[{}]",
           device,
@@ -965,6 +965,93 @@ public class TsFileAnalyserV13 {
     }
     logger.info("QueryExpression is: {}", queryExpression);
     return result;
+  }
+
+  public AnalysedResultModel fetchAnalysedResultWithDeviceAndMeasurement(
+      String deviceId, String measurement) throws IOException {
+    List<ChunkMetadata> chunkMetadataList =
+        fetchChunkListsByDeviceIdAndMeasurementId(deviceId, measurement);
+    AnalysedResultModel resultModel = new AnalysedResultModel();
+    int countSize = 0;
+    long startTime = System.currentTimeMillis();
+    List<EncodeCompressAnalysedModel> allModelList = new ArrayList<>();
+    Map<String, EncodeCompressAnalysedModel> map = new HashMap<>();
+    String currentKey = "";
+    for (IChunkMetadata metadata : chunkMetadataList) {
+      long startTime1 = System.currentTimeMillis();
+      List<IPageInfo> pageInfoList = fetchPageInfoListByChunkMetadata(metadata);
+      for (IPageInfo pageInfo : pageInfoList) {
+        if (Objects.equals(currentKey, "")) {
+          currentKey =
+              pageInfo.getEncodingType().name() + "-" + pageInfo.getCompressionType().name();
+        }
+        if ((pageInfo.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
+            == TsFileConstant.VALUE_COLUMN_MASK) {
+          // tsPrimitive
+          TsPrimitiveType[] values = fetchValueBatch(pageInfo);
+          countSize += values.length;
+          List<EncodeCompressAnalysedModel> models =
+              generateEncodeAndCompressAnalysedWithTsPrimitives(values);
+          if (models != null) allModelList.addAll(models);
+        } else {
+          // BatchData
+          BatchData batchData = fetchBatchDataByPageInfo(pageInfo);
+          countSize += batchData.length();
+          List<EncodeCompressAnalysedModel> models =
+              generateEncodeAndCompressAnalysedWithBatchData(batchData);
+          if (models != null) allModelList.addAll(models);
+        }
+      }
+      logger.info(
+          "metaData cost : "
+              + metadata.getMeasurementUid()
+              + (System.currentTimeMillis() - startTime1)
+              + " countSize : "
+              + countSize);
+    }
+
+    for (EncodeCompressAnalysedModel model : allModelList) {
+      String key = model.getEncodeName() + "-" + model.getCompressName();
+      if (map.containsKey(key)) {
+        EncodeCompressAnalysedModel existModel = map.get(key);
+        existModel.setOriginSize(existModel.getOriginSize() + model.getOriginSize());
+        existModel.setEncodedSize(existModel.getEncodedSize() + model.getEncodedSize());
+        existModel.setCompressedSize(existModel.getCompressedSize() + model.getCompressedSize());
+        existModel.setUncompressSize(existModel.getUncompressSize() + model.getUncompressSize());
+      } else {
+        map.put(key, model);
+      }
+    }
+    logger.info(
+        "encode analyse cost : "
+            + (System.currentTimeMillis() - startTime)
+            + " countSize : "
+            + countSize);
+    List<EncodeCompressAnalysedModel> sortedModels =
+        map.values().stream()
+            .sorted(Comparator.comparing(EncodeCompressAnalysedModel::getCompressedSize))
+            .collect(Collectors.toList());
+
+    resultModel.setAnalysedList(sortedModels);
+    resultModel.setCurrentAnalysed(map.get(currentKey));
+    return resultModel;
+  }
+
+  private List<ChunkMetadata> fetchChunkListsByDeviceIdAndMeasurementId(
+      String deviceId, String measurement) throws IOException {
+    List<ChunkMetadata> chunkList = reader.getChunkMetadataList(new Path(deviceId, measurement));
+    return chunkList;
+  }
+
+  private TsPrimitiveType[] fetchValueBatch(IPageInfo pageInfo) throws IOException {
+
+    PageHeader pageHeader = fetchPageHeader(pageInfo);
+    ByteBuffer dataBuffer = reader.readPage(pageHeader, pageInfo.getCompressionType());
+    Decoder valueDecoder =
+        Decoder.getDecoderByType(pageInfo.getEncodingType(), pageInfo.getDataType());
+    TsFileValuePageReader pageReader =
+        new TsFileValuePageReader(pageHeader, dataBuffer, pageInfo.getDataType(), valueDecoder);
+    return pageReader.allValueBatch();
   }
 
   public long getFileSize() {

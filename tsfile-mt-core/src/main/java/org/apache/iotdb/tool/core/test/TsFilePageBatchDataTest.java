@@ -1,7 +1,6 @@
 package org.apache.iotdb.tool.core.test;
 
 import org.apache.iotdb.tool.core.model.IPageInfo;
-import org.apache.iotdb.tool.core.model.PageInfo;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.core.util.OffLineTsFileUtil;
 

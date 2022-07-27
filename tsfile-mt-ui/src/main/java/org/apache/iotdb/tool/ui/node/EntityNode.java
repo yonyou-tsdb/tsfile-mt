@@ -1,21 +1,21 @@
 package org.apache.iotdb.tool.ui.node;
 
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.apache.iotdb.tool.core.model.TimeSeriesMetadataNode;
 import org.apache.iotdb.tool.ui.scene.IndexNodeInfoPage;
 import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3;
+import org.apache.iotdb.tsfile.file.metadata.enums.MetadataIndexNodeType;
 
 import java.util.List;
 import javafx.scene.Group;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import org.apache.iotdb.tsfile.file.metadata.enums.MetadataIndexNodeType;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  * index entity node
@@ -223,12 +223,13 @@ public class EntityNode {
     contextMenu.getItems().add(menuItem);
     entityShape.setContextMenu(contextMenu);
     menuItem.setOnAction(
-            event -> {
-              Stage pageInfoStage = new Stage();
-              pageInfoStage.initStyle(StageStyle.UTILITY);
-              pageInfoStage.initModality(Modality.APPLICATION_MODAL);
-              String nodeInfo = getTip();
-              IndexNodeInfoPage pageInfoPage = new IndexNodeInfoPage(pageInfoStage, menuItemInfo, nodeInfo);
-            });
+        event -> {
+          Stage pageInfoStage = new Stage();
+          pageInfoStage.initStyle(StageStyle.UTILITY);
+          pageInfoStage.initModality(Modality.APPLICATION_MODAL);
+          String nodeInfo = getTip();
+          IndexNodeInfoPage pageInfoPage =
+              new IndexNodeInfoPage(pageInfoStage, menuItemInfo, nodeInfo);
+        });
   }
 }

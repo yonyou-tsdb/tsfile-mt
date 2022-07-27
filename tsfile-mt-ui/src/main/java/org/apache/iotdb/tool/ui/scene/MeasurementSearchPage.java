@@ -1,6 +1,5 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import javafx.scene.Node;
 import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
 import org.apache.iotdb.tsfile.read.common.Field;
@@ -16,6 +15,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -81,7 +81,7 @@ public class MeasurementSearchPage {
         .widthProperty()
         .addListener(
             (observable, oldValueb, newValue) -> {
-              searchFilterBox.setPrefWidth((int)stage.getWidth() >> 2);
+              searchFilterBox.setPrefWidth((int) stage.getWidth() >> 2);
             });
 
     Label startTime = new Label("startTime:");
@@ -99,8 +99,8 @@ public class MeasurementSearchPage {
     searchButton.setGraphic(new ImageView("/icons/find-light.png"));
     searchButton.getStyleClass().add("search-button");
 
-    searchFilterBoxChildren
-            .addAll(deviceIdLabel, deviceIdText, measurementIdLabel, measurementIdText, searchButton);
+    searchFilterBoxChildren.addAll(
+        deviceIdLabel, deviceIdText, measurementIdLabel, measurementIdText, searchButton);
 
     // button click event
     searchButton.setOnMouseClicked(
