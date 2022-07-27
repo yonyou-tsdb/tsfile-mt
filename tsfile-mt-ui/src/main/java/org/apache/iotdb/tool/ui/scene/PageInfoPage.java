@@ -84,10 +84,17 @@ public class PageInfoPage {
     pageHeaderPane.setPrefWidth(HEIGHT * 0.3);
     anchorPane.getChildren().add(pageHeaderPane);
 
-    java.lang.String pageHeaderStr = "uncompressedSize: " + pageInfo.getUncompressedSize() + "\n" +
-            "compressedSize: " + pageInfo.getCompressedSize() + "\n" +
-            "statistics: " + pageInfo.getStatistics().toString();
-    TextArea pageHeaderInfo = new TextArea(pageHeaderStr);
+    StringBuilder sb = new StringBuilder();
+    sb.append("uncompressedSize: ").append(pageInfo.getUncompressedSize()).append("\n");
+    sb.append("compressedSize: ").append(pageInfo.getCompressedSize()).append("\n");
+    sb.append("statistics: ");
+    if (pageInfo.getStatistics() == null) {
+      sb.append("null");
+    } else {
+      sb.append(pageInfo.getStatistics().toString());
+    }
+
+    TextArea pageHeaderInfo = new TextArea(sb.toString());
     pageHeaderInfo.setEditable(false);
     pageHeaderInfo.setPrefWidth(WIDTH);
     pageHeaderInfo.setWrapText(true);

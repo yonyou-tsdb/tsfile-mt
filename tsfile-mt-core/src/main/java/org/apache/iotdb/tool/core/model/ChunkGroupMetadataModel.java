@@ -30,7 +30,7 @@ public class ChunkGroupMetadataModel {
 
   private List<IChunkMetadata> chunkMetadataList;
 
-  private List<List<ChunkHeader>> chunkHeaderList;
+  private List<List<ChunkHeader>> chunkHeaderLists;
 
   public ChunkGroupMetadataModel(
       String device,
@@ -38,7 +38,7 @@ public class ChunkGroupMetadataModel {
       List<List<ChunkHeader>> chunkHeaderList) {
     this.device = device;
     this.chunkMetadataList = chunkMetadataList;
-    this.chunkHeaderList = chunkHeaderList;
+    this.chunkHeaderLists = chunkHeaderList;
   }
 
   public String getDevice() {
@@ -49,7 +49,7 @@ public class ChunkGroupMetadataModel {
     return chunkMetadataList;
   }
 
-  public List<List<ChunkHeader>> getChunkHeaderList() {
-    return chunkHeaderList;
+  public List<List<ChunkHeader>> getChunkHeaderLists() {
+    return chunkHeaderLists;
   }
 }
