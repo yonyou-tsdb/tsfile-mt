@@ -127,7 +127,7 @@ public class TsFileAnalyserV13 {
     long lastChunkGroupPosition = 0;
 
 //    List<IMeasurementSchema> measurementSchemaList = new ArrayList<>();
-    ChunkMetadata alignedTimeChunk = null;
+    IChunkMetadata alignedTimeChunk = null;
     List<IChunkMetadata> alignedValueChunk = new ArrayList<>();
     List<ChunkHeader> chunkHeaderList = new ArrayList<>();
     // 0 NonAligned, 1 TimeColumn, 2 ValueColumn
@@ -141,154 +141,12 @@ public class TsFileAnalyserV13 {
           case MetaMarker.ONLY_ONE_PAGE_CHUNK_HEADER:
           case MetaMarker.ONLY_ONE_PAGE_TIME_CHUNK_HEADER:
           case MetaMarker.ONLY_ONE_PAGE_VALUE_CHUNK_HEADER:
-            setRateOfProcess();
-            // ChunkHEADER 中的 marker：判断 chunk 的开始，对齐或非对齐
-//            fileOffsetOfChunk = reader.position() - 1;
-
             ChunkHeader chunkHeader = reader.readChunkHeader(marker);
             chunkHeaderList.add(chunkHeader);
             // 跳过此 chunk，已经读取了 chunkHeader，直接加 dataSize 即可
             reader.position(reader.position() + chunkHeader.getDataSize());
+            // 更新进度条
             setRateOfProcess();
-
-
-            /**
-            // TODO 这里需要跳过
-            measurementID = chunkHeader.getMeasurementID();
-//            IMeasurementSchema measurementSchema =
-//                new MeasurementSchema(
-//                    measurementID,
-//                    chunkHeader.getDataType(),
-//                    chunkHeader.getEncodingType(),
-//                    chunkHeader.getCompressionType());
-//            measurementSchemaList.add(measurementSchema);
-
-            // 判断对其非对齐
-            dataType = chunkHeader.getDataType();
-            if (chunkHeader.getDataType() == TSDataType.VECTOR) {
-              timeBatch.clear();
-            }
-
-            // chunk data
-            Statistics<? extends Serializable> chunkStatistics =
-                Statistics.getStatsByType(dataType);
-            int dataSize = chunkHeader.getDataSize();
-            if (dataSize > 0) {
-              // 超过一页，通过每个 pageHeader 中的 statistic 更新 chunk 的 stattistic
-              // 超过一页的 chunk 的每个 page 的 pageHeader 中会存储 statistic
-              if (((byte) (chunkHeader.getChunkType() & CHUNK_HEADER_MASK)) == MetaMarker.CHUNK_HEADER) {
-                // 读取 chunk 中的 page 信息，生成并更新 chunk 的 statistic 信息
-                while (dataSize > 0) {
-                  // 更新进度条
-                  setRateOfProcess();
-                  // a new Page
-                  PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), true);
-                  if (pageHeader.getUncompressedSize() != 0) {
-                    // not empty page
-                    chunkStatistics.mergeStatistics(pageHeader.getStatistics());
-                  }
-                  // 跳过 Page 中具体的数据
-                  reader.skipPageData(pageHeader);
-                  // 减去 pageHeader 的长度
-                  dataSize -= pageHeader.getSerializedPageSize();
-                  chunkHeader.increasePageNums(1);
-                }
-                // alignedFlag 默认为 0: 非对齐 CHUNK
-                // TIME CHUNK
-                if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
-                    == TsFileConstant.TIME_COLUMN_MASK) {
-                  alignedFlag = 1;
-                } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
-                    == TsFileConstant.VALUE_COLUMN_MASK) {
-                  // VALUE CHUNK
-                  alignedFlag = 2;
-                }
-              } else {
-                // only one page without statistic, we need to iterate each point to generate chunk statistic
-                PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), false);
-                Decoder valueDecoder =
-                    Decoder.getDecoderByType(
-                        chunkHeader.getEncodingType(), chunkHeader.getDataType());
-                ByteBuffer pageData = reader.readPage(pageHeader, chunkHeader.getCompressionType());
-                Decoder timeDecoder =
-                    Decoder.getDecoderByType(
-                        TSEncoding.valueOf(
-                            TSFileDescriptor.getInstance().getConfig().getTimeEncoder()),
-                        TSDataType.INT64);
-                // 更新进度条
-                setRateOfProcess();
-                if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
-                        == TsFileConstant.TIME_COLUMN_MASK) {
-                  // Time Chunk with only one page
-                  TimePageReader timePageReader =
-                      new TimePageReader(pageHeader, pageData, timeDecoder);
-                  long[] currentTimeBatch = timePageReader.getNextTimeBatch();
-                  timeBatch.add(currentTimeBatch);
-                  // 更新 chunk 的 statistic
-                  for (long currentTime : currentTimeBatch) {
-                    chunkStatistics.update(currentTime);
-                  }
-                  alignedFlag = 1;
-                } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
-                    == TsFileConstant.VALUE_COLUMN_MASK) { // Value Chunk with only one page
-
-                  ValuePageReader valuePageReader =
-                      new ValuePageReader(
-                          pageHeader, pageData, chunkHeader.getDataType(), valueDecoder);
-                  TsPrimitiveType[] valueBatch = valuePageReader.nextValueBatch(timeBatch.get(0));
-
-                  if (valueBatch != null && valueBatch.length != 0) {
-                    for (int i = 0; i < valueBatch.length; i++) {
-                      TsPrimitiveType value = valueBatch[i];
-                      if (value == null) {
-                        continue;
-                      }
-                      long timeStamp = timeBatch.get(0)[i];
-                      setChunkStatistics(chunkStatistics, timeStamp, value, dataType);
-                    }
-                  }
-                  alignedFlag = 2;
-                } else {
-                  // NonAligned Chunk with only one page
-                  PageReader reader =
-                      new PageReader(
-                          pageHeader,
-                          pageData,
-                          chunkHeader.getDataType(),
-                          valueDecoder,
-                          timeDecoder,
-                          null);
-                  BatchData batchData = reader.getAllSatisfiedPageData();
-                  while (batchData.hasCurrent()) {
-                    setChunkStatistics(
-                        chunkStatistics,
-                        batchData.currentTime(),
-                        batchData.currentTsPrimitiveType(),
-                        dataType);
-                    batchData.next();
-                  }
-                  alignedFlag = 0;
-                }
-                chunkHeader.increasePageNums(1);
-              }
-            }
-
-
-            currentChunk =
-                new ChunkMetadata(measurementID, dataType, fileOffsetOfChunk, chunkStatistics);
-
-            if (alignedFlag == 1) {
-              alignedTimeChunk = currentChunk;
-              chunkHeaderList.add(chunkHeader);
-            } else if (alignedFlag == 2) {
-              alignedValueChunk.add(currentChunk);
-              chunkHeaderList.add(chunkHeader);
-            } else {
-              chunkMetadataList.add(currentChunk);
-              chunkHeaderList.add(chunkHeader);
-              chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
-            }
-             */
             break;
 
           case MetaMarker.CHUNK_GROUP_HEADER:
@@ -472,38 +330,35 @@ public class TsFileAnalyserV13 {
       ChunkGroupHeader chunkGroupHeader = reader.readChunkGroupHeader();
 
       List<long[]> timeBatch = new ArrayList<>();
-      ChunkMetadata alignedTimeChunkMetadata = null;
       List<IChunkMetadata> alignedValueChunkMetadata = new ArrayList<>();
+      byte marker = -1;
 
-      // 2. 读第一个 chunk
-      fetchChunkInfo(chunkMetadataList, chunkHeaderList, timeBatch, alignedTimeChunkMetadata, alignedValueChunkMetadata);
+      ChunkGroupMetaInfo chunkGroupMetaInfo = new ChunkGroupMetaInfo(marker, chunkMetadataList, chunkHeaderList, timeBatch, null, alignedValueChunkMetadata);
 
-      // 3. 读取剩余 chunk
-      byte marker;
-      while (((marker = reader.readMarker()) != MetaMarker.CHUNK_GROUP_HEADER) && (marker != MetaMarker.OPERATION_INDEX_RANGE)) {
-         fetchChunkInfo(chunkMetadataList, chunkHeaderList, timeBatch, alignedTimeChunkMetadata, alignedValueChunkMetadata);
+      // 2. 读取 chunk
+      while (((marker = reader.readMarker()) != MetaMarker.CHUNK_GROUP_HEADER) && (marker != MetaMarker.OPERATION_INDEX_RANGE) && (marker != MetaMarker.SEPARATOR)) {
+          chunkGroupMetaInfo.setMarker(marker);
+         fetchChunkInfo(chunkGroupMetaInfo);
       }
 
-      // 存储上 ChunkGroup 已读取的信息
-      // 如果是对齐 Chunk
-      if (alignedTimeChunkMetadata != null && alignedValueChunkMetadata.size() > 0) {
-        chunkMetadataList.add(
-            new AlignedChunkMetadata(alignedTimeChunkMetadata, new ArrayList<>(alignedValueChunkMetadata)));
+      // 3. 存储上 ChunkGroup 已读取的信息
+      // 3.1 如果是对齐 Chunk
+      if (chunkGroupMetaInfo.getAlignedTimeChunkMetadata() != null && chunkGroupMetaInfo.getAlignedValueChunkMetadata().size() > 0) {
+          chunkGroupMetaInfo.getChunkMetadataList().add(
+            new AlignedChunkMetadata(chunkGroupMetaInfo.getAlignedTimeChunkMetadata(), new ArrayList<>(chunkGroupMetaInfo.getAlignedValueChunkMetadata())));
       }
 
-     ChunkListInfo chunkListInfo = new ChunkListInfo(chunkMetadataList, chunkHeaderList);
+     ChunkListInfo chunkListInfo = new ChunkListInfo(chunkGroupMetaInfo.getChunkMetadataList(), chunkGroupMetaInfo.getChunkHeaderList());
 
      return chunkListInfo;
   }
 
 
   // 将某一 chunk 的元信息添加至相应 chunkgroup 的 List 中
-  public void fetchChunkInfo(List<IChunkMetadata> chunkMetadataList, List<ChunkHeader> chunkHeaderList, List<long[]> timeBatch, ChunkMetadata alignedTimeChunkMetadata, List<IChunkMetadata> alignedValueChunkMetadata) throws IOException {
-      long chunkOffset = reader.position();
+  public void fetchChunkInfo(ChunkGroupMetaInfo chunkGroupMetaInfo) throws IOException {
+      long chunkOffset = reader.position() - 1;
       // ChunkHeader 中的 marker：判断 chunk 的开始，对齐或非对齐
-      byte marker = reader.readMarker();
-      System.out.println("marker: " + marker);
-      ChunkHeader chunkHeader = reader.readChunkHeader(marker);
+      ChunkHeader chunkHeader = reader.readChunkHeader(chunkGroupMetaInfo.getMarker());
 
       // 0 NonAligned, 1 TimeColumn, 2 ValueColumn
       int alignedFlag = 0;
@@ -517,10 +372,11 @@ public class TsFileAnalyserV13 {
                       chunkHeader.getCompressionType());
       measurementSchemaList.add(measurementSchema);
 
+      // TODO 不需要吧
       // 判断对其 or 非对齐
       TSDataType dataType = chunkHeader.getDataType();
       if (chunkHeader.getDataType() == TSDataType.VECTOR) {
-          timeBatch.clear();
+          chunkGroupMetaInfo.getTimeBatch().clear();
       }
 
       // 跳过此 chunk 下所有的 page
@@ -562,7 +418,7 @@ public class TsFileAnalyserV13 {
                   TimePageReader timePageReader =
                           new TimePageReader(pageHeader, pageData, timeDecoder);
                   long[] currentTimeBatch = timePageReader.getNextTimeBatch();
-                  timeBatch.add(currentTimeBatch);
+                  chunkGroupMetaInfo.getTimeBatch().add(currentTimeBatch);
                   // 遍历每个时间点，并更新 chunk 的 statistic
                   for (long currentTime : currentTimeBatch) {
                       chunkStatistics.update(currentTime);
@@ -574,7 +430,7 @@ public class TsFileAnalyserV13 {
                   ValuePageReader valuePageReader =
                           new ValuePageReader(
                                   pageHeader, pageData, chunkHeader.getDataType(), valueDecoder);
-                  TsPrimitiveType[] valueBatch = valuePageReader.nextValueBatch(timeBatch.get(0));
+                  TsPrimitiveType[] valueBatch = valuePageReader.nextValueBatch(chunkGroupMetaInfo.getTimeBatch().get(0));
                   // 遍历每个数据点，并更新 chunk 的 statistic
                   if (valueBatch != null && valueBatch.length != 0) {
                       for (int i = 0; i < valueBatch.length; i++) {
@@ -582,15 +438,14 @@ public class TsFileAnalyserV13 {
                           if (value == null) {
                               continue;
                           }
-                          long timeStamp = timeBatch.get(0)[i];
+                          long timeStamp = chunkGroupMetaInfo.getTimeBatch().get(0)[i];
                           setChunkStatistics(chunkStatistics, timeStamp, value, dataType);
                       }
                   }
                   alignedFlag = 2;
               } else {
-                  // TODO reader 冲突？
                   // NonAligned Chunk with only one page
-                  PageReader reader =
+                  PageReader pageReader =
                           new PageReader(
                                   pageHeader,
                                   pageData,
@@ -598,7 +453,7 @@ public class TsFileAnalyserV13 {
                                   valueDecoder,
                                   timeDecoder,
                                   null);
-                  BatchData batchData = reader.getAllSatisfiedPageData();
+                  BatchData batchData = pageReader.getAllSatisfiedPageData();
                   while (batchData.hasCurrent()) {
                       setChunkStatistics(
                               chunkStatistics,
@@ -618,14 +473,14 @@ public class TsFileAnalyserV13 {
               new ChunkMetadata(measurementID, dataType, chunkOffset, chunkStatistics);
 
       if (alignedFlag == 1) {
-          alignedTimeChunkMetadata = chunkMetadata;
-          chunkHeaderList.add(chunkHeader);
+          chunkGroupMetaInfo.setAlignedTimeChunkMetadata(chunkMetadata);
+          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
       } else if (alignedFlag == 2) {
-          alignedValueChunkMetadata.add(chunkMetadata);
-          chunkHeaderList.add(chunkHeader);
+          chunkGroupMetaInfo.getAlignedValueChunkMetadata().add(chunkMetadata);
+          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
       } else {
-          chunkMetadataList.add(chunkMetadata);
-          chunkHeaderList.add(chunkHeader);
+          chunkGroupMetaInfo.getChunkMetadataList().add(chunkMetadata);
+          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
       }
   }
 
@@ -752,7 +607,7 @@ public class TsFileAnalyserV13 {
     long offsetOfChunkHeader = chunkMetadata.getOffsetOfChunkHeader();
     reader.position(offsetOfChunkHeader);
     byte marker = reader.readMarker();
-    ChunkHeader chunkHeader = reader.readChunkHeader(marker);
+      ChunkHeader chunkHeader = reader.readChunkHeader(marker);
 
     Statistics<? extends Serializable> chunkStatistics =
         Statistics.getStatsByType(chunkMetadata.getDataType());
@@ -838,8 +693,8 @@ public class TsFileAnalyserV13 {
             TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().getTimeEncoder()),
             TSDataType.INT64);
     // 非对齐时间序列
-    if (pageInfo instanceof PageInfo) {
-
+//    if (pageInfo instanceof PageInfo) {
+    if (pageInfo.getDataType() != TSDataType.VECTOR) {
       PageHeader pageHeader = fetchPageHeader(pageInfo);
       Decoder valueDecoder =
           Decoder.getDecoderByType(pageInfo.getEncodingType(), pageInfo.getDataType());
@@ -850,9 +705,8 @@ public class TsFileAnalyserV13 {
               pageHeader, pageData, pageInfo.getDataType(), valueDecoder, timeDecoder, null);
 
       batchData = pageReader.getAllSatisfiedPageData();
-    }
-    // 对齐时间序列
-    else if (pageInfo instanceof AlignedPageInfo) {
+    } else {
+      // 对齐时间序列
       IPageInfo timePageInfo = ((AlignedPageInfo) pageInfo).getTimePageInfo();
       PageHeader timePageHeader = fetchPageHeader(timePageInfo);
       ByteBuffer timeByteBuffer =
@@ -884,9 +738,10 @@ public class TsFileAnalyserV13 {
               null);
 
       batchData = alignedPageReader.getAllSatisfiedPageData();
-    } else {
-      batchData = null;
     }
+//    else {
+//      batchData = null;
+//    }
     return batchData;
   }
 

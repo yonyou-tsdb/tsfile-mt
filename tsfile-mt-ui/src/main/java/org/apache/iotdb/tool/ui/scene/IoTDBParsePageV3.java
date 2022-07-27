@@ -1,5 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import org.apache.iotdb.tool.core.model.*;
 import org.apache.iotdb.tool.core.service.TsFileAnalyserV13;
 import org.apache.iotdb.tool.ui.node.IndexNode;
@@ -8,6 +9,7 @@ import org.apache.iotdb.tsfile.file.header.ChunkHeader;
 import org.apache.iotdb.tsfile.file.metadata.AlignedChunkMetadata;
 import org.apache.iotdb.tsfile.file.metadata.IChunkMetadata;
 
+import org.apache.iotdb.tsfile.file.metadata.enums.TSDataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -452,7 +454,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
         ChunkTreeItemValue chunkMetaItemValue = null;
         if (chunkMetadataList.get(0) != null) {
           // 0. Aligned Chunk (虚拟 Chunk)
-          if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
+          if (chunkHeaderList.get(0).getDataType()  == TSDataType.VECTOR) {
             chunkMetaItemValue =
                     new ChunkTreeItemValue(
                             ALIGNED_CHUNK,
@@ -465,7 +467,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
             chunkGroupChildren.add(chunkMetaItem);
           }
           // 1. aligned
-          if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
+          if (chunkHeaderList.get(0).getDataType()  == TSDataType.VECTOR) {
             chunkGroupItem.getValue().setName("[Aligned]" + chunkGroupItem.getValue().getName());
           } else {
             // 2. non-aligned
@@ -493,66 +495,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
         }
       }
     }
-
-
   }
-
-//  public void showItemChunkGroup(TreeItem<ChunkTreeItemValue> chunkGroupItem) {
-//    ChunkGroupMetadataModel chunkGroupMetadataModel = (ChunkGroupMetadataModel) chunkGroupItem.getValue().getParams();
-//    List<IChunkMetadata> chunkMetadataList = chunkGroupMetadataModel.getChunkMetadataList();
-//    List<List<ChunkHeader>> chunkHeaderLists = chunkGroupMetadataModel.getChunkHeaderLists();
-//    ObservableList<TreeItem<ChunkTreeItemValue>> chunkGroupChildren = chunkGroupItem.getChildren();
-//    if (chunkGroupChildren == null) {
-//      return;
-//    }
-//    if (chunkGroupChildren.size() == 0) {
-//      if (chunkMetadataList != null && !chunkMetadataList.isEmpty() && chunkHeaderLists != null && !chunkHeaderLists.isEmpty()) {
-//        ChunkTreeItemValue chunkMetaItemValue = null;
-//        if (chunkMetadataList.get(0) != null) {
-//          // 0. Aligned Chunk (虚拟 Chunk)
-//          if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
-//            chunkMetaItemValue =
-//              new ChunkTreeItemValue(
-//                ALIGNED_CHUNK,
-//                TREE_ITEM_TYPE_CHUNK,
-//                new AlignedChunkWrap(chunkMetadataList, chunkHeaderLists)
-//              );
-//            TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
-//            Node measurementIcon = new IconView("icons/text-code.png");
-//            chunkMetaItem.setGraphic(measurementIcon);
-//            chunkGroupChildren.add(chunkMetaItem);
-//          }
-//          // 1. aligned
-//          if (chunkMetadataList.get(0) instanceof AlignedChunkMetadata) {
-//            chunkGroupItem.getValue().setName("[Aligned]" + chunkGroupItem.getValue().getName());
-//          } else {
-//            // 2. non-aligned
-//            for (int i = 0; i < chunkMetadataList.size(); i++) {
-//              IChunkMetadata iChunkMetadata = chunkMetadataList.get(i);
-//              List<ChunkHeader> chunkHeaders = chunkHeaderLists.get(i);
-//              chunkMetaItemValue =
-//                      new ChunkTreeItemValue(
-//                              iChunkMetadata.getMeasurementUid(),
-//                              TREE_ITEM_TYPE_CHUNK,
-//                              new ChunkWrap(iChunkMetadata, chunkHeaders.get(0))
-//                      );
-//              TreeItem<ChunkTreeItemValue> chunkMetaItem = new TreeItem<>(chunkMetaItemValue);
-//              Node measurementIcon = new IconView("icons/text-code.png");
-//              chunkMetaItem.setGraphic(measurementIcon);
-//              chunkGroupChildren.add(chunkMetaItem);
-//              // 添加检索信息
-//              timeseriesList.add(
-//                      chunkGroupItem.getValue().getName() + "." + chunkMetaItemValue.getName());
-//              indexMap.put(
-//                      chunkGroupItem.getValue().getName() + "." + chunkMetaItemValue.getName(),
-//                      chunkMetaItem);
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }
-
 
   /**
    * click chunk item show detail

@@ -1,5 +1,6 @@
 package org.apache.iotdb.tool.ui.scene;
 
+import org.apache.iotdb.tool.core.model.AlignedPageInfo;
 import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tsfile.read.common.BatchData;
 
@@ -86,6 +87,7 @@ public class AlignedPageInfoPage {
     IoTDBParsePageV3.AlignedPageItemParams pageItemParams =
         (IoTDBParsePageV3.AlignedPageItemParams) pageItem.getValue().getParams();
     IPageInfo pageInfo = pageItemParams.getPageInfoList();
+//    AlignedPageInfo pageInfo = (AlignedPageInfo) pageItemParams.getPageInfoList();
     try {
       BatchData batchData =
           ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfo);
