@@ -246,7 +246,9 @@ public class TsFileEncodeCompressAnalysedUtil {
     } else {
       compressor = new ICompressor.NoCompressor();
     }
+    long startTime = System.nanoTime();
     long compressedSize = compressor.compress(baos.getBuf()).length;
+    long compressedCost = System.nanoTime() - startTime;
     EncodeCompressAnalysedModel model = new EncodeCompressAnalysedModel();
     model.setCompressName(compressionType.name());
     model.setCompressedSize(compressedSize);
@@ -255,6 +257,7 @@ public class TsFileEncodeCompressAnalysedUtil {
     model.setEncodeName(encodeName);
     model.setEncodedSize(baos.size());
     model.setOriginSize(originSize);
+    model.setCompressedCost(compressedCost);
     return model;
   }
 }

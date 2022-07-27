@@ -873,6 +873,7 @@ public class TsFileAnalyserV13 {
         existModel.setEncodedSize(existModel.getEncodedSize() + model.getEncodedSize());
         existModel.setCompressedSize(existModel.getCompressedSize() + model.getCompressedSize());
         existModel.setUncompressSize(existModel.getUncompressSize() + model.getUncompressSize());
+        existModel.setCompressedCost(existModel.getCompressedCost() + model.getCompressedCost());
       } else {
         map.put(key, model);
       }
