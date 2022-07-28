@@ -449,6 +449,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     if (chunkGroupChildren == null) {
       return;
     }
+    // 此 ChunkGroup 未加载过 Chunk
     if (chunkGroupChildren.size() == 0) {
       if (chunkMetadataList != null && !chunkMetadataList.isEmpty() && chunkHeaderList != null && !chunkHeaderList.isEmpty()) {
         ChunkTreeItemValue chunkMetaItemValue = null;
@@ -466,11 +467,8 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
             chunkMetaItem.setGraphic(measurementIcon);
             chunkGroupChildren.add(chunkMetaItem);
           }
-          // 1. aligned
-          if (chunkHeaderList.get(0).getDataType()  == TSDataType.VECTOR) {
-            chunkGroupItem.getValue().setName("[Aligned]" + chunkGroupItem.getValue().getName());
-          } else {
-            // 2. non-aligned
+          // non-aligned
+          if (chunkHeaderList.get(0).getDataType() != TSDataType.VECTOR) {
             for (int i = 0; i < chunkMetadataList.size(); i++) {
               IChunkMetadata iChunkMetadata = chunkMetadataList.get(i);
               ChunkHeader chunkHeader = chunkHeaderList.get(i);

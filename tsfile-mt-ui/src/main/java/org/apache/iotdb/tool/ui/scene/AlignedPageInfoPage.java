@@ -87,7 +87,6 @@ public class AlignedPageInfoPage {
     IoTDBParsePageV3.AlignedPageItemParams pageItemParams =
         (IoTDBParsePageV3.AlignedPageItemParams) pageItem.getValue().getParams();
     IPageInfo pageInfo = pageItemParams.getPageInfoList();
-//    AlignedPageInfo pageInfo = (AlignedPageInfo) pageItemParams.getPageInfoList();
     try {
       BatchData batchData =
           ioTDBParsePage.getTsFileAnalyserV13().fetchBatchDataByPageInfo(pageInfo);
