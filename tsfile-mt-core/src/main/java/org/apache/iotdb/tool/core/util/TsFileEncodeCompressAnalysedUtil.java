@@ -288,7 +288,7 @@ public class TsFileEncodeCompressAnalysedUtil {
       if (rate < zeroRate) {
         sequenceScores = compressedSequenceWeight * (1 - rate);
       }
-      model.setScores(compressedScores + sequenceScores);
+      model.setScore(compressedScores + sequenceScores);
       String key = model.getCompressName() + "-" + model.getEncodeName();
       scoresMap.put(key, model);
     }
@@ -301,8 +301,8 @@ public class TsFileEncodeCompressAnalysedUtil {
         sequenceScores = compressedCostWeight * (1 - rate);
       }
       String key = model.getCompressName() + "-" + model.getEncodeName();
-      scoresMap.get(key).setScores(scoresMap.get(key).getScores() + sequenceScores);
+      scoresMap.get(key).setScore(scoresMap.get(key).getScore() + sequenceScores);
     }
-    return scoresMap.values().stream().sorted(Comparator.comparing(EncodeCompressAnalysedModel::getScores).reversed()).collect(Collectors.toList());
+    return scoresMap.values().stream().sorted(Comparator.comparing(EncodeCompressAnalysedModel::getScore).reversed()).collect(Collectors.toList());
   }
 }
