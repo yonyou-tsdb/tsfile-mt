@@ -17,7 +17,7 @@ public class EncodeCompressAnalysedModel {
 
   private long compressedCost;
 
-  private double scores;
+  private double score;
 
   public String getTypeName() {
     return typeName;
@@ -83,12 +83,12 @@ public class EncodeCompressAnalysedModel {
     this.compressedCost = compressedCost;
   }
 
-  public double getScores() {
-    return scores;
+  public double getScore() {
+    return score;
   }
 
-  public void setScores(double scores) {
-    this.scores = scores;
+  public void setScore(double score) {
+    this.score = score;
   }
 
   public String toString() {
@@ -98,8 +98,8 @@ public class EncodeCompressAnalysedModel {
         + compressName
         + " encodeName : "
         + encodeName
-        + " scores : "
-        + scores
+        + " score : "
+        + score
         + " compressed cost : "
         + compressedCost
         + " compressedSize : "
