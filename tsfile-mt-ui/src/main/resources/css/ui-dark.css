@@ -344,6 +344,16 @@ hyperlink:visited {
 	-fx-border-width: 2;
 }
 
+.encode-compress-analyse-box {
+	-fx-background-color: rgb(27, 27, 28);
+	-fx-alignment: center;
+	-fx-spacing: 10;
+	-fx-padding: 15 15 15 15;
+	-fx-border-color: black;
+	-fx-border-width: 2;
+}
+
+
 .resource-selector {
 	-fx-prompt-text-fill: rgb(134, 134, 135);
 	-fx-background-color: rgb(39, 39, 41);

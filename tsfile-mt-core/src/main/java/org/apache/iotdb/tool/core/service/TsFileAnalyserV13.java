@@ -389,7 +389,6 @@ public class TsFileAnalyserV13 {
     if (chunkDataSize > 0) {
       // 此 chunk 中的 page 数量超过一页，需要通过每个 pageHeader 中的 statistic 构建并更新 chunk 的 statistic
       if (((byte) (chunkHeader.getChunkType() & CHUNK_HEADER_MASK)) == MetaMarker.CHUNK_HEADER) {
-        // TODO 多页判断对齐与非对齐
         // 1. 若是对齐时间序列
         // 1.1 TimeChunk（Pages）
         if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
@@ -862,14 +861,18 @@ public class TsFileAnalyserV13 {
           countSize += values.length;
           List<EncodeCompressAnalysedModel> models =
               generateEncodeAndCompressAnalysedWithTsPrimitives(values);
-          if (models != null) allModelList.addAll(models);
+          if (models != null) {
+            allModelList.addAll(models);
+          }
         } else {
           // BatchData
           BatchData batchData = fetchBatchDataByPageInfo(pageInfo);
           countSize += batchData.length();
           List<EncodeCompressAnalysedModel> models =
               generateEncodeAndCompressAnalysedWithBatchData(batchData);
-          if (models != null) allModelList.addAll(models);
+          if (models != null) {
+            allModelList.addAll(models);
+          }
         }
       }
       logger.info(

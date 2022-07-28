@@ -91,9 +91,9 @@ public class MeasurementSearchPage {
     ObservableList<Node> searchFilterBoxChildren = searchFilterBox.getChildren();
     searchFilterBoxChildren.addAll(startTime, startPicker, endTime, endPicker);
 
-    Label deviceIdLabel = new Label("deviceName:");
+    Label deviceIdLabel = new Label("deviceID:");
     TextField deviceIdText = new TextField();
-    Label measurementIdLabel = new Label("measurementName:");
+    Label measurementIdLabel = new Label("measurementID:");
     TextField measurementIdText = new TextField();
     Button searchButton = new Button("Search");
     searchButton.setGraphic(new ImageView("/icons/find-light.png"));

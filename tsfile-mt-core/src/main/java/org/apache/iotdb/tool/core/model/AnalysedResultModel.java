@@ -4,8 +4,10 @@ import java.util.List;
 
 public class AnalysedResultModel {
 
+  // 当前编码分析
   private EncodeCompressAnalysedModel currentAnalysed;
 
+  // 所有编码分析列表（直接按序展示）
   private List<EncodeCompressAnalysedModel> analysedList;
 
   public EncodeCompressAnalysedModel getCurrentAnalysed() {

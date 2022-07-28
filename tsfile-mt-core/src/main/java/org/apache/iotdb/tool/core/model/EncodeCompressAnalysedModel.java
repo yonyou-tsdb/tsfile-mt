@@ -1,7 +1,6 @@
 package org.apache.iotdb.tool.core.model;
 
 public class EncodeCompressAnalysedModel {
-
   private String typeName;
 
   private String encodeName;

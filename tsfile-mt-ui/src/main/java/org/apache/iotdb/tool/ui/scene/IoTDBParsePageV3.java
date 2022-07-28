@@ -80,6 +80,8 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
 
   private TsFileLoadPage tsFileLoadPage;
 
+  private EncodeAnalysePage encodeAnalysePage;
+
   private File selectedFolder;
 
   private Stage tsfileLoadStage;
@@ -253,9 +255,9 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     Menu searchMenu = new Menu("Search");
     CheckMenuItem searchMenuItem = new CheckMenuItem("Search Measurements");
     searchMenu.getItems().addAll(searchMenuItem);
-    Menu encodeMenu = new Menu("Encode");
-    CheckMenuItem simulateMenuItem = new CheckMenuItem("Encode Simulation");
-    encodeMenu.getItems().addAll(simulateMenuItem);
+    Menu encodeMenu = new Menu("Encode & Compress");
+    CheckMenuItem encodeAnalyseMenuItem = new CheckMenuItem("Encode & Compress Analyse");
+    encodeMenu.getItems().addAll(encodeAnalyseMenuItem);
     Menu configMenu = new Menu("Config");
     Menu helpManeu = new Menu("Help");
     helpManeu.getItems().addAll(new CheckMenuItem("Documentation"), new CheckMenuItem("Contact"));
@@ -322,6 +324,15 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
             return;
           }
           chooseTree(searchResult);
+        });
+
+    // Encode and Compress Analyse
+    encodeAnalyseMenuItem.setSelected(false);
+    encodeAnalyseMenuItem.setOnAction(
+        event -> {
+          Stage encodeAnalyseStage = new Stage();
+          encodeAnalyseStage.initStyle(StageStyle.UTILITY);
+          encodeAnalysePage = new EncodeAnalysePage(encodeAnalyseStage, this);
         });
 
     // index region
