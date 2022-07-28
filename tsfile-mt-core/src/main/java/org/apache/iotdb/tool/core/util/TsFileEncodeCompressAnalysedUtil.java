@@ -13,8 +13,8 @@ import org.apache.iotdb.tsfile.utils.PublicBAOS;
 import org.apache.iotdb.tsfile.utils.TsPrimitiveType;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TsFileEncodeCompressAnalysedUtil {
   private static final CompressionType[] compressTypes =
@@ -24,6 +24,14 @@ public class TsFileEncodeCompressAnalysedUtil {
         CompressionType.LZ4,
         CompressionType.UNCOMPRESSED
       };
+
+  private static final int compressedWeight = 10;
+
+  private static final int compressedSequenceWeight = 10;
+
+  private static final int compressedCostWeight = 20;
+
+  private static final double zeroRate = 0.8;
 
   public static List<EncodeCompressAnalysedModel> generateEncodeAndCompressAnalysedWithBatchData(
       BatchData batchData) throws IOException {
@@ -259,5 +267,42 @@ public class TsFileEncodeCompressAnalysedUtil {
     model.setOriginSize(originSize);
     model.setCompressedCost(compressedCost);
     return model;
+  }
+
+  /**
+   * 压缩率 + 排序 + 耗时排序
+   *
+   * @param map
+   * @return
+   */
+  public static List<EncodeCompressAnalysedModel> sortedAnalysedModel(Map<String,EncodeCompressAnalysedModel> map) {
+    List<EncodeCompressAnalysedModel> sortedCostModels = map.values().stream().sorted(Comparator.comparing(EncodeCompressAnalysedModel::getCompressedCost)).collect(Collectors.toList());
+    List<EncodeCompressAnalysedModel> sortedCompressedModels = map.values().stream().sorted(Comparator.comparing(EncodeCompressAnalysedModel::getCompressedSize)).collect(Collectors.toList());
+    Map<String, EncodeCompressAnalysedModel> scoresMap = new HashMap<>();
+    // 计算压缩得分
+    for (int i = 0; i < sortedCompressedModels.size(); i ++) {
+      EncodeCompressAnalysedModel model = sortedCompressedModels.get(i);
+      double compressedScores = compressedWeight * (1 - (double)model.getCompressedSize()/model.getOriginSize());
+      double sequenceScores = 0;
+      double rate = (double)i/ sortedCostModels.size();
+      if (rate < zeroRate) {
+        sequenceScores = compressedSequenceWeight * (1 - rate);
+      }
+      model.setScores(compressedScores + sequenceScores);
+      String key = model.getCompressName() + "-" + model.getEncodeName();
+      scoresMap.put(key, model);
+    }
+    // 计算耗时得分
+    for (int i = 0 ; i < sortedCostModels.size(); i++) {
+      EncodeCompressAnalysedModel model = sortedCostModels.get(i);
+      double sequenceScores = 0;
+      double rate = (double)i/ sortedCostModels.size();
+      if (rate < zeroRate) {
+        sequenceScores = compressedCostWeight * (1 - rate);
+      }
+      String key = model.getCompressName() + "-" + model.getEncodeName();
+      scoresMap.get(key).setScores(scoresMap.get(key).getScores() + sequenceScores);
+    }
+    return scoresMap.values().stream().sorted(Comparator.comparing(EncodeCompressAnalysedModel::getScores).reversed()).collect(Collectors.toList());
   }
 }

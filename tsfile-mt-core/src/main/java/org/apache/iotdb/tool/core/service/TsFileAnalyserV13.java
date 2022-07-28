@@ -47,8 +47,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-import static org.apache.iotdb.tool.core.util.TsFileEncodeCompressAnalysedUtil.generateEncodeAndCompressAnalysedWithBatchData;
-import static org.apache.iotdb.tool.core.util.TsFileEncodeCompressAnalysedUtil.generateEncodeAndCompressAnalysedWithTsPrimitives;
+import static org.apache.iotdb.tool.core.util.TsFileEncodeCompressAnalysedUtil.*;
 
 public class TsFileAnalyserV13 {
 
@@ -901,10 +900,7 @@ public class TsFileAnalyserV13 {
             + (System.currentTimeMillis() - startTime)
             + " countSize : "
             + countSize);
-    List<EncodeCompressAnalysedModel> sortedModels =
-        map.values().stream()
-            .sorted(Comparator.comparing(EncodeCompressAnalysedModel::getCompressedSize))
-            .collect(Collectors.toList());
+    List<EncodeCompressAnalysedModel> sortedModels = sortedAnalysedModel(map);
 
     resultModel.setAnalysedList(sortedModels);
     resultModel.setCurrentAnalysed(map.get(currentKey));
