@@ -1,5 +1,7 @@
 package org.apache.iotdb.tool.ui.table;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3;
 
@@ -8,40 +10,44 @@ import org.apache.iotdb.tool.ui.scene.IoTDBParsePageV3;
  *
  * @author shenguanchu
  */
-public class EncodeCompressAnalyseTable extends IoTDBParsePageV3.TimesValues {
+public class EncodeCompressAnalyseTable {
   private final SimpleStringProperty typeName;
 
   private final SimpleStringProperty encodeName;
 
   private final SimpleStringProperty compressName;
 
-  private final SimpleStringProperty originSize;
+  private final SimpleLongProperty originSize;
 
-  private final SimpleStringProperty encodedSize;
+  private final SimpleLongProperty encodedSize;
 
-  private final SimpleStringProperty uncompressSize;
+  private final SimpleLongProperty uncompressSize;
 
-  private final SimpleStringProperty compressedSize;
+  private final SimpleLongProperty compressedSize;
 
-  private final SimpleStringProperty compressedCost;
+  private final SimpleLongProperty compressedCost;
+
+  private final SimpleDoubleProperty score;
 
   public EncodeCompressAnalyseTable(
           String typeName,
           String encodeName,
           String compressName,
-          String originSize,
-          String encodedSize,
-          String uncompressSize,
-          String compressedSize,
-          String compressedCost) {
+          Long originSize,
+          Long encodedSize,
+          Long uncompressSize,
+          Long compressedSize,
+          Long compressedCost,
+          Double score) {
     this.typeName = new SimpleStringProperty(typeName);
     this.encodeName = new SimpleStringProperty(encodeName);
     this.compressName = new SimpleStringProperty(compressName);
-    this.originSize = new SimpleStringProperty(originSize);
-    this.encodedSize = new SimpleStringProperty(encodedSize);
-    this.uncompressSize = new SimpleStringProperty(uncompressSize);
-    this.compressedSize = new SimpleStringProperty(compressedSize);
-    this.compressedCost = new SimpleStringProperty(compressedCost);
+    this.originSize = new SimpleLongProperty(originSize);
+    this.encodedSize = new SimpleLongProperty(encodedSize);
+    this.uncompressSize = new SimpleLongProperty(uncompressSize);
+    this.compressedSize = new SimpleLongProperty(compressedSize);
+    this.compressedCost = new SimpleLongProperty(compressedCost);
+    this.score = new SimpleDoubleProperty(score);
   }
 
   public String getTypeName() {
@@ -80,63 +86,75 @@ public class EncodeCompressAnalyseTable extends IoTDBParsePageV3.TimesValues {
     this.compressName.set(compressName);
   }
 
-  public String getOriginSize() {
+  public long getOriginSize() {
     return originSize.get();
   }
 
-  public SimpleStringProperty originSizeProperty() {
+  public SimpleLongProperty originSizeProperty() {
     return originSize;
   }
 
-  public void setOriginSize(String originSize) {
+  public void setOriginSize(long originSize) {
     this.originSize.set(originSize);
   }
 
-  public String getEncodedSize() {
+  public long getEncodedSize() {
     return encodedSize.get();
   }
 
-  public SimpleStringProperty encodedSizeProperty() {
+  public SimpleLongProperty encodedSizeProperty() {
     return encodedSize;
   }
 
-  public void setEncodedSize(String encodedSize) {
+  public void setEncodedSize(long encodedSize) {
     this.encodedSize.set(encodedSize);
   }
 
-  public String getUncompressSize() {
+  public long getUncompressSize() {
     return uncompressSize.get();
   }
 
-  public SimpleStringProperty uncompressSizeProperty() {
+  public SimpleLongProperty uncompressSizeProperty() {
     return uncompressSize;
   }
 
-  public void setUncompressSize(String uncompressSize) {
+  public void setUncompressSize(long uncompressSize) {
     this.uncompressSize.set(uncompressSize);
   }
 
-  public String getCompressedSize() {
+  public long getCompressedSize() {
     return compressedSize.get();
   }
 
-  public SimpleStringProperty compressedSizeProperty() {
+  public SimpleLongProperty compressedSizeProperty() {
     return compressedSize;
   }
 
-  public void setCompressedSize(String compressedSize) {
+  public void setCompressedSize(long compressedSize) {
     this.compressedSize.set(compressedSize);
   }
 
-  public String getCompressedCost() {
+  public long getCompressedCost() {
     return compressedCost.get();
   }
 
-  public SimpleStringProperty compressedCostProperty() {
+  public SimpleLongProperty compressedCostProperty() {
     return compressedCost;
   }
 
-  public void setCompressedCost(String compressedCost) {
+  public void setCompressedCost(long compressedCost) {
     this.compressedCost.set(compressedCost);
+  }
+
+  public double getScore() {
+    return score.get();
+  }
+
+  public SimpleDoubleProperty scoreProperty() {
+    return score;
+  }
+
+  public void setScore(double score) {
+    this.score.set(score);
   }
 }

@@ -33,7 +33,7 @@ public class EncodeAnalysePage {
   private static final Logger logger = LoggerFactory.getLogger(IoTDBParsePageV3.class);
   private Scene scene;
   private IoTDBParsePageV3 ioTDBParsePage;
-  private ObservableList<IoTDBParsePageV3.TimesValues> tvDatas =
+  private ObservableList<EncodeCompressAnalyseTable> analyseDataList =
       FXCollections.observableArrayList();
 
   /** table datas */
@@ -149,11 +149,14 @@ public class EncodeAnalysePage {
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedSize", "compressedSize");
     TableColumn<String, String> compressedCostCol =
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedCost", "compressedCost");
+    TableColumn<String, String> scoreCol =
+            baseTableView.genColumn(TableAlign.CENTER_LEFT, "score", "score");
+
 
     baseTableView.tableViewInit(
         pageDataPane,
         pageTVTableView,
-        tvDatas,
+        analyseDataList,
         true,
         typeNameCol,
         encodeNameCol,
@@ -162,7 +165,8 @@ public class EncodeAnalysePage {
         encodeSizeCol,
         uncompressSizeCol,
         compressedSizeCol,
-        compressedCostCol);
+        compressedCostCol,
+            scoreCol);
     pageTVTableView.setLayoutX(0);
     pageTVTableView.setLayoutY(0);
     pageTVTableView.setPrefWidth(ENCODE_ANALYSE_PAGE_WIDTH);
@@ -175,11 +179,11 @@ public class EncodeAnalysePage {
   }
 
   private void showQueryDataSet(AnalysedResultModel analysedResultModel) {
-    tvDatas.clear();
+    analyseDataList.clear();
     EncodeCompressAnalysedModel currentAnalysed = analysedResultModel.getCurrentAnalysed();
     List<EncodeCompressAnalysedModel> analysedList = analysedResultModel.getAnalysedList();
     // 1. currentAnalysed result
-    tvDatas.add(new EncodeCompressAnalyseTable(
+    analyseDataList.add(new EncodeCompressAnalyseTable(
             currentAnalysed.getTypeName(),
             currentAnalysed.getEncodeName(),
             currentAnalysed.getCompressName(),
@@ -187,23 +191,24 @@ public class EncodeAnalysePage {
             currentAnalysed.getEncodedSize(),
             currentAnalysed.getUncompressSize(),
             currentAnalysed.getCompressedSize(),
-            currentAnalysed.getCompressedCost()));
-
+            currentAnalysed.getCompressedCost(),
+            currentAnalysed.getScores()
+    ));
     // 2. others analysed results
+    for (EncodeCompressAnalysedModel encodeCompressAnalysedModel : analysedList) {
+      analyseDataList.add(new EncodeCompressAnalyseTable(
+              encodeCompressAnalysedModel.getTypeName(),
+              encodeCompressAnalysedModel.getEncodeName(),
+              encodeCompressAnalysedModel.getCompressName(),
+              encodeCompressAnalysedModel.getOriginSize(),
+              encodeCompressAnalysedModel.getEncodedSize(),
+              encodeCompressAnalysedModel.getUncompressSize(),
+              encodeCompressAnalysedModel.getCompressedSize(),
+              encodeCompressAnalysedModel.getCompressedCost(),
+              encodeCompressAnalysedModel.getScores()
+      ));
+    }
 
-
-    //    while (queryDataSet.hasNext()) {
-    //      RowRecord next = queryDataSet.next();
-    //      StringBuilder sb = new StringBuilder();
-    //      for (Field f : next.getFields()) {
-    //        sb.append("\t");
-    //        sb.append(f);
-    //      }
-    //      // TODO LocalDateTime
-    //      tvDatas.add(
-    //              new IoTDBParsePageV3.TimesValues(
-    //                      new Date(next.getTimestamp()).toString(), sb.toString()));
-    //    }
-    //    tvTableView.setVisible(true);
+//    tvTableView.setVisible(true);
   }
 }
