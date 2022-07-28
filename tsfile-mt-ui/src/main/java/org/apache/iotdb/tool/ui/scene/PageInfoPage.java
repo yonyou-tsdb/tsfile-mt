@@ -110,14 +110,14 @@ public class PageInfoPage {
         Object currValue = batchData.currentValue();
         this.tvDatas.add(
             new IoTDBParsePageV3.TimesValues(
-                    new Date(batchData.currentTime()).toString(),
-            currValue == null ? "" : currValue.toString()));
+                new Date(batchData.currentTime()).toString(),
+                currValue == null ? "" : currValue.toString()));
         batchData.next();
       }
     } catch (Exception e) {
       logger.error(
           "Failed to get page details, the page statistics:{}",
-              pageInfo.getStatistics().toString());
+          pageInfo.getStatistics().toString());
     }
 
     BaseTableView baseTableView = new BaseTableView();
@@ -134,7 +134,7 @@ public class PageInfoPage {
     TableColumn<String, String> valueCol =
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
     baseTableView.tableViewInit(
-            pageDataPane, pageTVTableView, tvDatas, true, timestampCol, valueCol);
+        pageDataPane, pageTVTableView, tvDatas, true, timestampCol, valueCol);
     pageTVTableView.setLayoutX(0);
     pageTVTableView.setLayoutY(HEIGHT * 0.12);
     pageTVTableView.setPrefWidth(WIDTH);

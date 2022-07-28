@@ -17,6 +17,7 @@ public class EncodeCompressAnalysedModel {
   private long compressedSize;
 
   private long compressedCost;
+
   public String getTypeName() {
     return typeName;
   }

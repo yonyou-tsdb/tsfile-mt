@@ -1,6 +1,5 @@
 package org.apache.iotdb.tool.ui.scene;
 
-import org.apache.iotdb.tool.core.model.AlignedPageInfo;
 import org.apache.iotdb.tool.core.model.IPageInfo;
 import org.apache.iotdb.tsfile.read.common.BatchData;
 

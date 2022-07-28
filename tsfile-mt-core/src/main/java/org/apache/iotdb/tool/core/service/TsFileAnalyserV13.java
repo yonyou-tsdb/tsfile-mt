@@ -63,9 +63,7 @@ public class TsFileAnalyserV13 {
 
   private TimeSeriesMetadataNode timeSeriesMetadataNode;
   // TODO 为什么定义成 final
-  /**
-   * chunkGroupInfoList
-   */
+  /** chunkGroupInfoList */
   private final List<ChunkGroupInfo> chunkGroupInfoList = new ArrayList<>();
 
   private List<IMeasurementSchema> measurementSchemaList = new ArrayList<>();
@@ -126,7 +124,7 @@ public class TsFileAnalyserV13 {
     String lastDeviceId = null;
     long lastChunkGroupPosition = 0;
 
-//    List<IMeasurementSchema> measurementSchemaList = new ArrayList<>();
+    //    List<IMeasurementSchema> measurementSchemaList = new ArrayList<>();
     IChunkMetadata alignedTimeChunk = null;
     List<IChunkMetadata> alignedValueChunk = new ArrayList<>();
     List<ChunkHeader> chunkHeaderList = new ArrayList<>();
@@ -155,75 +153,71 @@ public class TsFileAnalyserV13 {
             logger.info("Starting read a new ChunkGroupHeader, lastDeviceId:{}", lastDeviceId);
             // 更新进度条
             setRateOfProcess();
-//            lastChunkGroupPosition = reader.position();
+            //            lastChunkGroupPosition = reader.position();
             if (lastDeviceId != null) {
               // schema of last chunk group
-//              for (IMeasurementSchema tsSchema : measurementSchemaList) {
-//                newSchema.putIfAbsent(
-//                    new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
-//              }
-//              measurementSchemaList = new ArrayList<>();
+              //              for (IMeasurementSchema tsSchema : measurementSchemaList) {
+              //                newSchema.putIfAbsent(
+              //                    new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
+              //              }
+              //              measurementSchemaList = new ArrayList<>();
 
               // 存储上一个 ChunkGroup 已读取的信息
-//              if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
-//                chunkMetadataList.add(
-//                    new AlignedChunkMetadata(alignedTimeChunk, new ArrayList<>(alignedValueChunk)));
-//                chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
-//                alignedValueChunk.clear();
-//                chunkHeaderList.clear();
-//              }
-//              chunkGroupMetadataModelList.add(
-//                  new ChunkGroupMetadataModel(
-//                      lastDeviceId,
-//                      new ArrayList<>(chunkMetadataList),
-//                      new ArrayList<>(chunkHeaderLists)));
-//              chunkMetadataList.clear();
-//              chunkHeaderLists.clear();
+              //              if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
+              //                chunkMetadataList.add(
+              //                    new AlignedChunkMetadata(alignedTimeChunk, new
+              // ArrayList<>(alignedValueChunk)));
+              //                chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
+              //                alignedValueChunk.clear();
+              //                chunkHeaderList.clear();
+              //              }
+              //              chunkGroupMetadataModelList.add(
+              //                  new ChunkGroupMetadataModel(
+              //                      lastDeviceId,
+              //                      new ArrayList<>(chunkMetadataList),
+              //                      new ArrayList<>(chunkHeaderLists)));
+              //              chunkMetadataList.clear();
+              //              chunkHeaderLists.clear();
 
-              chunkGroupInfoList.add(new ChunkGroupInfo(
-                      lastDeviceId,
-                      lastChunkGroupPosition
-              ));
+              chunkGroupInfoList.add(new ChunkGroupInfo(lastDeviceId, lastChunkGroupPosition));
             }
 
             // this is a chunk group
-//            lastChunkGroupPosition = reader.position() - 1;
+            //            lastChunkGroupPosition = reader.position() - 1;
             lastChunkGroupPosition = reader.position();
-//            chunkMetadataList = new ArrayList<>();
+            //            chunkMetadataList = new ArrayList<>();
             ChunkGroupHeader chunkGroupHeader = reader.readChunkGroupHeader();
             lastDeviceId = chunkGroupHeader.getDeviceID();
             break;
-          // plan index: 标记 chunkgroup 的结束（可用于类似断点续传、checkPoint、snapshot等）
+            // plan index: 标记 chunkgroup 的结束（可用于类似断点续传、checkPoint、snapshot等）
           case MetaMarker.OPERATION_INDEX_RANGE:
             logger.info("Starting read OperationIndexRange, lastDeviceId:{}", lastDeviceId);
             setRateOfProcess();
             if (lastDeviceId != null) {
               // schema of last chunk group
-//              for (IMeasurementSchema tsSchema : measurementSchemaList) {
-//                newSchema.putIfAbsent(
-//                    new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
-//              }
-//              measurementSchemaList = new ArrayList<>();
-//              if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
-//                chunkMetadataList.add(
-//                    new AlignedChunkMetadata(alignedTimeChunk, new ArrayList<>(alignedValueChunk)));
-//                chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
-//                alignedValueChunk.clear();
-//                chunkHeaderList.clear();
-//              }
-//              // last chunk group Metadata
-//              chunkGroupMetadataModelList.add(
-//                  new ChunkGroupMetadataModel(
-//                      lastDeviceId,
-//                      new ArrayList<>(chunkMetadataList), // 不需要
-//                      new ArrayList<>(chunkHeaderLists))); // 需要
-//              chunkMetadataList.clear();
-//              chunkHeaderLists.clear();
+              //              for (IMeasurementSchema tsSchema : measurementSchemaList) {
+              //                newSchema.putIfAbsent(
+              //                    new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
+              //              }
+              //              measurementSchemaList = new ArrayList<>();
+              //              if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
+              //                chunkMetadataList.add(
+              //                    new AlignedChunkMetadata(alignedTimeChunk, new
+              // ArrayList<>(alignedValueChunk)));
+              //                chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
+              //                alignedValueChunk.clear();
+              //                chunkHeaderList.clear();
+              //              }
+              //              // last chunk group Metadata
+              //              chunkGroupMetadataModelList.add(
+              //                  new ChunkGroupMetadataModel(
+              //                      lastDeviceId,
+              //                      new ArrayList<>(chunkMetadataList), // 不需要
+              //                      new ArrayList<>(chunkHeaderLists))); // 需要
+              //              chunkMetadataList.clear();
+              //              chunkHeaderLists.clear();
 
-              chunkGroupInfoList.add(new ChunkGroupInfo(
-                      lastDeviceId,
-                      lastChunkGroupPosition
-              ));
+              chunkGroupInfoList.add(new ChunkGroupInfo(lastDeviceId, lastChunkGroupPosition));
 
               lastDeviceId = null;
               lastChunkGroupPosition = -1;
@@ -243,30 +237,29 @@ public class TsFileAnalyserV13 {
         logger.info("Read the tail of the data section, the lastDeviceId:{}", lastDeviceId);
         setRateOfProcess();
 
-        chunkGroupInfoList.add(new ChunkGroupInfo(
-                lastDeviceId,
-                lastChunkGroupPosition
-        ));
+        chunkGroupInfoList.add(new ChunkGroupInfo(lastDeviceId, lastChunkGroupPosition));
 
         // schema of last chunk group
-//        for (IMeasurementSchema tsSchema : measurementSchemaList) {
-//          newSchema.putIfAbsent(new Path(lastDeviceId, tsSchema.getMeasurementId()), tsSchema);
-//        }
-//        if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
-//          chunkMetadataList.add(
-//              new AlignedChunkMetadata(alignedTimeChunk, new ArrayList<>(alignedValueChunk)));
-//          chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
-//          alignedValueChunk.clear();
-//          chunkHeaderList.clear();
-//        }
+        //        for (IMeasurementSchema tsSchema : measurementSchemaList) {
+        //          newSchema.putIfAbsent(new Path(lastDeviceId, tsSchema.getMeasurementId()),
+        // tsSchema);
+        //        }
+        //        if (alignedTimeChunk != null && alignedValueChunk.size() > 0) {
+        //          chunkMetadataList.add(
+        //              new AlignedChunkMetadata(alignedTimeChunk, new
+        // ArrayList<>(alignedValueChunk)));
+        //          chunkHeaderLists.add(new ArrayList<>(chunkHeaderList));
+        //          alignedValueChunk.clear();
+        //          chunkHeaderList.clear();
+        //        }
         // last chunk group Metadata
-//        chunkGroupMetadataModelList.add(
-//            new ChunkGroupMetadataModel(
-//                lastDeviceId,
-//                new ArrayList<>(chunkMetadataList),
-//                new ArrayList<>(chunkHeaderLists)));
-//        chunkMetadataList.clear();
-//        chunkHeaderLists.clear();
+        //        chunkGroupMetadataModelList.add(
+        //            new ChunkGroupMetadataModel(
+        //                lastDeviceId,
+        //                new ArrayList<>(chunkMetadataList),
+        //                new ArrayList<>(chunkHeaderLists)));
+        //        chunkMetadataList.clear();
+        //        chunkHeaderLists.clear();
       }
 
     } catch (Exception e) {
@@ -319,6 +312,7 @@ public class TsFileAnalyserV13 {
 
   /**
    * 通过 ChunkGroup 的 offset 获取 ChunkGroup 的 Chunk 列表
+   *
    * @param offset ChunkGroup 的 offset
    */
   public ChunkListInfo fetchChunkListByChunkGroupOffset(long offset) throws IOException {
@@ -326,180 +320,185 @@ public class TsFileAnalyserV13 {
     List<ChunkHeader> chunkHeaderList = new ArrayList<>();
     reader.position(offset);
 
-      // 1. 读 chunkGroup header
-      ChunkGroupHeader chunkGroupHeader = reader.readChunkGroupHeader();
+    // 1. 读 chunkGroup header
+    ChunkGroupHeader chunkGroupHeader = reader.readChunkGroupHeader();
 
-      List<long[]> timeBatch = new ArrayList<>();
-      List<IChunkMetadata> alignedValueChunkMetadata = new ArrayList<>();
-      byte marker = -1;
+    List<long[]> timeBatch = new ArrayList<>();
+    List<IChunkMetadata> alignedValueChunkMetadata = new ArrayList<>();
+    byte marker = -1;
 
-      ChunkGroupMetaInfo chunkGroupMetaInfo = new ChunkGroupMetaInfo(marker, chunkMetadataList, chunkHeaderList, timeBatch, null, alignedValueChunkMetadata);
+    ChunkGroupMetaInfo chunkGroupMetaInfo =
+        new ChunkGroupMetaInfo(
+            marker, chunkMetadataList, chunkHeaderList, timeBatch, null, alignedValueChunkMetadata);
 
-      // 2. 读取 chunk
-      while (((marker = reader.readMarker()) != MetaMarker.CHUNK_GROUP_HEADER) && (marker != MetaMarker.OPERATION_INDEX_RANGE) && (marker != MetaMarker.SEPARATOR)) {
-          chunkGroupMetaInfo.setMarker(marker);
-         fetchChunkInfo(chunkGroupMetaInfo);
-      }
+    // 2. 读取 chunk
+    while (((marker = reader.readMarker()) != MetaMarker.CHUNK_GROUP_HEADER)
+        && (marker != MetaMarker.OPERATION_INDEX_RANGE)
+        && (marker != MetaMarker.SEPARATOR)) {
+      chunkGroupMetaInfo.setMarker(marker);
+      fetchChunkInfo(chunkGroupMetaInfo);
+    }
 
-      // 3. 存储上 ChunkGroup 已读取的信息
-      // 3.1 如果是对齐 Chunk
-      if (chunkGroupMetaInfo.getAlignedTimeChunkMetadata() != null && chunkGroupMetaInfo.getAlignedValueChunkMetadata().size() > 0) {
-          chunkGroupMetaInfo.getChunkMetadataList().add(
-            new AlignedChunkMetadata(chunkGroupMetaInfo.getAlignedTimeChunkMetadata(), new ArrayList<>(chunkGroupMetaInfo.getAlignedValueChunkMetadata())));
-      }
+    // 3. 存储上 ChunkGroup 已读取的信息
+    // 3.1 如果是对齐 Chunk
+    if (chunkGroupMetaInfo.getAlignedTimeChunkMetadata() != null
+        && chunkGroupMetaInfo.getAlignedValueChunkMetadata().size() > 0) {
+      chunkGroupMetaInfo
+          .getChunkMetadataList()
+          .add(
+              new AlignedChunkMetadata(
+                  chunkGroupMetaInfo.getAlignedTimeChunkMetadata(),
+                  new ArrayList<>(chunkGroupMetaInfo.getAlignedValueChunkMetadata())));
+    }
 
-     ChunkListInfo chunkListInfo = new ChunkListInfo(chunkGroupMetaInfo.getChunkMetadataList(), chunkGroupMetaInfo.getChunkHeaderList());
+    ChunkListInfo chunkListInfo =
+        new ChunkListInfo(
+            chunkGroupMetaInfo.getChunkMetadataList(), chunkGroupMetaInfo.getChunkHeaderList());
 
-     return chunkListInfo;
+    return chunkListInfo;
   }
-
 
   // 将某一 chunk 的元信息添加至相应 chunkgroup 的 List 中
   public void fetchChunkInfo(ChunkGroupMetaInfo chunkGroupMetaInfo) throws IOException {
-      long chunkOffset = reader.position() - 1;
-      // ChunkHeader 中的 marker：判断 chunk 的开始，对齐或非对齐
-      ChunkHeader chunkHeader = reader.readChunkHeader(chunkGroupMetaInfo.getMarker());
+    long chunkOffset = reader.position() - 1;
+    // ChunkHeader 中的 marker：判断 chunk 的开始，对齐或非对齐
+    ChunkHeader chunkHeader = reader.readChunkHeader(chunkGroupMetaInfo.getMarker());
 
-      // 0 NonAligned, 1 TimeColumn, 2 ValueColumn
-      int alignedFlag = 0;
+    // 0 NonAligned, 1 TimeColumn, 2 ValueColumn
+    int alignedFlag = 0;
 
-      String measurementID = chunkHeader.getMeasurementID();
-      IMeasurementSchema measurementSchema =
-              new MeasurementSchema(
-                      measurementID,
-                      chunkHeader.getDataType(),
-                      chunkHeader.getEncodingType(),
-                      chunkHeader.getCompressionType());
-      measurementSchemaList.add(measurementSchema);
+    String measurementID = chunkHeader.getMeasurementID();
+    IMeasurementSchema measurementSchema =
+        new MeasurementSchema(
+            measurementID,
+            chunkHeader.getDataType(),
+            chunkHeader.getEncodingType(),
+            chunkHeader.getCompressionType());
+    measurementSchemaList.add(measurementSchema);
 
-      // TODO 不需要吧
-      // 判断对其 or 非对齐
-      TSDataType dataType = chunkHeader.getDataType();
-      if (chunkHeader.getDataType() == TSDataType.VECTOR) {
-          chunkGroupMetaInfo.getTimeBatch().clear();
-      }
+    // TODO 不需要吧
+    // 判断对其 or 非对齐
+    TSDataType dataType = chunkHeader.getDataType();
+    if (chunkHeader.getDataType() == TSDataType.VECTOR) {
+      chunkGroupMetaInfo.getTimeBatch().clear();
+    }
 
-      // 跳过此 chunk 下所有的 page
-      Statistics<? extends Serializable> chunkStatistics =
-              Statistics.getStatsByType(dataType);
-      int chunkDataSize = chunkHeader.getDataSize();
-      if (chunkDataSize > 0) {
-          // 此 chunk 中的 page 数量超过一页，需要通过每个 pageHeader 中的 statistic 构建并更新 chunk 的 statistic
-          if (((byte) (chunkHeader.getChunkType() & CHUNK_HEADER_MASK)) == MetaMarker.CHUNK_HEADER) {
-              // TODO 多页判断对齐与非对齐
-              // 1. 若是对齐时间序列
-              // 1.1 TimeChunk（Pages）
-              if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
-                      == TsFileConstant.TIME_COLUMN_MASK) {
-                  alignedFlag = 1;
-              } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
-                      == TsFileConstant.VALUE_COLUMN_MASK) {
-                  // 1.2 ValueChunk（Pages）
-                  alignedFlag = 2;
-              }
+    // 跳过此 chunk 下所有的 page
+    Statistics<? extends Serializable> chunkStatistics = Statistics.getStatsByType(dataType);
+    int chunkDataSize = chunkHeader.getDataSize();
+    if (chunkDataSize > 0) {
+      // 此 chunk 中的 page 数量超过一页，需要通过每个 pageHeader 中的 statistic 构建并更新 chunk 的 statistic
+      if (((byte) (chunkHeader.getChunkType() & CHUNK_HEADER_MASK)) == MetaMarker.CHUNK_HEADER) {
+        // TODO 多页判断对齐与非对齐
+        // 1. 若是对齐时间序列
+        // 1.1 TimeChunk（Pages）
+        if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
+            == TsFileConstant.TIME_COLUMN_MASK) {
+          alignedFlag = 1;
+        } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
+            == TsFileConstant.VALUE_COLUMN_MASK) {
+          // 1.2 ValueChunk（Pages）
+          alignedFlag = 2;
+        }
 
-              // 2. 读取 Chunk 中所有的 page
-              while (chunkDataSize > 0) {
-                  // a new Page
-                  PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), true);
-                  if (pageHeader.getUncompressedSize() != 0) {
-                      // not empty page
-                      chunkStatistics.mergeStatistics(pageHeader.getStatistics());
-                  }
-                  // 跳过 Page 中具体的数据
-                  reader.skipPageData(pageHeader);
-                  // 减去 pageHeader 的长度
-                  chunkDataSize -= pageHeader.getSerializedPageSize();
-                  chunkHeader.increasePageNums(1);
-              }
-          } else {
-              // only one page without statistic, we need to iterate each point to generate chunk statistic
-              PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), false);
-              System.out.println("only one page without statistic, reader position1:" + reader.position());
-              Decoder valueDecoder =
-                      Decoder.getDecoderByType(chunkHeader.getEncodingType(), chunkHeader.getDataType());
-              ByteBuffer pageData = reader.readPage(pageHeader, chunkHeader.getCompressionType());
-              System.out.println("only one page without statistic, reader position2:" + reader.position());
-              Decoder timeDecoder = Decoder.getDecoderByType(
-                      TSEncoding.valueOf(
-                              TSFileDescriptor.getInstance().getConfig().getTimeEncoder()),
-                      TSDataType.INT64);
-
-              if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
-                      == TsFileConstant.TIME_COLUMN_MASK) {
-                  // Time Chunk with only one page
-                  TimePageReader timePageReader =
-                          new TimePageReader(pageHeader, pageData, timeDecoder);
-                  long[] currentTimeBatch = timePageReader.getNextTimeBatch();
-                  chunkGroupMetaInfo.getTimeBatch().add(currentTimeBatch);
-                  // 遍历每个时间点，并更新 chunk 的 statistic
-                  for (long currentTime : currentTimeBatch) {
-                      chunkStatistics.update(currentTime);
-                  }
-                  alignedFlag = 1;
-              } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
-                      == TsFileConstant.VALUE_COLUMN_MASK) {
-                  // Value Chunk with only one page
-                  ValuePageReader valuePageReader =
-                          new ValuePageReader(
-                                  pageHeader, pageData, chunkHeader.getDataType(), valueDecoder);
-                  TsPrimitiveType[] valueBatch = valuePageReader.nextValueBatch(chunkGroupMetaInfo.getTimeBatch().get(0));
-                  // 遍历每个数据点，并更新 chunk 的 statistic
-                  if (valueBatch != null && valueBatch.length != 0) {
-                      for (int i = 0; i < valueBatch.length; i++) {
-                          TsPrimitiveType value = valueBatch[i];
-                          if (value == null) {
-                              continue;
-                          }
-                          long timeStamp = chunkGroupMetaInfo.getTimeBatch().get(0)[i];
-                          setChunkStatistics(chunkStatistics, timeStamp, value, dataType);
-                      }
-                  }
-                  alignedFlag = 2;
-              } else {
-                  // NonAligned Chunk with only one page
-                  PageReader pageReader =
-                          new PageReader(
-                                  pageHeader,
-                                  pageData,
-                                  chunkHeader.getDataType(),
-                                  valueDecoder,
-                                  timeDecoder,
-                                  null);
-                  BatchData batchData = pageReader.getAllSatisfiedPageData();
-                  while (batchData.hasCurrent()) {
-                      setChunkStatistics(
-                              chunkStatistics,
-                              batchData.currentTime(),
-                              batchData.currentTsPrimitiveType(),
-                              dataType);
-                      batchData.next();
-                  }
-                  alignedFlag = 0;
-              }
-              chunkHeader.increasePageNums(1);
+        // 2. 读取 Chunk 中所有的 page
+        while (chunkDataSize > 0) {
+          // a new Page
+          PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), true);
+          if (pageHeader.getUncompressedSize() != 0) {
+            // not empty page
+            chunkStatistics.mergeStatistics(pageHeader.getStatistics());
           }
-      }
-
-      // 构建 chunkMetadata
-      ChunkMetadata chunkMetadata =
-              new ChunkMetadata(measurementID, dataType, chunkOffset, chunkStatistics);
-
-      if (alignedFlag == 1) {
-          chunkGroupMetaInfo.setAlignedTimeChunkMetadata(chunkMetadata);
-          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
-      } else if (alignedFlag == 2) {
-          chunkGroupMetaInfo.getAlignedValueChunkMetadata().add(chunkMetadata);
-          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
-      } else if (alignedFlag == 3) {
-
-          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
+          // 跳过 Page 中具体的数据
+          reader.skipPageData(pageHeader);
+          // 减去 pageHeader 的长度
+          chunkDataSize -= pageHeader.getSerializedPageSize();
+          chunkHeader.increasePageNums(1);
+        }
       } else {
-          chunkGroupMetaInfo.getChunkMetadataList().add(chunkMetadata);
-          chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
-      }
-  }
+        // only one page without statistic, we need to iterate each point to generate chunk
+        // statistic
+        PageHeader pageHeader = reader.readPageHeader(chunkHeader.getDataType(), false);
+        System.out.println(
+            "only one page without statistic, reader position1:" + reader.position());
+        Decoder valueDecoder =
+            Decoder.getDecoderByType(chunkHeader.getEncodingType(), chunkHeader.getDataType());
+        ByteBuffer pageData = reader.readPage(pageHeader, chunkHeader.getCompressionType());
+        System.out.println(
+            "only one page without statistic, reader position2:" + reader.position());
+        Decoder timeDecoder =
+            Decoder.getDecoderByType(
+                TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().getTimeEncoder()),
+                TSDataType.INT64);
 
+        if ((chunkHeader.getChunkType() & TsFileConstant.TIME_COLUMN_MASK)
+            == TsFileConstant.TIME_COLUMN_MASK) {
+          // Time Chunk with only one page
+          TimePageReader timePageReader = new TimePageReader(pageHeader, pageData, timeDecoder);
+          long[] currentTimeBatch = timePageReader.getNextTimeBatch();
+          chunkGroupMetaInfo.getTimeBatch().add(currentTimeBatch);
+          // 遍历每个时间点，并更新 chunk 的 statistic
+          for (long currentTime : currentTimeBatch) {
+            chunkStatistics.update(currentTime);
+          }
+          alignedFlag = 1;
+        } else if ((chunkHeader.getChunkType() & TsFileConstant.VALUE_COLUMN_MASK)
+            == TsFileConstant.VALUE_COLUMN_MASK) {
+          // Value Chunk with only one page
+          ValuePageReader valuePageReader =
+              new ValuePageReader(pageHeader, pageData, chunkHeader.getDataType(), valueDecoder);
+          TsPrimitiveType[] valueBatch =
+              valuePageReader.nextValueBatch(chunkGroupMetaInfo.getTimeBatch().get(0));
+          // 遍历每个数据点，并更新 chunk 的 statistic
+          if (valueBatch != null && valueBatch.length != 0) {
+            for (int i = 0; i < valueBatch.length; i++) {
+              TsPrimitiveType value = valueBatch[i];
+              if (value == null) {
+                continue;
+              }
+              long timeStamp = chunkGroupMetaInfo.getTimeBatch().get(0)[i];
+              setChunkStatistics(chunkStatistics, timeStamp, value, dataType);
+            }
+          }
+          alignedFlag = 2;
+        } else {
+          // NonAligned Chunk with only one page
+          PageReader pageReader =
+              new PageReader(
+                  pageHeader, pageData, chunkHeader.getDataType(), valueDecoder, timeDecoder, null);
+          BatchData batchData = pageReader.getAllSatisfiedPageData();
+          while (batchData.hasCurrent()) {
+            setChunkStatistics(
+                chunkStatistics,
+                batchData.currentTime(),
+                batchData.currentTsPrimitiveType(),
+                dataType);
+            batchData.next();
+          }
+          alignedFlag = 0;
+        }
+        chunkHeader.increasePageNums(1);
+      }
+    }
+
+    // 构建 chunkMetadata
+    ChunkMetadata chunkMetadata =
+        new ChunkMetadata(measurementID, dataType, chunkOffset, chunkStatistics);
+
+    if (alignedFlag == 1) {
+      chunkGroupMetaInfo.setAlignedTimeChunkMetadata(chunkMetadata);
+      chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
+    } else if (alignedFlag == 2) {
+      chunkGroupMetaInfo.getAlignedValueChunkMetadata().add(chunkMetadata);
+      chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
+    } else if (alignedFlag == 3) {
+
+      chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
+    } else {
+      chunkGroupMetaInfo.getChunkMetadataList().add(chunkMetadata);
+      chunkGroupMetaInfo.getChunkHeaderList().add(chunkHeader);
+    }
+  }
 
   /**
    * 通过chunkMetadata获取chunk实例
@@ -623,7 +622,7 @@ public class TsFileAnalyserV13 {
     long offsetOfChunkHeader = chunkMetadata.getOffsetOfChunkHeader();
     reader.position(offsetOfChunkHeader);
     byte marker = reader.readMarker();
-      ChunkHeader chunkHeader = reader.readChunkHeader(marker);
+    ChunkHeader chunkHeader = reader.readChunkHeader(marker);
 
     Statistics<? extends Serializable> chunkStatistics =
         Statistics.getStatsByType(chunkMetadata.getDataType());
@@ -709,7 +708,7 @@ public class TsFileAnalyserV13 {
             TSEncoding.valueOf(TSFileDescriptor.getInstance().getConfig().getTimeEncoder()),
             TSDataType.INT64);
     // 非对齐时间序列
-//    if (pageInfo instanceof PageInfo) {
+    //    if (pageInfo instanceof PageInfo) {
     if (pageInfo.getDataType() != TSDataType.VECTOR) {
       PageHeader pageHeader = fetchPageHeader(pageInfo);
       Decoder valueDecoder =
@@ -755,9 +754,9 @@ public class TsFileAnalyserV13 {
 
       batchData = alignedPageReader.getAllSatisfiedPageData();
     }
-//    else {
-//      batchData = null;
-//    }
+    //    else {
+    //      batchData = null;
+    //    }
     return batchData;
   }
 

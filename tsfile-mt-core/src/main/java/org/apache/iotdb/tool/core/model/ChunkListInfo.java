@@ -11,30 +11,29 @@ import java.util.List;
  * @author shenguanchu
  */
 public class ChunkListInfo {
-    private List<IChunkMetadata> chunkMetadataList;
-    private List<ChunkHeader> chunkHeaderList;
+  private List<IChunkMetadata> chunkMetadataList;
+  private List<ChunkHeader> chunkHeaderList;
 
-    public ChunkListInfo() {
-    }
+  public ChunkListInfo() {}
 
-    public ChunkListInfo(List<IChunkMetadata> chunkMetadataList, List<ChunkHeader> chunkHeaderList) {
-        this.chunkMetadataList = chunkMetadataList;
-        this.chunkHeaderList = chunkHeaderList;
-    }
+  public ChunkListInfo(List<IChunkMetadata> chunkMetadataList, List<ChunkHeader> chunkHeaderList) {
+    this.chunkMetadataList = chunkMetadataList;
+    this.chunkHeaderList = chunkHeaderList;
+  }
 
-    public List<IChunkMetadata> getChunkMetadataList() {
-        return chunkMetadataList;
-    }
+  public List<IChunkMetadata> getChunkMetadataList() {
+    return chunkMetadataList;
+  }
 
-    public void setChunkMetadataList(List<IChunkMetadata> chunkMetadataList) {
-        this.chunkMetadataList = chunkMetadataList;
-    }
+  public void setChunkMetadataList(List<IChunkMetadata> chunkMetadataList) {
+    this.chunkMetadataList = chunkMetadataList;
+  }
 
-    public List<ChunkHeader> getChunkHeaderList() {
-        return chunkHeaderList;
-    }
+  public List<ChunkHeader> getChunkHeaderList() {
+    return chunkHeaderList;
+  }
 
-    public void setChunkHeaderList(List<ChunkHeader> chunkHeaderList) {
-        this.chunkHeaderList = chunkHeaderList;
-    }
+  public void setChunkHeaderList(List<ChunkHeader> chunkHeaderList) {
+    this.chunkHeaderList = chunkHeaderList;
+  }
 }
