@@ -46,7 +46,7 @@ git clone https://github.com/lpf4254302/tsfile-mt.git
 ```
 Under the root path of tsfile-mt:
 ```
-> mvn clean install
+mvn clean install
 ```
 # Maintainers
 [@lpf4254302](https://github.com/RichardLitt)
