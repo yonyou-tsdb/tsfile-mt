@@ -12,22 +12,27 @@
 - [Contributors](#Contributors)
 # Introduction
 tsfile-mt is a TsFile management tool. Currently, we support bit granularity parsing of TsFile and provide
-visual display. This tool can Clearly display information of each part of TsFile, details are as follows:
-1. The versionNumber.
-2. The data layer: contains details of each level and statistic information.
+visual display.
+1. ChunkGroup and Index display: This tool can Clearly display information of each part of TsFile, details are as follows:
+   1. The versionNumber.
+   2. The data layer: contains details of each level and statistic information.
    
-   i. ChunkGroup
+      i. ChunkGroup
    
-   ii. Chunk
+      ii. Chunk
    
-   iii. Page
+      iii. Page
    
-   iv. Point
-3. The index layer: displayed in a B+ tree like structure then you can easily view the overall structure of the secondary 
-index(entity and measurement granularity).
+      iv. Point
+   3. The index layer: displayed in a B+ tree like structure then you can easily view the overall structure of the secondary 
+   index(entity and measurement granularity).
 
-In addition to displaying data, we also provide the function of querying TimeSeries by keyword. There is a linkage
+2. Timeseries and measurement search: In addition to displaying data, we also provide the function of querying TimeSeries by keyword. There is a linkage
 between the index layer and the data layer, it can quickly locate the desired TimeSeries with details.
+
+3. The encoding and compression type of a timeseries analysis: tsfile-mt provide the analysis of the current timeseries encoding and compression. In addition, tsfile-mt also provide the analysis
+   of the combination of various encoding and compression types of the timeseries.
+
 # Quick Start
 ## Prerequisites
 To use Tool-offline-for-IoTDB, you need to have:
