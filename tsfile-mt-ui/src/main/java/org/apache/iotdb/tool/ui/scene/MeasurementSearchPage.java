@@ -168,9 +168,9 @@ public class MeasurementSearchPage {
     tvTableView = new TableView<String>();
     BaseTableView baseTableView = new BaseTableView();
     TableColumn<Date, String> timestampCol =
-        baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
+        baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp", null);
     TableColumn<String, String> valueCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value", null);
     baseTableView.tableViewInit(
         searchResultPane, tvTableView, tvDatas, true, timestampCol, valueCol);
     tvTableView.setLayoutX(searchFilterBox.getWidth());

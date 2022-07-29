@@ -130,9 +130,9 @@ public class PageInfoPage {
     pageHeaderPane.setPrefWidth(HEIGHT * 0.7);
     anchorPane.getChildren().add(pageDataPane);
     TableColumn<Date, String> timestampCol =
-        baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp");
+        baseTableView.genColumn(TableAlign.CENTER, "timestamp", "timestamp", null);
     TableColumn<String, String> valueCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "value", "value", null);
     baseTableView.tableViewInit(
         pageDataPane, pageTVTableView, tvDatas, true, timestampCol, valueCol);
     pageTVTableView.setLayoutX(0);

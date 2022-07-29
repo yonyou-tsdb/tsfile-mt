@@ -37,9 +37,9 @@ public class EncodeAnalysePage {
       FXCollections.observableArrayList();
 
   /** table datas */
-  private TableView pageHeaderTableView;
+//  private TableView pageHeaderTableView;
 
-  private TableView pageTVTableView;
+  private TableView analyseTableView;
 
   public EncodeAnalysePage() {}
 
@@ -53,8 +53,8 @@ public class EncodeAnalysePage {
   }
 
   private void init(Stage stage) {
-    pageHeaderTableView = new TableView();
-    pageTVTableView = new TableView();
+//    pageHeaderTableView = new TableView();
+    analyseTableView = new TableView();
 
     AnchorPane anchorPane = new AnchorPane();
     scene = new Scene(anchorPane, ENCODE_ANALYSE_PAGE_WIDTH, ENCODE_ANALYSE_PAGE_HEIGHT);
@@ -102,28 +102,8 @@ public class EncodeAnalysePage {
           }
         });
 
-    //        IPageInfo pageInfo = (PageInfo) pageItem.getValue().getParams();
 
-    // 数据来源
-    //        try {
-    //            BatchData batchData =
-    //                    ioTDBParsePage
-    //                            .getTsFileAnalyserV13()
-    //                            .fetchBatchDataByPageInfo((PageInfo)
-    // pageItem.getValue().getParams());
-    //            while (batchData.hasCurrent()) {
-    //                Object currValue = batchData.currentValue();
-    //                this.tvDatas.add(
-    //                        new IoTDBParsePageV3.TimesValues(
-    //                                new Date(batchData.currentTime()).toString(),
-    //                                currValue == null ? "" : currValue.toString()));
-    //                batchData.next();
-    //            }
-    //        } catch (Exception e) {
-    //            logger.error(
-    //                    "Failed to get page details, the page statistics:{}",
-    //                    pageInfo.getStatistics().toString());
-    //        }
+
 
     BaseTableView baseTableView = new BaseTableView();
 
@@ -134,28 +114,28 @@ public class EncodeAnalysePage {
     pageDataPane.setPrefHeight(ENCODE_ANALYSE_PAGE_HEIGHT * 0.2);
     anchorPane.getChildren().add(pageDataPane);
     TableColumn<String, String> typeNameCol =
-        baseTableView.genColumn(TableAlign.CENTER, "typeName", "typeName");
+        baseTableView.genColumn(TableAlign.CENTER, "typeName", "typeName", "EncodeCompressAnalyseTable");
     TableColumn<String, String> encodeNameCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "encodeName", "encodeName");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "encodeName", "encodeName", "EncodeCompressAnalyseTable");
     TableColumn<String, String> compressNameCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressName", "compressName");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressName", "compressName", "EncodeCompressAnalyseTable");
     TableColumn<String, String> originSizeCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "originSize", "originSize");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "originSize", "originSize", "EncodeCompressAnalyseTable");
     TableColumn<String, String> encodeSizeCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "encodedSize", "encodedSize");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "encodedSize", "encodedSize", "EncodeCompressAnalyseTable");
     TableColumn<String, String> uncompressSizeCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "uncompressSize", "uncompressSize");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "uncompressSize", "uncompressSize", "EncodeCompressAnalyseTable");
     TableColumn<String, String> compressedSizeCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedSize", "compressedSize");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedSize", "compressedSize", "EncodeCompressAnalyseTable");
     TableColumn<String, String> compressedCostCol =
-        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedCost", "compressedCost");
+        baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedCost(ns)", "compressedCost", "EncodeCompressAnalyseTable");
     TableColumn<String, String> scoreCol =
-            baseTableView.genColumn(TableAlign.CENTER_LEFT, "score", "score");
+            baseTableView.genColumn(TableAlign.CENTER_LEFT, "score", "score", "EncodeCompressAnalyseTable");
 
 
     baseTableView.tableViewInit(
         pageDataPane,
-        pageTVTableView,
+        analyseTableView,
         analyseDataList,
         true,
         typeNameCol,
@@ -167,10 +147,10 @@ public class EncodeAnalysePage {
         compressedSizeCol,
         compressedCostCol,
             scoreCol);
-    pageTVTableView.setLayoutX(0);
-    pageTVTableView.setLayoutY(0);
-    pageTVTableView.setPrefWidth(ENCODE_ANALYSE_PAGE_WIDTH);
-    pageTVTableView.setPrefHeight(ENCODE_ANALYSE_PAGE_HEIGHT * 0.8);
+    analyseTableView.setLayoutX(0);
+    analyseTableView.setLayoutY(0);
+    analyseTableView.setPrefWidth(ENCODE_ANALYSE_PAGE_WIDTH);
+    analyseTableView.setPrefHeight(ENCODE_ANALYSE_PAGE_HEIGHT * 0.8);
 
     URL uiDarkCssResource = getClass().getClassLoader().getResource("css/ui-dark.css");
     if (uiDarkCssResource != null) {
@@ -192,10 +172,13 @@ public class EncodeAnalysePage {
             currentAnalysed.getUncompressSize(),
             currentAnalysed.getCompressedSize(),
             currentAnalysed.getCompressedCost(),
-            currentAnalysed.getScores()
+            currentAnalysed.getScore()
     ));
     // 2. others analysed results
     for (EncodeCompressAnalysedModel encodeCompressAnalysedModel : analysedList) {
+      if (encodeCompressAnalysedModel.getEncodeName() == currentAnalysed.getEncodeName() && encodeCompressAnalysedModel.getCompressName() == currentAnalysed.getCompressName()) {
+        continue;
+      }
       analyseDataList.add(new EncodeCompressAnalyseTable(
               encodeCompressAnalysedModel.getTypeName(),
               encodeCompressAnalysedModel.getEncodeName(),
@@ -205,10 +188,10 @@ public class EncodeAnalysePage {
               encodeCompressAnalysedModel.getUncompressSize(),
               encodeCompressAnalysedModel.getCompressedSize(),
               encodeCompressAnalysedModel.getCompressedCost(),
-              encodeCompressAnalysedModel.getScores()
+              encodeCompressAnalysedModel.getScore()
       ));
     }
 
-//    tvTableView.setVisible(true);
+    analyseTableView.setVisible(true);
   }
 }
