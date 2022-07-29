@@ -102,9 +102,6 @@ public class EncodeAnalysePage {
           }
         });
 
-
-
-
     BaseTableView baseTableView = new BaseTableView();
 
     // table page data

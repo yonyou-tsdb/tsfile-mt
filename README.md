@@ -1,5 +1,5 @@
 
-# tool-offline for IoTDB
+# tsfile-mt
 [![Main Mac and Linux](https://github.com/apache/iotdb/actions/workflows/main-unix.yml/badge.svg)](https://github.com/apache/iotdb/actions/workflows/main-unix.yml)
 [![Main Win](https://github.com/apache/iotdb/actions/workflows/main-win.yml/badge.svg)](https://github.com/apache/iotdb/actions/workflows/main-win.yml)
 # Outline
@@ -11,7 +11,7 @@
 - [Contributing](#Contributing)
 - [Contributors](#Contributors)
 # Introduction
-Tool-offline-for-IoTDB is a TsFile management tool. Currently, we support bit granularity parsing of TsFile and provide
+tsfile-mt is a TsFile management tool. Currently, we support bit granularity parsing of TsFile and provide
 visual display. This tool can Clearly display information of each part of TsFile, details are as follows:
 1. The versionNumber.
 2. The data layer: contains details of each level and statistic information.
