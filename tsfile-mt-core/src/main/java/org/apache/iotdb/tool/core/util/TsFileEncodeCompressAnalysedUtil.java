@@ -17,6 +17,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class TsFileEncodeCompressAnalysedUtil {
+  /**
+   * support compression type array
+   */
   private static final CompressionType[] compressTypes =
       new CompressionType[] {
         CompressionType.SNAPPY,
@@ -25,14 +28,32 @@ public class TsFileEncodeCompressAnalysedUtil {
         CompressionType.UNCOMPRESSED
       };
 
-  private static final int compressedWeight = 10;
+  /**
+   * compressed rate weight
+   */
+  private static final double compressedWeight = 2.5;
 
-  private static final int compressedSequenceWeight = 10;
+  /**
+   * compressed sequence weight
+   */
+  private static final double compressedSequenceWeight = 2.5;
 
-  private static final int compressedCostWeight = 20;
+  /**
+   * compressed cost weight
+   */
+  private static final double compressedCostWeight = 5;
 
+  /**
+   * score rate
+   */
   private static final double zeroRate = 0.8;
 
+  /**
+   * generate encode and compress analysed with batchData
+   * @param batchData batch data
+   * @return EncodeCompressAnalysedModel list
+   * @throws IOException throw io exception
+   */
   public static List<EncodeCompressAnalysedModel> generateEncodeAndCompressAnalysedWithBatchData(
       BatchData batchData) throws IOException {
     //
@@ -49,6 +70,12 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeAndCompressAnalysedBase(encodeModel);
   }
 
+  /**
+   * generate encode and compress analysed with tsPrimitiveType array
+   * @param tsPrimitiveTypes tsPrimitiveType array
+   * @return EncodeCompressAnalysedModel list
+   * @throws IOException throw io exception
+   */
   public static List<EncodeCompressAnalysedModel> generateEncodeAndCompressAnalysedWithTsPrimitives(
       TsPrimitiveType[] tsPrimitiveTypes) throws IOException {
     //
@@ -64,6 +91,12 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeAndCompressAnalysedBase(encodeModel);
   }
 
+  /**
+   * generate encode and compress analysed base method
+   * @param encodeModel  encode model
+   * @return EncodeCompressAnalysedModel list
+   * @throws IOException throw io exception
+   */
   private static List<EncodeCompressAnalysedModel> generateEncodeAndCompressAnalysedBase(
       DsTypeEncodeModel encodeModel) throws IOException {
     List<PublicBAOS> publicBAOS = encodeModel.getPublicBAOS();
@@ -91,6 +124,12 @@ public class TsFileEncodeCompressAnalysedUtil {
     return modelList;
   }
 
+  /**
+   * encode tsPrimitiveType data
+   * @param tsPrimitiveType tsPrimitiveType
+   * @param encoders encode list
+   * @param publicBAOS publicBAOS list
+   */
   private static void tsPrimitiveTypeEncode(
       TsPrimitiveType tsPrimitiveType, List<Encoder> encoders, List<PublicBAOS> publicBAOS) {
     switch (tsPrimitiveType.getDataType()) {
@@ -125,10 +164,14 @@ public class TsFileEncodeCompressAnalysedUtil {
         }
         return;
       default:
-        return;
     }
   }
 
+  /**
+   * generate dsTypeEncodeModel
+   * @param dataType data type
+   * @return dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateDsTypeEncodeModel(TSDataType dataType) {
 
     switch (dataType) {
@@ -147,6 +190,11 @@ public class TsFileEncodeCompressAnalysedUtil {
     }
   }
 
+  /**
+   * generate int encode model
+   * @param typeName int type name
+   * @return int dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateIntEncodeModel(String typeName) {
     List<String> encodeNameList = new ArrayList<>();
     encodeNameList.add(TSEncoding.PLAIN.name());
@@ -165,6 +213,11 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeModel(typeName, encoders, encodeNameList);
   }
 
+  /**
+   * generate long encode model
+   * @param typeName long type name
+   * @return long type dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateLongEncodeModel(String typeName) {
 
     List<String> encodeNameList = new ArrayList<>();
@@ -184,6 +237,11 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeModel(typeName, encoders, encodeNameList);
   }
 
+  /**
+   * generate float encode model
+   * @param typeName float type name
+   * @return dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateFloatEncodeModel(String typeName) {
     List<String> encodeNameList = new ArrayList<>();
     encodeNameList.add(TSEncoding.PLAIN.name());
@@ -196,6 +254,11 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeModel(typeName, encoders, encodeNameList);
   }
 
+  /**
+   * generate double encode model
+   * @param typeName double type name
+   * @return dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateDoubleEncodeModel(String typeName) {
     List<String> encodeNameList = new ArrayList<>();
     encodeNameList.add(TSEncoding.PLAIN.name());
@@ -210,6 +273,11 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeModel(typeName, encoders, encodeNameList);
   }
 
+  /**
+   * generate text encode model
+   * @param typeName text type name
+   * @return dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateTextEncodeModel(String typeName) {
     List<String> encodeNameList = new ArrayList<>();
     encodeNameList.add(TSEncoding.PLAIN.name());
@@ -222,6 +290,13 @@ public class TsFileEncodeCompressAnalysedUtil {
     return generateEncodeModel(typeName, encoders, encodeNameList);
   }
 
+  /**
+   *
+   * @param typeName type name
+   * @param encoders encode list
+   * @param encodeNameList encodeName list
+   * @return dsTypeEncodeModel
+   */
   private static DsTypeEncodeModel generateEncodeModel(
       String typeName, List<Encoder> encoders, List<String> encodeNameList) {
     DsTypeEncodeModel model = new DsTypeEncodeModel();
@@ -237,6 +312,16 @@ public class TsFileEncodeCompressAnalysedUtil {
     return model;
   }
 
+  /**
+   * 组装EncodeCompressAnalysedModel模型
+   * @param compressionType compress type
+   * @param encodeName  encode name
+   * @param originSize  origin size
+   * @param typeName  type name
+   * @param baos  baos
+   * @return  encode compress analysed model
+   * @throws IOException throw io exception
+   */
   private static EncodeCompressAnalysedModel generateAnalysedModel(
       CompressionType compressionType,
       String encodeName,
@@ -270,10 +355,9 @@ public class TsFileEncodeCompressAnalysedUtil {
   }
 
   /**
-   * 压缩率 + 排序 + 耗时排序
-   *
-   * @param map
-   * @return
+   * sorted analysed model
+   * @param map encodeCompressAnalysedModel map
+   * @return EncodeCompressAnalysedModel list
    */
   public static List<EncodeCompressAnalysedModel> sortedAnalysedModel(Map<String,EncodeCompressAnalysedModel> map) {
     List<EncodeCompressAnalysedModel> sortedCostModels = map.values().stream().sorted(Comparator.comparing(EncodeCompressAnalysedModel::getCompressedCost)).collect(Collectors.toList());
