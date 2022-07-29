@@ -25,7 +25,9 @@ public class EncodeCompressAnalyseTable {
 
   private final SimpleLongProperty compressedSize;
 
-  private final SimpleLongProperty compressedCost;
+  private final SimpleDoubleProperty compressedRatio;
+
+  private final SimpleDoubleProperty compressedCost;
 
   private final SimpleDoubleProperty score;
 
@@ -37,7 +39,8 @@ public class EncodeCompressAnalyseTable {
           Long encodedSize,
           Long uncompressSize,
           Long compressedSize,
-          Long compressedCost,
+          Double compressedCost,
+          Double compressedRatio,
           Double score) {
     this.typeName = new SimpleStringProperty(typeName);
     this.encodeName = new SimpleStringProperty(encodeName);
@@ -46,7 +49,8 @@ public class EncodeCompressAnalyseTable {
     this.encodedSize = new SimpleLongProperty(encodedSize);
     this.uncompressSize = new SimpleLongProperty(uncompressSize);
     this.compressedSize = new SimpleLongProperty(compressedSize);
-    this.compressedCost = new SimpleLongProperty(compressedCost);
+    this.compressedCost = new SimpleDoubleProperty(compressedCost);
+    this.compressedRatio = new SimpleDoubleProperty(compressedRatio);
     this.score = new SimpleDoubleProperty(score);
   }
 
@@ -134,15 +138,15 @@ public class EncodeCompressAnalyseTable {
     this.compressedSize.set(compressedSize);
   }
 
-  public long getCompressedCost() {
+  public double getCompressedCost() {
     return compressedCost.get();
   }
 
-  public SimpleLongProperty compressedCostProperty() {
+  public SimpleDoubleProperty compressedCostProperty() {
     return compressedCost;
   }
 
-  public void setCompressedCost(long compressedCost) {
+  public void setCompressedCost(double compressedCost) {
     this.compressedCost.set(compressedCost);
   }
 
@@ -156,5 +160,17 @@ public class EncodeCompressAnalyseTable {
 
   public void setScore(double score) {
     this.score.set(score);
+  }
+
+  public double getCompressedRatio() {
+    return compressedRatio.get();
+  }
+
+  public SimpleDoubleProperty compressedRatioProperty() {
+    return compressedRatio;
+  }
+
+  public void setCompressedRatio(double compressedRatio) {
+    this.compressedRatio.set(compressedRatio);
   }
 }

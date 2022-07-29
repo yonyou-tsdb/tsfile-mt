@@ -127,11 +127,12 @@ public class EncodeAnalysePage {
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "uncompressSize", "uncompressSize", "EncodeCompressAnalyseTable");
     TableColumn<String, String> compressedSizeCol =
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedSize", "compressedSize", "EncodeCompressAnalyseTable");
+    TableColumn<String, String> compressedRatioCol =
+            baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedRatio", "compressedRatio", "EncodeCompressAnalyseTable");
     TableColumn<String, String> compressedCostCol =
         baseTableView.genColumn(TableAlign.CENTER_LEFT, "compressedCost(ns)", "compressedCost", "EncodeCompressAnalyseTable");
     TableColumn<String, String> scoreCol =
             baseTableView.genColumn(TableAlign.CENTER_LEFT, "score", "score", "EncodeCompressAnalyseTable");
-
 
     baseTableView.tableViewInit(
         pageDataPane,
@@ -145,6 +146,7 @@ public class EncodeAnalysePage {
         encodeSizeCol,
         uncompressSizeCol,
         compressedSizeCol,
+        compressedRatioCol,
         compressedCostCol,
             scoreCol);
     analyseTableView.setLayoutX(0);
@@ -171,7 +173,8 @@ public class EncodeAnalysePage {
             currentAnalysed.getEncodedSize(),
             currentAnalysed.getUncompressSize(),
             currentAnalysed.getCompressedSize(),
-            currentAnalysed.getCompressedCost(),
+            (double) (currentAnalysed.getUncompressSize() / currentAnalysed.getCompressedSize()),
+            (double) currentAnalysed.getCompressedCost() / (1e-6),
             currentAnalysed.getScore()
     ));
     // 2. others analysed results
@@ -187,7 +190,8 @@ public class EncodeAnalysePage {
               encodeCompressAnalysedModel.getEncodedSize(),
               encodeCompressAnalysedModel.getUncompressSize(),
               encodeCompressAnalysedModel.getCompressedSize(),
-              encodeCompressAnalysedModel.getCompressedCost(),
+              (double) (encodeCompressAnalysedModel.getUncompressSize() / encodeCompressAnalysedModel.getCompressedSize()),
+              (double) encodeCompressAnalysedModel.getCompressedCost() / (1e-6),
               encodeCompressAnalysedModel.getScore()
       ));
     }
