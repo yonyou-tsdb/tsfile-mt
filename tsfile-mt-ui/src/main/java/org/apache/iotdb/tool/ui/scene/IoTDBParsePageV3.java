@@ -319,7 +319,7 @@ public class IoTDBParsePageV3 extends IoTDBParsePage {
     // searchButton: search event
     searchButton.setOnAction(
         event -> {
-          String searchResult = timeseriesSearch(searchText.getText().trim().toLowerCase());
+          String searchResult = timeseriesSearch(searchText.getText().trim());
           if (searchResult == null) {
             return;
           }

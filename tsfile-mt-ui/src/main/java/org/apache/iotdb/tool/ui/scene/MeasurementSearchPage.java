@@ -120,8 +120,8 @@ public class MeasurementSearchPage {
                   .atZone(ZoneId.systemDefault())
                   .toInstant()
                   .toEpochMilli();
-          String deviceIdTextText = deviceIdText.getText().trim().toLowerCase();
-          String measurementIdTextText = measurementIdText.getText().trim().toLowerCase();
+          String deviceIdTextText = deviceIdText.getText().trim();
+          String measurementIdTextText = measurementIdText.getText().trim();
           try {
             QueryDataSet queryDataSet =
                 ioTDBParsePage
