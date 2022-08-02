@@ -48,6 +48,15 @@ Under the root path of tsfile-mt:
 ```
 mvn clean install
 ```
+Under the root path of tsfile-mt-ui project, use the following command to assemble the project into a executable jar:
+```
+mvn assembly:assembly -D skipTests
+```
+The you can use the following command to start the project directly:
+```
+java -cp .\tsfile-mt-ui-0.2.0-SNAPSHOT-jar-with-dependencies.jar org.apache.iotdb.tool.ui.IUIApplication
+```
+
 # Maintainers
 [@lpf4254302](https://github.com/RichardLitt)
 # Contributing
