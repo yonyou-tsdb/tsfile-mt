@@ -6,7 +6,6 @@ import org.apache.iotdb.tool.ui.config.TableAlign;
 import org.apache.iotdb.tool.ui.table.EncodeCompressAnalyseTable;
 import org.apache.iotdb.tool.ui.view.BaseTableView;
 
-import com.sun.org.apache.xpath.internal.operations.String;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,8 +84,8 @@ public class EncodeAnalysePage {
     // button click event
     searchButton.setOnMouseClicked(
         event -> {
-          java.lang.String deviceIdTextText = deviceIdText.getText().trim();
-          java.lang.String measurementIdTextText = measurementIdText.getText().trim();
+          String deviceIdTextText = deviceIdText.getText().trim();
+          String measurementIdTextText = measurementIdText.getText().trim();
           try {
             AnalysedResultModel analysedResultModel =
                 ioTDBParsePage
@@ -161,6 +160,8 @@ public class EncodeAnalysePage {
     analyseDataList.clear();
     EncodeCompressAnalysedModel currentAnalysed = analysedResultModel.getCurrentAnalysed();
     List<EncodeCompressAnalysedModel> analysedList = analysedResultModel.getAnalysedList();
+    String compressRatioString = String.format("%.2f", currentAnalysed.getCompressedSize()/((double)currentAnalysed.getUncompressSize()));
+    double compressRatio = Double.parseDouble(compressRatioString);
     // 1. currentAnalysed result
     analyseDataList.add(new EncodeCompressAnalyseTable(
             currentAnalysed.getTypeName(),
@@ -170,8 +171,8 @@ public class EncodeAnalysePage {
             currentAnalysed.getEncodedSize(),
             currentAnalysed.getUncompressSize(),
             currentAnalysed.getCompressedSize(),
-            (double) (currentAnalysed.getUncompressSize() / currentAnalysed.getCompressedSize()),
-            (double) currentAnalysed.getCompressedCost() / (1e-6),
+            (double) currentAnalysed.getCompressedCost(),
+            compressRatio,
             currentAnalysed.getScore()
     ));
     // 2. others analysed results
@@ -179,6 +180,8 @@ public class EncodeAnalysePage {
       if (encodeCompressAnalysedModel.getEncodeName() == currentAnalysed.getEncodeName() && encodeCompressAnalysedModel.getCompressName() == currentAnalysed.getCompressName()) {
         continue;
       }
+      compressRatioString = String.format("%.2f", encodeCompressAnalysedModel.getCompressedSize()/((double)encodeCompressAnalysedModel.getUncompressSize()));
+      compressRatio = Double.parseDouble(compressRatioString);
       analyseDataList.add(new EncodeCompressAnalyseTable(
               encodeCompressAnalysedModel.getTypeName(),
               encodeCompressAnalysedModel.getEncodeName(),
@@ -187,8 +190,8 @@ public class EncodeAnalysePage {
               encodeCompressAnalysedModel.getEncodedSize(),
               encodeCompressAnalysedModel.getUncompressSize(),
               encodeCompressAnalysedModel.getCompressedSize(),
-              (double) (encodeCompressAnalysedModel.getUncompressSize() / encodeCompressAnalysedModel.getCompressedSize()),
-              (double) encodeCompressAnalysedModel.getCompressedCost() / (1e-6),
+              (double) encodeCompressAnalysedModel.getCompressedCost(),
+              compressRatio,
               encodeCompressAnalysedModel.getScore()
       ));
     }
